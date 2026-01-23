@@ -38,23 +38,64 @@ export interface ModelInfo {
 
 export type ModelState = "null" | "discovered" | "selected" | "invalid" | "reselect_required";
 
+/**
+ * Provider Store
+ * 
+ * Manages the state of AI providers, including their configurations,
+ * available models, and the currently active provider/model.
+ * Persists state to local storage.
+ */
 interface ProviderStore {
+  /// The currently selected AI provider
   activeProvider: AIProviderConfig | null;
+  /// The ID of the currently selected model
   activeModel: string | null;
+  /// The state of the model selection (e.g., discovered, selected, invalid)
   modelState: ModelState;
+  /// List of all configured providers
   providers: AIProviderConfig[];
+  /// List of models available for the active provider
   availableModels: ModelInfo[];
+  /// Whether the application is connected to the provider's API
   isConnected: boolean;
+  /// Whether models are currently being fetched from the provider
   isFetchingModels: boolean;
 
+  /**
+   * Sets the active provider and restores its last selected model.
+   */
   setActiveProvider: (provider: AIProviderConfig) => void;
+  /**
+   * Sets the active model and persists the choice to the provider's config.
+   */
   setActiveModel: (modelId: string) => void;
+  /**
+   * Adds a new provider to the store.
+   */
   addProvider: (provider: AIProviderConfig) => Promise<void>;
+  /**
+   * Removes a provider by ID.
+   */
   removeProvider: (id: string) => void;
+  /**
+   * Updates an existing provider's configuration.
+   */
   updateProvider: (id: string, updates: Partial<AIProviderConfig>) => Promise<void>;
+  /**
+   * Sets the list of available models for the current provider.
+   */
   setAvailableModels: (models: ModelInfo[]) => void;
+  /**
+   * Sets the fetching state for models.
+   */
   setIsFetchingModels: (isFetching: boolean) => void;
+  /**
+   * Loads all API keys from the secure keychain.
+   */
   loadAllKeys: () => Promise<void>;
+  /**
+   * Validates if the current model selection is still valid for the active provider.
+   */
   validateModelState: () => void;
 }
 

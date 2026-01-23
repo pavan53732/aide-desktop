@@ -8,96 +8,61 @@ use tauri::{State, command};
 use sha2::{Digest, Sha256};
 use wasmtime::{Engine, Instance, Module, Store};
 
+/**
+ * Economic Ledger and Security Module
+ * 
+ * This module implements the "Economic Safety" and "Trust Boundary" features.
+ * It tracks AI usage costs, enforces budget policies, and verifies the integrity
+ * of pricing manifests using cryptographic signatures.
+ */
+
 // L1-1-A: Public Key Pinning (The root of trust)
+// This key is used to verify the signature of the pricing manifest.
 const PRICING_PUBKEY_HEX: &str = "7e50c48e892d770f7cd057d38392576b25f49d636b0439497e885d9571343729";
+
 // L2-4: Budget Policy Trust Anchor (Separate Key for Separation of Duty)
+// This key is used to verify the signature of the budget policy.
 const BUDGET_PUBKEY_HEX: &str = "9f3b7a8d2c4e1a6b5f0d8e2a91c7b4e2f3a9d5c7e1b0a8f4d2c6e7a1b9c"; // Demo Key
-const MAX_RESERVATION_USD: f64 = 5.00; // Safety Upper Bound
 
-// L1-1-I: Secure Distribution Binding (Pinned Endpoint)
-const PRICING_MANIFEST_URL: &str = "https://trust.aide.dev/v1/economics/pricing.json";
-
-// L1-1-J: TLS Certificate Pin (SHA-256 Fingerprint)
-const PRICING_SERVER_CERT_PIN: &str = "7e50c48e892d770f7cd057d38392576b25f49d636b0439497e885d9571343729";
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ChatMessage {
-    pub role: String,
-    pub content: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UsageEntry {
-    pub session_id: String,
-    pub input_tokens: i64,
-    pub output_tokens: i64,
-    pub timestamp: u64,
-}
-
-#[derive(Debug, Clone)]
-pub struct RequestContext {
-    pub provider_id: String,
-    pub model_id: String,
-    pub scope_id: String, // L2-5: Bound Scope
-    pub issued_at: u64, // L1-2-D: TTL Enforcement
-}
-
+/**
+ * Pricing Manifest
+ * 
+ * Contains the cost per 1k tokens for various models.
+ * Must be signed by the trusted authority.
+ */
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PricingManifest {
-    pub version: String, // L1-1-F: Semantic versioning
+    pub version: String, // L1-1-F: Semantic versioning for anti-rollback
     pub rates: std::collections::HashMap<String, PricingData>,
     pub issued_at: u64,  // L1-1-G: Expiry protection
     pub expires_at: u64,
     pub signature: String, // Hex encoded ed25519 signature
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PricingData {
-    pub model_id: String,
-    pub input_price_per_1k: f64,
-    pub output_price_per_1k: f64,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub enum ProviderType {
-    OpenAI,
-    Anthropic,
-    Google,
-    Other,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ProviderConfig {
-    pub id: String,
-    pub kind: ProviderType, // L1-3-D: Authoritative category
-    pub endpoint: String,
-    pub selected_model: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct BudgetPolicy {
-    pub session_max_usd: f64,
-    pub provider_daily_usd: f64,
-    pub monthly_usd: f64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BudgetManifest {
-    pub version: String,
-    pub policy: BudgetPolicy,
-    pub issued_at: u64,
-    pub signature: String,
-}
-
+/**
+ * Ledger State
+ * 
+ * Manages the local database for usage tracking and the in-memory cache
+ * for pricing and policies.
+ */
 pub struct LedgerState {
+    /// SQLite connection for persistent usage logs
     pub db_conn: Mutex<Connection>,
-    pub db_path: PathBuf, // L2: Path for fresh connections in async guards
+    /// Path to the database file
+    pub db_path: PathBuf,
+    /// Cache of model pricing data
     pub pricing: Mutex<std::collections::HashMap<String, PricingData>>,
-    pub last_manifest_version: Mutex<semver::Version>, // L1-1-F: Semantic anti-rollback
-    pub active_requests: Mutex<std::collections::HashMap<String, RequestContext>>, // L1-2: Server trust boundary
-    pub providers: Mutex<std::collections::HashMap<String, ProviderConfig>>, // L1-2-F: Backend Registry
-    pub policy: Mutex<BudgetPolicy>, // L2: Shared budget policy (Mutex for updates)
-    pub last_budget_version: Mutex<semver::Version>, // L2-4: Anti-Rollback for Policy
+    /// Last seen manifest version to prevent rollback attacks
+    pub last_manifest_version: Mutex<semver::Version>,
+    /// Active requests currently being tracked for cost estimation
+    pub active_requests: Mutex<std::collections::HashMap<String, RequestContext>>,
+    /// Registry of trusted providers
+    pub providers: Mutex<std::collections::HashMap<String, ProviderConfig>>,
+    /// Current budget policy (e.g., daily/monthly limits)
+    pub policy: Mutex<BudgetPolicy>,
+    /// Last seen budget policy version
+    pub last_budget_version: Mutex<semver::Version>,
+}
     pub budget_key: Mutex<Option<VerifyingKey>>, // L2-4: Policy Trust Anchor
 }
 

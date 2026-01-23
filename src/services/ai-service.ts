@@ -10,7 +10,23 @@ export type TokenCallback = (token: string) => void;
 
 const PARSE_REGEX = /^data: (.*)$/;
 
+/**
+ * AI Service
+ * 
+ * Handles communication with various AI providers (OpenAI, Anthropic, Local, CLI Agents).
+ * Implements economic safety checks, trust boundary validation, and supply chain verification
+ * by delegating sensitive operations to the Rust backend.
+ */
 export const AIService = {
+  /**
+   * Streams a chat completion from the selected provider.
+   * 
+   * @param provider - Configuration for the AI provider
+   * @param messages - Array of chat messages
+   * @param modelId - ID of the model to use
+   * @param onToken - Callback function for each received token
+   * @param signal - Optional AbortSignal to cancel the request
+   */
   async streamChat(
     provider: AIProviderConfig,
     messages: Message[],
@@ -19,6 +35,7 @@ export const AIService = {
     signal?: AbortSignal
   ): Promise<void> {
     // --- L2: Economic Budget Check (BACKEND ENFORCED) ---
+    // Verifies that the request stays within monthly and session budget limits.
     const budgetOk = await invoke<boolean>("check_budget", {
         providerId: provider.id,
         monthlyCap: provider.config?.monthlyCap || 50.0,
@@ -29,6 +46,7 @@ export const AIService = {
     if (!budgetOk) throw new Error("Economic Safety Block: Budget exceeded.");
 
     // --- N1-N2: Trust Boundary Validation (BACKEND ENFORCED) ---
+    // Ensures the endpoint is valid and categorized correctly (local vs cloud).
     const endpointToValidate = provider.chatEndpoint || `${provider.endpoint}/chat/completions`;
     await invoke("validate_endpoint", {
         urlStr: endpointToValidate,
@@ -36,6 +54,7 @@ export const AIService = {
     }).catch(e => { throw new Error(e); });
 
     // --- Q1: Supply Chain Verification (BACKEND ENFORCED) ---
+    // For CLI agents, verifies the version of the executable being run.
     if (provider.type === "cli_agent" && provider.config?.command) {
         await invoke("verify_cli_version", {
             agentName: provider.config.command,
@@ -43,6 +62,7 @@ export const AIService = {
         }).catch(e => { throw new Error(e); });
     }
 
+    // Handle CLI Agent execution separately
     if (provider.type === "cli_agent") {
         try {
             const response = await invoke<string>("run_cli_agent", {
@@ -66,6 +86,7 @@ export const AIService = {
     try {
       // L1-2-E/F/G: Mandatory Execution Coupling (DISPATCH)
       // The backend resolves authority (model/endpoint) and dispatches in one scope.
+      // This prevents "Man-in-the-Middle" or "Confused Deputy" attacks at the frontend level.
       const result = await invoke<string>("dispatch_chat_request", { 
           provider_id: provider.id, 
           messages: messages
@@ -78,15 +99,14 @@ export const AIService = {
       const fullText = responseBody.choices?.[0]?.message?.content || "";
       onToken(fullText);
 
+      // Report success to update economic ledger
       await invoke("report_success", { providerId: provider.id });
     } catch (error: any) {
       if (error.name !== "AbortError") {
+          // Report failure to audit log
           await invoke("report_failure", { providerId: provider.id });
           throw error;
       }
-    } finally {
-      // L1-2: Server-Side Trust Boundary Injection (END)
-      // Note: session_id might be undefined if authorization failed, handled by optional chaining if needed
     }
   },
 

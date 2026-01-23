@@ -1,5 +1,5 @@
-   2.704854200s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="aide-desktop"}: cargo::core::compiler::fingerprint: fingerprint error for aide-desktop v0.1.0 (D:\aide-desktop\src-tauri)/Check { test: false }/TargetInner { name: "aide-desktop", doc: true, ..: with_path("D:\\aide-desktop\\src-tauri\\src\\main.rs", Edition2021) }
-   2.704949100s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="aide-desktop"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\aide-desktop\src-tauri\target\debug\.fingerprint\aide-desktop-ce5b39e618d5fc57\bin-aide-desktop`
+   7.639418600s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="aide-desktop"}: cargo::core::compiler::fingerprint: fingerprint error for aide-desktop v0.1.0 (D:\aide-desktop\src-tauri)/Check { test: false }/TargetInner { name: "aide-desktop", doc: true, ..: with_path("D:\\aide-desktop\\src-tauri\\src\\main.rs", Edition2021) }
+   7.639580600s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="aide-desktop"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\aide-desktop\src-tauri\target\debug\.fingerprint\aide-desktop-ce5b39e618d5fc57\bin-aide-desktop`
 
 Caused by:
     The system cannot find the file specified. (os error 2)
@@ -26,8 +26,8 @@ Stack backtrace:
   18: git_midx_writer_dump
   19: BaseThreadInitThunk
   20: RtlUserThreadStart
-   2.755084700s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="build-script-build"}: cargo::core::compiler::fingerprint: fingerprint error for aide-desktop v0.1.0 (D:\aide-desktop\src-tauri)/RunCustomBuild/TargetInner { ..: custom_build_target("build-script-build", "D:\\aide-desktop\\src-tauri\\build.rs", Edition2021) }
-   2.755289600s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="build-script-build"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\aide-desktop\src-tauri\target\debug\.fingerprint\aide-desktop-afc9a4b1f74d5a7b\run-build-script-build-script-build`
+   7.695220000s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="build-script-build"}: cargo::core::compiler::fingerprint: fingerprint error for aide-desktop v0.1.0 (D:\aide-desktop\src-tauri)/RunCustomBuild/TargetInner { ..: custom_build_target("build-script-build", "D:\\aide-desktop\\src-tauri\\build.rs", Edition2021) }
+   7.695296200s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="build-script-build"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\aide-desktop\src-tauri\target\debug\.fingerprint\aide-desktop-afc9a4b1f74d5a7b\run-build-script-build-script-build`
 
 Caused by:
     The system cannot find the file specified. (os error 2)
@@ -56,8 +56,8 @@ Stack backtrace:
   20: git_midx_writer_dump
   21: BaseThreadInitThunk
   22: RtlUserThreadStart
-   3.330238200s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="aide-desktop"}: cargo::core::compiler::fingerprint: fingerprint error for aide-desktop v0.1.0 (D:\aide-desktop\src-tauri)/Check { test: true }/TargetInner { name: "aide-desktop", doc: true, ..: with_path("D:\\aide-desktop\\src-tauri\\src\\main.rs", Edition2021) }
-   3.330291100s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="aide-desktop"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\aide-desktop\src-tauri\target\debug\.fingerprint\aide-desktop-634bc7afced75109\test-bin-aide-desktop`
+   8.807525900s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="aide-desktop"}: cargo::core::compiler::fingerprint: fingerprint error for aide-desktop v0.1.0 (D:\aide-desktop\src-tauri)/Check { test: true }/TargetInner { name: "aide-desktop", doc: true, ..: with_path("D:\\aide-desktop\\src-tauri\\src\\main.rs", Edition2021) }
+   8.807610700s  INFO prepare_target{force=false package_id=aide-desktop v0.1.0 (D:\aide-desktop\src-tauri) target="aide-desktop"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\aide-desktop\src-tauri\target\debug\.fingerprint\aide-desktop-634bc7afced75109\test-bin-aide-desktop`
 
 Caused by:
     The system cannot find the file specified. (os error 2)
@@ -112,7 +112,7 @@ Caused by:
 
   --- stderr
 
-  thread 'main' (26332) panicked at C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-winres-0.3.5\src\lib.rs:536:14:
+  thread 'main' (28336) panicked at C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-winres-0.3.5\src\lib.rs:536:14:
   called `Result::unwrap()` on an `Err` value: Failed("RC.EXE failed to compile specified resource file")
   stack backtrace:
      0: std::panicking::panic_handler

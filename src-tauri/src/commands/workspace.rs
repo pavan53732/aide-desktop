@@ -3,6 +3,13 @@ use tauri::{State, command, Manager};
 
 use super::AppState;
 
+/**
+ * Workspace Management Commands
+ * 
+ * This module provides commands for setting, getting, and locking the active workspace.
+ * It ensures that only one workspace is active at a time and handles path canonicalization.
+ */
+
 #[derive(Debug, Serialize, Deserialize)]
 pub enum FileError {
     NotFound,
@@ -14,6 +21,9 @@ pub enum FileError {
     LockError,
 }
 
+/**
+ * Represents a node in the file system tree
+ */
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileNode {
     pub name: String,
@@ -24,13 +34,19 @@ pub struct FileNode {
     pub truncated: Option<bool>,
 }
 
+/**
+ * Sets the active workspace directory.
+ * 
+ * Validates that the path exists and is a directory before updating the global state.
+ * Logs the action to the audit trail.
+ */
 #[command]
 pub async fn set_workspace(
     path: String,
     state: State<'_, AppState>,
     app: tauri::AppHandle,
 ) -> Result<(), FileError> {
-    // Check if workspace is locked
+    // Check if workspace is locked (e.g., during a sensitive operation)
     {
         let is_locked = state.is_locked.lock().unwrap();
         if *is_locked {
@@ -38,7 +54,7 @@ pub async fn set_workspace(
         }
     }
 
-    // Verify path exists and canonicalize
+    // Verify path exists and canonicalize to absolute path
     let canonical_path = match std::fs::canonicalize(&path) {
         Ok(p) => p,
         Err(_) => return Err(FileError::InvalidPath),
@@ -49,13 +65,13 @@ pub async fn set_workspace(
         return Err(FileError::InvalidPath);
     }
 
-    // Update state
+    // Update global state with the new workspace path
     {
         let mut workspace_path = state.workspace_path.lock().unwrap();
         *workspace_path = Some(canonical_path.to_string_lossy().to_string());
     }
     
-    // P1: Audit Log
+    // P1: Audit Log - Record the workspace change for security tracking
     let _ = super::audit::audit_log(
         "SET_WORKSPACE".into(), 
         format!("path: {:?}", canonical_path),
@@ -65,6 +81,9 @@ pub async fn set_workspace(
     Ok(())
 }
 
+/**
+ * Retrieves the current active workspace path.
+ */
 #[command]
 pub async fn get_workspace(
     state: State<'_, AppState>,
@@ -73,6 +92,11 @@ pub async fn get_workspace(
     Ok((*workspace_path).clone())
 }
 
+/**
+ * Locks the workspace to prevent changes.
+ * 
+ * Used during operations that require a stable file system state.
+ */
 #[command]
 pub async fn lock_workspace(
     state: State<'_, AppState>,
@@ -88,6 +112,9 @@ pub async fn lock_workspace(
     Ok(())
 }
 
+/**
+ * Unlocks the workspace.
+ */
 #[command]
 pub async fn unlock_workspace(
     state: State<'_, AppState>,

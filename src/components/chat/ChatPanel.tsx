@@ -69,6 +69,16 @@ function CodeBlock({ node, inline, className, children, ...props }: any) {
   return <code className={className} {...props}>{children}</code>;
 }
 
+/**
+ * Chat Panel Component
+ * 
+ * Provides the interface for interacting with AI models.
+ * Features include:
+ * - Message history with Markdown rendering
+ * - Code block highlighting with copy and "Apply" functionality
+ * - Integration with the Diff store for applying AI-generated code changes
+ * - Auto-scrolling to the latest message
+ */
 export function ChatPanel() {
   const { messages, isLoading, sendMessage, stopGeneration, clearChat } = useChatStore();
   const [input, setInput] = useState("");

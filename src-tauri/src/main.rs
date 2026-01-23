@@ -21,10 +21,18 @@ pub struct DiffApproval {
     pub session_id: String,
 }
 
+/**
+ * Global Application State
+ * 
+ * Managed by Tauri and accessible in all commands via State<'_, AppState>.
+ * Uses Mutexes for thread-safe access to shared resources.
+ */
 pub struct AppState {
+    /// Current active workspace directory
     pub workspace_path: Mutex<Option<String>>,
+    /// Global lock to prevent concurrent destructive operations
     pub is_locked: Mutex<bool>,
-    // Maps unique session tokens to structured approval records
+    /// Map of session tokens to approved file paths for diff application
     pub approved_paths: Mutex<std::collections::HashMap<String, DiffApproval>>,
 }
 
@@ -38,14 +46,20 @@ impl Default for AppState {
     }
 }
 
+/**
+ * Main entry point for the Tauri application
+ * 
+ * Initializes plugins, sets up application state, and registers commands.
+ */
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
+            // Ensure application data directory exists for database and logs
             let app_data_dir = app.path().app_data_dir().expect("failed to get app data dir");
             std::fs::create_dir_all(&app_data_dir).expect("failed to create app data dir");
             let db_path = app_data_dir.join("economics.db");
             
-            // Initialize Ledger (L1-1)
+            // Initialize Ledger (L1-1) for economic tracking and auditing
             let ledger = commands::ledger::LedgerState::new(db_path);
             
             // L1-1-E: JCS Canonical Manifest / L1-1-F: Semantic Version / L1-1-G: Expiry
