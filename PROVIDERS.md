@@ -939,6 +939,8 @@ For local providers (LM Studio, Ollama, etc.):
 
 - **Configuration Interface:** The settings and provider selection UI for these configurations are designed in [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) (See Sections 4.1 & 5.3).
 - **User Flow:** Adding a provider follows the UX flow: **Settings Page → Add Provider Form → Test Connection → Save**, as detailed in the UI/UX spec.
+- **Visual Components:** Provider cards display connection status badges, model selectors, and provider type indicators as specified in the UI design system.
+- **Icon System:** Each provider uses official logos or fallback icons from the `lucide-react` library as defined in UI_UX_SPECIFICATION.md Section 2.3.
 
 ## Quick Setup Commands
 

@@ -1,0 +1,21 @@
+pub use crate::{AppState, DiffApproval};
+
+pub mod workspace;
+pub mod file_ops;
+pub mod keychain;
+pub mod cli_agents;
+pub mod rag;
+pub mod lsp;
+pub mod git;
+pub mod ledger;
+pub mod policy;
+pub mod trust;
+pub mod audit;
+pub mod supply;
+pub mod health;
+pub mod telemetry;
+pub mod audit_cli;
+pub mod governance;
+pub mod lifecycle;
+pub mod compliance;
+pub mod resilience;

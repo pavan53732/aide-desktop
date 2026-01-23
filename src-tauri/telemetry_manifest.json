@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "sink_url": "127.0.0.1:514",
+  "transport": "udp",
+  "scope_id": null,
+  "issued_at": 1700000000,
+  "expires_at": 1900000000,
+  "signature": "cafebabe" 
+}

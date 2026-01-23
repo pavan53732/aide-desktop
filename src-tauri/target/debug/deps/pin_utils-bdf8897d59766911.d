@@ -1,0 +1,9 @@
+D:\aide-desktop\src-tauri\target\debug\deps\pin_utils-bdf8897d59766911.d: C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\lib.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\stack_pin.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\projection.rs
+
+D:\aide-desktop\src-tauri\target\debug\deps\libpin_utils-bdf8897d59766911.rlib: C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\lib.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\stack_pin.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\projection.rs
+
+D:\aide-desktop\src-tauri\target\debug\deps\libpin_utils-bdf8897d59766911.rmeta: C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\lib.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\stack_pin.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\projection.rs
+
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\lib.rs:
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\stack_pin.rs:
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pin-utils-0.1.0\src\projection.rs:

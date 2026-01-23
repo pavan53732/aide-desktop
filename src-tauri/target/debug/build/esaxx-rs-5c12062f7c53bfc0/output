@@ -1,0 +1,151 @@
+OUT_DIR = Some(D:\aide-desktop\src-tauri\target\debug\build\esaxx-rs-5c12062f7c53bfc0\out)
+OPT_LEVEL = Some(0)
+TARGET = Some(x86_64-pc-windows-msvc)
+CARGO_ENCODED_RUSTFLAGS = Some()
+cargo:rerun-if-env-changed=VCINSTALLDIR
+VCINSTALLDIR = None
+cargo:rerun-if-env-changed=VSTEL_MSBuildProjectFullPath
+VSTEL_MSBuildProjectFullPath = None
+cargo:rerun-if-env-changed=VCToolsVersion
+VCToolsVersion = None
+cargo:rerun-if-env-changed=VSCMD_ARG_VCVARS_SPECTRE
+VSCMD_ARG_VCVARS_SPECTRE = None
+cargo:rerun-if-env-changed=WindowsSdkDir
+WindowsSdkDir = None
+cargo:rerun-if-env-changed=WindowsSDKVersion
+WindowsSDKVersion = None
+cargo:rerun-if-env-changed=LIB
+LIB = None
+PATH = Some(D:\aide-desktop\src-tauri\target\debug\deps;D:\aide-desktop\src-tauri\target\debug;C:\Users\pavan\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\x86_64-pc-windows-msvc\lib;C:\Program Files\ImageMagick-7.1.2-Q16-HDRI;C:\Program Files (x86)\Common Files\Oracle\Java\java8path;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files\Microsoft\jdk-21.0.9.10-hotspot\bin;C:\Python314\Scripts\;C:\Python314\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\cmd;C:\Program Files\Microsoft SQL Server\170\Tools\Binn\;C:\Program Files\dotnet\;C:\Users\pavan\AppData\Local\nvm;C:\nvm4w\nodejs;C:\Program Files (x86)\Common Files\Apple\Apple Application Support;C:\Program Files (x86)\Common Files\Apple\Mobile Device Support;C:\Program Files\Common Files\Apple\Apple Application Support;C:\Program Files\Common Files\Apple\Mobile Device Support;C:\Program Files\Positron\bin;C:\Program Files\Syncfusion Code Studio\bin;C:\Program Files\Docker\Docker\resources\bin;C:\Users\pavan\.cargo\bin;C:\Users\pavan\scoop\shims;C:\Users\pavan\AppData\Local\Programs\Python\Python312\Scripts\;C:\Users\pavan\AppData\Local\Programs\Python\Python312\;C:\Users\pavan\.local\bin;C:\\Users\\pavan\\AppData\\Local\\Blackbox\\bin;C:\Users\pavan\AppData\Local\Microsoft\WindowsApps;C:\Users\pavan\AppData\Local\Programs\cursor\resources\app\bin;C:\Users\pavan\AppData\Local\Programs\Zed\bin;C:\Users\pavan\AppData\Local\Programs\Antigravity\bin;C:\Users\pavan\AppData\Local\Python\bin;C:\Users\pavan\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\pavan\AppData\Roaming\npm;C:\Users\pavan\AppData\Local\Microsoft\WinGet\Packages\astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\Users\pavan\AppData\Local\Pandoc\;C:\Users\pavan\.dotnet\tools;C:\Users\pavan\AppData\Local\nvm;C:\nvm4w\nodejs;C:\Users\pavan\AppData\Local\Programs\Kuaishou CodeFlicker\bin;C:\Users\pavan\AppData\Local\Programs\Qoder\bin;C:\Users\pavan\.lmstudio\bin;C:\Users\pavan\AppData\Local\Programs\Ollama;C:\Users\pavan\AppData\Local\Programs\Kiro\bin;C:\Users\pavan\.dotnet\tools;C:\Users\pavan\.rustup\toolchains\stable-x86_64-pc-windows-msvc\bin)
+cargo:rerun-if-env-changed=INCLUDE
+INCLUDE = None
+HOST = Some(x86_64-pc-windows-msvc)
+cargo:rerun-if-env-changed=CXX_x86_64-pc-windows-msvc
+CXX_x86_64-pc-windows-msvc = None
+cargo:rerun-if-env-changed=CXX_x86_64_pc_windows_msvc
+CXX_x86_64_pc_windows_msvc = None
+cargo:rerun-if-env-changed=HOST_CXX
+HOST_CXX = None
+cargo:rerun-if-env-changed=CXX
+CXX = None
+cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
+CRATE_CC_NO_DEFAULTS = None
+DEBUG = Some(true)
+cargo:rerun-if-env-changed=CXXFLAGS
+CXXFLAGS = None
+cargo:rerun-if-env-changed=HOST_CXXFLAGS
+HOST_CXXFLAGS = None
+cargo:rerun-if-env-changed=CXXFLAGS_x86_64_pc_windows_msvc
+CXXFLAGS_x86_64_pc_windows_msvc = None
+cargo:rerun-if-env-changed=CXXFLAGS_x86_64-pc-windows-msvc
+CXXFLAGS_x86_64-pc-windows-msvc = None
+cargo:rerun-if-env-changed=CC_ENABLE_DEBUG_OUTPUT
+cargo:warning=cl : Command line warning D9002 : ignoring unknown option '-std=c++11'
+esaxx.cpp
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(341): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(341): note: the template instantiation context (the oldest one first) is
+src/esaxx.cpp(628): note: see reference to function template instantiation 'int esaxx<char32_t*,int32_t*,int32_t>(string_type,sarray_type,sarray_type,sarray_type,sarray_type,index_type,index_type,index_type &)' being compiled
+        with
+        [
+            string_type=char32_t *,
+            sarray_type=int32_t *,
+            index_type=int32_t
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\esa.hxx(116): note: see reference to function template instantiation 'int saisxx<string_type,sarray_type,index_type>(string_type,sarray_type,index_type,index_type)' being compiled
+        with
+        [
+            string_type=char32_t *,
+            sarray_type=int32_t *,
+            index_type=int32_t
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\esa.hxx(90): warning C4267: 'return': conversion from 'size_t' to 'index_type', possible loss of data
+        with
+        [
+            index_type=int32_t
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\esa.hxx(90): note: the template instantiation context (the oldest one first) is
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\esa.hxx(120): note: see reference to function template instantiation 'index_type esaxx_private::suffixtree<string_type,sarray_type,index_type>(string_type,sarray_type,sarray_type,sarray_type,sarray_type,index_type)' being compiled
+        with
+        [
+            index_type=int32_t,
+            string_type=char32_t *,
+            sarray_type=int32_t *
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(111): warning C4244: '=': conversion from '__int64' to 'index_type', possible loss of data
+        with
+        [
+            index_type=int
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(111): note: the template instantiation context (the oldest one first) is
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\esa.hxx(116): note: see reference to function template instantiation 'int saisxx<string_type,sarray_type,index_type>(string_type,sarray_type,index_type,index_type)' being compiled
+        with
+        [
+            string_type=char32_t *,
+            sarray_type=int32_t *,
+            index_type=int32_t
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(341): note: see reference to function template instantiation 'int saisxx_private::suffixsort<string_type,sarray_type,int>(string_type,sarray_type,index_type,index_type,index_type,bool)' being compiled
+        with
+        [
+            string_type=char32_t *,
+            sarray_type=int32_t *,
+            index_type=int
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(203): note: see reference to function template instantiation 'void saisxx_private::induceSA<string_type,sarray_type,index_type*,index_type>(string_type,sarray_type,bucket_type,bucket_type,index_type,index_type)' being compiled
+        with
+        [
+            string_type=char32_t *,
+            sarray_type=int32_t *,
+            index_type=int,
+            bucket_type=int *
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(121): warning C4244: '=': conversion from '__int64' to 'index_type', possible loss of data
+        with
+        [
+            index_type=int
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(145): warning C4244: '=': conversion from '__int64' to 'index_type', possible loss of data
+        with
+        [
+            index_type=int
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(145): note: the template instantiation context (the oldest one first) is
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(298): note: see reference to function template instantiation 'int saisxx_private::computeBWT<string_type,sarray_type,index_type*,index_type>(string_type,sarray_type,bucket_type,bucket_type,index_type,index_type)' being compiled
+        with
+        [
+            string_type=char32_t *,
+            sarray_type=int32_t *,
+            index_type=int,
+            bucket_type=int *
+        ]
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\esaxx-rs-0.1.10\src\sais.hxx(157): warning C4244: '=': conversion from '__int64' to 'index_type', possible loss of data
+        with
+        [
+            index_type=int
+        ]
+cargo:rerun-if-env-changed=AR_x86_64-pc-windows-msvc
+AR_x86_64-pc-windows-msvc = None
+cargo:rerun-if-env-changed=AR_x86_64_pc_windows_msvc
+AR_x86_64_pc_windows_msvc = None
+cargo:rerun-if-env-changed=HOST_AR
+HOST_AR = None
+cargo:rerun-if-env-changed=AR
+AR = None
+cargo:rerun-if-env-changed=ARFLAGS
+ARFLAGS = None
+cargo:rerun-if-env-changed=HOST_ARFLAGS
+HOST_ARFLAGS = None
+cargo:rerun-if-env-changed=ARFLAGS_x86_64_pc_windows_msvc
+ARFLAGS_x86_64_pc_windows_msvc = None
+cargo:rerun-if-env-changed=ARFLAGS_x86_64-pc-windows-msvc
+ARFLAGS_x86_64-pc-windows-msvc = None
+cargo:rustc-link-lib=static=esaxx
+cargo:rustc-link-search=native=D:\aide-desktop\src-tauri\target\debug\build\esaxx-rs-5c12062f7c53bfc0\out
+cargo:rerun-if-env-changed=CXXSTDLIB_x86_64-pc-windows-msvc
+CXXSTDLIB_x86_64-pc-windows-msvc = None
+cargo:rerun-if-env-changed=CXXSTDLIB_x86_64_pc_windows_msvc
+CXXSTDLIB_x86_64_pc_windows_msvc = None
+cargo:rerun-if-env-changed=HOST_CXXSTDLIB
+HOST_CXXSTDLIB = None
+cargo:rerun-if-env-changed=CXXSTDLIB
+CXXSTDLIB = None

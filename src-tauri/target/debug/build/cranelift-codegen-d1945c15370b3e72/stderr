@@ -1,0 +1,35 @@
+Writing generated file: D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\settings.rs
+Writing generated file: D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\types.rs
+Writing generated file: D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\opcodes.rs
+Writing generated file: D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\inst_builder.rs
+Writing generated file: D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\settings-x86.rs
+Writing generated file: D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\clif_opt.isle
+Writing generated file: D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\clif_lower.isle
+Rebuilding D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_opt.rs
+error: 'rustfmt.exe' is not installed for the custom toolchain 'C:\Users\pavan\.rustup\toolchains\stable-x86_64-pc-windows-msvc'.
+note: this is a custom toolchain, which cannot use `rustup component add`
+help: if you built this toolchain from source, and used `rustup toolchain link`, then you may be able to build the component with `x.py`
+Writing ISLE-generated Rust code to D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_opt.rs
+Rebuilding D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_x64.rs
+error: 'rustfmt.exe' is not installed for the custom toolchain 'C:\Users\pavan\.rustup\toolchains\stable-x86_64-pc-windows-msvc'.
+note: this is a custom toolchain, which cannot use `rustup component add`
+help: if you built this toolchain from source, and used `rustup toolchain link`, then you may be able to build the component with `x.py`
+Writing ISLE-generated Rust code to D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_x64.rs
+Rebuilding D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_aarch64.rs
+error: 'rustfmt.exe' is not installed for the custom toolchain 'C:\Users\pavan\.rustup\toolchains\stable-x86_64-pc-windows-msvc'.
+note: this is a custom toolchain, which cannot use `rustup component add`
+help: if you built this toolchain from source, and used `rustup toolchain link`, then you may be able to build the component with `x.py`
+Writing ISLE-generated Rust code to D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_aarch64.rs
+Rebuilding D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_s390x.rs
+error: 'rustfmt.exe' is not installed for the custom toolchain 'C:\Users\pavan\.rustup\toolchains\stable-x86_64-pc-windows-msvc'.
+note: this is a custom toolchain, which cannot use `rustup component add`
+help: if you built this toolchain from source, and used `rustup toolchain link`, then you may be able to build the component with `x.py`
+Writing ISLE-generated Rust code to D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_s390x.rs
+Rebuilding D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_riscv64.rs
+error: 'rustfmt.exe' is not installed for the custom toolchain 'C:\Users\pavan\.rustup\toolchains\stable-x86_64-pc-windows-msvc'.
+note: this is a custom toolchain, which cannot use `rustup component add`
+help: if you built this toolchain from source, and used `rustup toolchain link`, then you may be able to build the component with `x.py`
+Writing ISLE-generated Rust code to D:\aide-desktop\src-tauri\target\debug\build\cranelift-codegen-d1945c15370b3e72\out\isle_riscv64.rs
+fatal: ambiguous argument 'HEAD': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'

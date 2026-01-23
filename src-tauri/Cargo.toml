@@ -1,0 +1,39 @@
+[package]
+name = "aide-desktop"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tauri = { version = "2.0.0" }
+tauri-plugin-store = "2.0.0"
+tauri-plugin-fs = "2.0.0"
+tauri-plugin-shell = "2.0.0"
+portable-pty = "0.8"
+tauri-plugin-dialog = "2.0.0"
+tauri-plugin-sql = { version = "2.0.0", features = ["sqlite"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.12", features = ["json", "blocking"] }
+keyring = "3.0"
+rusqlite = { version = "0.32.0", features = ["bundled"] }
+tokio = { version = "1", features = ["full"] }
+url = "2.5"
+uuid = { version = "1.7", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+ed25519-dalek = "2.1"
+hex = "0.4"
+serde_jcs = "0.1"
+semver = "1.0"
+rustls = "0.23"
+sha2 = "0.10"
+tiktoken-rs = "0.5"
+tokenizers = { version = "0.19", features = ["http"] }
+wasmtime = "21.0"
+kyber = "0.1.0"
+rand = "0.8"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = ["codegen"] }
+
+[features]
+default = []

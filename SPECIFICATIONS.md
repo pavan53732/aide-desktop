@@ -95,6 +95,8 @@
 | **State Management**  | Zustand + TanStack Query                                    | Lightweight state + robust server-state caching |
 | **Local Database**    | [Turso](https://turso.tech/) (SQLite)                       | Edge SQLite with type-safe ORM via Drizzle      |
 | **Code Editor**       | [Monaco Editor](https://microsoft.github.io/monaco-editor/) | VS Code-grade editing for diff viewer           |
+| **UI Components**     | [shadcn/ui](https://ui.shadcn.com/) + Custom Components     | Provider cards, badges, model selectors         |
+| **Icon System**       | [Lucide React](https://lucide.dev/)                         | Consistent iconography and provider logos       |
 | **Dev Tools**         | Vite 6 + Biome 2.0 + Vitest 2 + Playwright 2                | Fast builds, linting/formatting, testing        |
 
 ### 3.2 Complete System Architecture
@@ -645,6 +647,10 @@ User opens the AIDE application for the first time.
 For complete implementation details, see these dedicated documents:
 
 - **User Interface & Experience:** Refer to [UI_UX_SPECIFICATION.md](./UI_UX_SPECIFICATION.md)
+  - **Provider Selector:** Section 4.1 - Cards with status badges, model dropdowns, connection indicators
+  - **Icon System:** Section 2.3 - Lucide React icons, provider logos, fallback icons
+  - **Visual Components:** Section 7 - Button, Card, Badge, Modal components with TypeScript interfaces
+  - **Connection Status:** Section 4.1 & 4.7 - Visual indicators for provider connection states
 - **AI Provider Configurations:** Refer to [PROVIDERS.md](./PROVIDERS.md)
 - **Security Model:** See Section 3.3 of this document
 
@@ -654,9 +660,10 @@ For complete implementation details, see these dedicated documents:
 aide-desktop/
 ├── src/
 │   ├── components/
-│   │   ├── ui/                    # shadcn/ui components
+│   │   ├── ui/                    # shadcn/ui components (Button, Card, Badge)
 │   │   │   ├── button.tsx
 │   │   │   ├── card.tsx
+│   │   │   ├── badge.tsx          # Status and type badges
 │   │   │   ├── dialog.tsx
 │   │   │   ├── command.tsx        # CMDK wrapper
 │   │   │   ├── drawer.tsx         # Vaul wrapper
@@ -670,8 +677,9 @@ aide-desktop/
 │   │   │   ├── diff-modal.tsx
 │   │   │   └── diff-viewer.tsx    # Monaco diff
 │   │   ├── providers/
-│   │   │   ├── provider-selector.tsx
-│   │   │   └── provider-card.tsx
+│   │   │   ├── provider-selector.tsx  # Model selector, connection status
+│   │   │   ├── provider-card.tsx      # Cards with badges and icons
+│   │   │   └── model-dropdown.tsx     # Dynamic model selection
 │   │   ├── sidebar/
 │   │   │   ├── file-tree.tsx
 │   │   │   └── activity-log.tsx

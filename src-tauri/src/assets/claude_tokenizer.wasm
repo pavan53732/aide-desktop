@@ -1,0 +1,2 @@
+// This is a placeholder for the actual Claude WASM tokenizer binary.
+// In a real scenario, this would be the compiled binary provided by Anthropic or a trusted source.

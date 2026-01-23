@@ -1,0 +1,12 @@
+D:\aide-desktop\src-tauri\target\debug\deps\ittapi-9f3c7f5cf8eaf921.d: C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\lib.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\collection_control.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\domain.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\event.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\jit.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\string.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\task.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\util.rs
+
+D:\aide-desktop\src-tauri\target\debug\deps\libittapi-9f3c7f5cf8eaf921.rmeta: C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\lib.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\collection_control.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\domain.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\event.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\jit.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\string.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\task.rs C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\util.rs
+
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\lib.rs:
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\collection_control.rs:
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\domain.rs:
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\event.rs:
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\jit.rs:
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\string.rs:
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\task.rs:
+C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ittapi-0.4.0\src\util.rs:
