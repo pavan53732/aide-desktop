@@ -1136,7 +1136,7 @@ async function isCommandAvailable(
     "method": "npm",
     "command": "npm install -g opencode-cli",
     "verify": "opencode --version",
-    "requirements": ["Node.js 16+"]
+    "requirements": ["Node.js 20+"]
   },
   "usage": {
     "generate": "opencode generate --prompt \"<description>\"",
@@ -1163,7 +1163,7 @@ async function isCommandAvailable(
     "method": "npm",
     "command": "npm install -g blackbox-cli",
     "verify": "blackbox --version",
-    "requirements": ["Node.js 14+"]
+    "requirements": ["Node.js 20+"]
   },
   "usage": {
     "search": "blackbox search \"<query>\"",
@@ -1274,10 +1274,10 @@ async function isCommandAvailable(
   "description": "Anthropic Claude for coding tasks",
   "capabilities": ["code-review", "refactoring", "documentation"],
   "installation": {
-    "method": "pip",
-    "command": "pip install claude-code",
+    "method": "npm",
+    "command": "npm install -g @anthropic-ai/claude-code",
     "verify": "claude-code --version",
-    "requirements": ["Python 3.8+"]
+    "requirements": ["Node.js 20+"]
   },
   "usage": {
     "review": "claude-code review <file>",
@@ -1343,7 +1343,7 @@ async function isCommandAvailable(
     "method": "npm",
     "command": "npm install -g droid-cli",
     "verify": "droid --version",
-    "requirements": ["Node.js 16+", "Android SDK"]
+    "requirements": ["Node.js 20+", "Android SDK"]
   },
   "usage": {
     "analyze": "droid analyze <android_project>",

@@ -533,7 +533,6 @@ export function useKeyboardShortcuts() {
 | **Sonner**        | Toast notifications | User feedback            |
 | **Vaul**          | Drawer component    | Mobile-like panels       |
 | **Framer Motion** | Animations          | Micro-interactions       |
-| **WebRTC**        | P2P communication   | Voice chat, screen share |
 
 ### Code & Editor
 
@@ -675,7 +674,6 @@ interface DialogProps {
 3. **File Operations:** Browse, open, and edit files
 4. **AI Interaction:** Chat with AI about code
 5. **Review Changes:** Approve/reject AI suggestions
-6. **Collaboration:** Invite others for real-time editing
 
 ### 8.3 Error Recovery Flow
 
