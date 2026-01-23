@@ -14,9 +14,9 @@
 | 2   | **Models are fetched dynamically**          | Provider Selector shows models fetched from API at runtime, NOT hardcoded lists. See `PROVIDERS.md`.       |
 | 3   | **selectedModel starts as null**            | When displaying provider cards, show "No model selected" if `selectedModel` is `null`.                     |
 | 4   | **State must always be visible**            | User must always know: Which provider is active? Which model? Is it thinking? What file?                   |
-| 5   | **Keyboard-first design**                   | All actions must be accessible via keyboard shortcuts. See Section 5.4.                                    |
+| 5   | **Keyboard-first design**                   | All actions must be accessible via keyboard shortcuts. See Section 5.5.                                    |
 | 6   | **No hardcoded provider/model names in UI** | UI components must read from config, never hardcode "GPT-4" or "Claude" in JSX.                            |
-| 7   | **Accessibility is mandatory**              | All components must meet WCAG AA standards. See Section 7.                                                 |
+| 7   | **Accessibility is mandatory**              | All components must meet WCAG AA standards.                                                                |
 
 ### Provider Selector Behavior
 
@@ -66,20 +66,16 @@
 
 Define a primary theme (light/dark) with these semantic roles.
 
-| Role                                  | Light Theme             | Dark Theme              | Usage                                     |
-| :------------------------------------ | :---------------------- | :---------------------- | :---------------------------------------- |
-| **Primary**                           | `#3b82f6` (Blue-600)    | `#60a5fa` (Blue-400)    | Primary buttons, active states, accents.  |
-| **Quantum** (`--quantum`)             | `#8b5cf6` (Violet-500)  | `#a78bfa` (Violet-400)  | Quantum computing features, optimization  |
-| **WebGPU** (`--webgpu`)               | `#06b6d4` (Cyan-500)    | `#22d3ee` (Cyan-400)    | Local AI inference, hardware acceleration |
-| **Collaboration** (`--collaboration`) | `#f59e0b` (Amber-500)   | `#fbbf24` (Amber-400)   | Multiplayer features, real-time editing   |
-| **3D Workspace** (`--3d-workspace`)   | `#10b981` (Emerald-500) | `#34d399` (Emerald-400) | 3D visualization, spatial computing       |
-| **Background - Primary**              | `#ffffff`               | `#0f172a` (Slate-950)   | Main app background.                      |
-| **Background - Secondary**            | `#f8fafc` (Slate-50)    | `#1e293b` (Slate-800)   | Sidebars, card backgrounds.               |
-| **Foreground - Primary**              | `#0f172a` (Slate-950)   | `#f1f5f9` (Slate-100)   | Primary text.                             |
-| **Foreground - Secondary**            | `#64748b` (Slate-500)   | `#94a3b8` (Slate-400)   | Labels, helper text.                      |
-| **Border**                            | `#e2e8f0` (Slate-200)   | `#334155` (Slate-700)   | Separators, card borders.                 |
-| **Success**                           | `#10b981` (Emerald-500) | `#34d399` (Emerald-400) | "Accept" button, positive actions.        |
-| **Warning/Destructive**               | `#ef4444` (Red-500)     | `#f87171` (Red-400)     | "Reject" button, errors.                  |
+| Role                       | Light Theme             | Dark Theme              | Usage                                    |
+| :------------------------- | :---------------------- | :---------------------- | :--------------------------------------- |
+| **Primary**                | `#3b82f6` (Blue-600)    | `#60a5fa` (Blue-400)    | Primary buttons, active states, accents. |
+| **Background - Primary**   | `#ffffff`               | `#0f172a` (Slate-950)   | Main app background.                     |
+| **Background - Secondary** | `#f8fafc` (Slate-50)    | `#1e293b` (Slate-800)   | Sidebars, card backgrounds.              |
+| **Foreground - Primary**   | `#0f172a` (Slate-950)   | `#f1f5f9` (Slate-100)   | Primary text.                            |
+| **Foreground - Secondary** | `#64748b` (Slate-500)   | `#94a3b8` (Slate-400)   | Labels, helper text.                     |
+| **Border**                 | `#e2e8f0` (Slate-200)   | `#334155` (Slate-700)   | Separators, card borders.                |
+| **Success**                | `#10b981` (Emerald-500) | `#34d399` (Emerald-400) | "Accept" button, positive actions.       |
+| **Warning/Destructive**    | `#ef4444` (Red-500)     | `#f87171` (Red-400)     | "Reject" button, errors.                 |
 
 ### 2.2 Typography
 
@@ -108,19 +104,16 @@ Use a clean, highly readable sans-serif stack.
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │ 🏠 [Logo] AIDE              [ProviderSelector] ──⚙️── [UserAvatar] │
-│ [3D] [Quantum] [Collab] [Voice]                                    │
 ├───────┬────────────────────────────────────────────────────────────────┬─────┤
 │       │                                                       │     │
 │ FILE  │                    CHAT PANEL                         │ACT. │
 │ TREE  │   [AI Message Bubble]                                 │LOG  │
-│ [3D]  │   [Quantum Optimization Panel]                       │[COLLAB]│
 │       │   [User Message Bubble]                               │     │
 │       │   ┌─────────────────────────────────────────────────────┐     │     │
 │       │   │ 💬 [ChatInput]               [Attach] [Send]│     │     │
-│       │   │ 🎤 [Voice] 🧠 [WebGPU] ⚛️ [Quantum]        │     │     │
 │       │   └─────────────────────────────────────────────────────┘     │     │
 ├───────┴────────────────────────────────────────────────────────────────┴─────┤
-│ [WebGPU: Active] [Quantum: Ready] [Collab: 3 users] [Status: Ready] │
+│ [Status: Ready]                                                         │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -134,7 +127,7 @@ Use a clean, highly readable sans-serif stack.
 
 ### 4.1 Provider Selector & Settings
 
-- **Default State:** A button in the header showing the current provider's logo and name (e.g., `▣ OpenAI GPT-4`).
+- **Default State:** A button in the header showing the current provider's logo and name (e.g., `▣ {provider.name}`) and the selected model if available (e.g., `{provider.selectedModel ?? "No model selected"}`).
 - **On Click:** Opens a clean dropdown/modal with:
   - A list of all configured providers as cards (`Card` component).
   - Each card shows:
@@ -142,8 +135,8 @@ Use a clean, highly readable sans-serif stack.
     - **Name:** Provider name (from config)
     - **Model:** Currently selected model, or "No model selected" if `selectedModel` is `null`
     - **Status Badge:** `Connected` / `Configure` / `Error`
-    - **Provider Type Badge:** `Cloud` / `Local` / `WebGPU` / `Quantum` / `CLI`
-    - **Performance Indicator:** Speed/latency for local providers
+    - **Provider Type Badge:** `Cloud` / `Local` / `CLI`
+    - **CLI Agent Note:** CLI agents show "Local Binary" status and don't have model selection (they use their own model configuration)
   - An `Add New Provider...` button at the bottom, leading to the full Settings page.
 - **Model Selection:** When user selects a provider, the app fetches available models from the provider's API (see `PROVIDERS.md`) and displays them in a dropdown for selection.
 - **Settings Page:** A dedicated page/modal with a form to add/edit providers. Uses a stepper for clarity: 1. Choose Type (OpenAI/Anthropic), 2. Enter Details (Endpoint, Key), 3. Test Connection.
@@ -177,42 +170,7 @@ This modal appears when the AI proposes a file edit.
 - Highlights the file currently being discussed in the chat with a subtle primary background.
 - Right-click context menu: `Open in Chat`, `Reveal in Finder/Explorer`.
 
-### 4.10 Revolutionary Interface Components
-
-#### Local WebGPU Inference Panel
-
-- **Hardware Status:** GPU utilization, memory usage, temperature
-- **Model Loading:** Progress bar for quantized model loading (GGUF files)
-- **Performance Metrics:** Tokens/second, latency, power consumption
-- **Fallback Indicator:** Shows when falling back to WASM/CPU
-
-#### Quantum Computing Interface
-
-- **Circuit Visualization:** Quantum circuit representation of optimization problems
-- **Algorithm Selection:** QAOA, VQE, Grover algorithm chooser
-- **Qubit Status:** Real-time qubit state visualization
-- **Quantum Advantage:** Speedup metrics vs classical algorithms
-
-#### 3D Workspace Controls
-
-- **View Mode Toggle:** 2D/3D workspace switcher
-- **Spatial Navigation:** Orbit, pan, zoom controls
-- **Depth Layers:** File hierarchy depth visualization
-- **Physics Settings:** Enable/disable physics-based interactions
-
-#### Collaboration Panel
-
-- **Active Users:** Real-time presence indicators with avatars
-- **Voice Chat:** Spatial audio controls and mute/unmute
-- **Screen Share:** Share specific code sections or entire workspace
-- **Conflict Resolution:** Visual merge interface for simultaneous edits
-
-#### Blockchain Audit Viewer
-
-- **Transaction Log:** Immutable record of all file operations
-- **Integrity Status:** Cryptographic verification indicators
-- **Compliance Dashboard:** Security audit reports and metrics
-- **Post-Quantum Status:** Encryption algorithm status and updates
+### 4.5 Command Palette
 
 The command palette provides keyboard-first navigation for power users.
 
@@ -225,7 +183,7 @@ The command palette provides keyboard-first navigation for power users.
 │ 🔍 Type a command or search...              │
 ├─────────────────────────────────────────────────────────────┤
 │ Recently Used                               │
-│   ↩ Switch to Claude 3.5 Sonnet            │
+│   ↩ Switch to {provider.name} ({model})     │
 │   ↩ Open Settings                          │
 ├─────────────────────────────────────────────────────────────┤
 │ Actions                                     │
@@ -234,19 +192,10 @@ The command palette provides keyboard-first navigation for power users.
 │   ⚙️ Open Settings                 Cmd+,   │
 ├─────────────────────────────────────────────────────────────┤
 │ Providers                                   │
-│   ▣ Switch to OpenRouter (claude-3.5-sonnet) │
-│   ◈ Switch to Groq (llama3-70b)             │
-│   ◇ Switch to Local Ollama (llama3)         │
-│   🧠  Switch to WebGPU (codellama-7b-q4)     │
-│   ⚛️ Switch to Quantum Optimizer            │
-├─────────────────────────────────────────────────────────────┤
-│ Revolutionary Features                      │
-│   🌌 Toggle 3D Workspace            Cmd+3   │
-│   ⚛️ Open Quantum Optimizer         Cmd+Shift+Q |
-│   🧠  Toggle Local WebGPU Inference  Cmd+G   │
-│   👥 Toggle Multiplayer Mode        Cmd+M   │
-│   🎤 Toggle Voice Control           Cmd+V   │
-│   🕰 Time Travel Debugging          Cmd+T   │
+│   ▣ Switch to {provider.name} ({selectedModel ?? "No model"}) │
+│   ◇ Switch to {provider.name} ({selectedModel ?? "No model"}) │
+│   🧠 Switch to {provider.name} ({selectedModel ?? "No model"}) │
+│   ⚛️ Switch to {provider.name} ({selectedModel ?? "No model"}) │
 ├─────────────────────────────────────────────────────────────┤
 │ Files (in workspace)                        │
 │   📄 src/main.ts                           │
@@ -490,6 +439,10 @@ export function ErrorModal({
 5. User takes action or dismisses
 ```
 
+### 4.8 Future Feature Considerations
+
+_Advanced features like 3D visualization and real-time collaboration are planned for future releases but not included in the MVP scope._
+
 ## 5. Key User Flows & Micro-interactions
 
 ### 5.1 Switching Providers
@@ -500,8 +453,8 @@ export function ErrorModal({
 
 - User types: "Add error handling to `api.js`".
 - **State 1:** Input shows a loading indicator. Status bar: `Thinking...`.
-- **State 2:** A non-blocking toast appears: `Proposing changes...`. Diff modal slides in.
-- **State 3:** User reviews diff, clicks `Accept`. Modal closes with a smooth fade. A system message appears in chat: `✅ Changes applied to api.js`. Activity log adds an entry.
+- **State 2:** A non-blocking toast appears: `Proposing changes...`. Diff modal appears instantly (no animation).
+- **State 3:** User reviews diff, clicks `Accept`. Modal closes instantly. A system message appears in chat: `✅ Changes applied to api.js`. Activity log adds an entry.
 
 ### 5.3 Adding a New AI Provider
 
@@ -519,25 +472,16 @@ export function ErrorModal({
 
 ### 5.5 Keyboard Shortcuts
 
-| Shortcut               | Action                        | Context            |
-| ---------------------- | ----------------------------- | ------------------ |
-| `Cmd/Ctrl + K`         | Open command palette          | Global             |
-| `Cmd/Ctrl + O`         | Open workspace                | Global             |
-| `Cmd/Ctrl + N`         | New conversation              | Global             |
-| `Cmd/Ctrl + ,`         | Open settings                 | Global             |
-| `Cmd/Ctrl + B`         | Toggle sidebar                | Global             |
-| `Cmd/Ctrl + 3`         | Toggle 3D workspace           | Global             |
-| `Cmd/Ctrl + Shift + Q` | Open quantum optimizer        | Global             |
-| `Cmd/Ctrl + G`         | Toggle Local WebGPU inference | Global             |
-| `Cmd/Ctrl + M`         | Toggle multiplayer mode       | Global             |
-| `Cmd/Ctrl + V`         | Toggle voice control          | Global             |
-| `Cmd/Ctrl + T`         | Time travel debugging         | Global             |
-| `Cmd/Ctrl + Shift + B` | Open blockchain audit         | Global             |
-| `Cmd/Ctrl + Enter`     | Send message                  | Chat input focused |
-| `Escape`               | Close modal/palette           | When open          |
-| `Cmd/Ctrl + 1-9`       | Switch provider               | Global             |
-| `Cmd/Ctrl + Shift + A` | Accept diff                   | Diff modal open    |
-| `Cmd/Ctrl + Shift + R` | Reject diff                   | Diff modal open    |
+| Shortcut               | Action               | Context         |
+| ---------------------- | -------------------- | --------------- |
+| `Cmd/Ctrl + K`         | Open command palette | Global          |
+| `Cmd/Ctrl + O`         | Open workspace       | Global          |
+| `Cmd/Ctrl + N`         | New conversation     | Global          |
+| `Cmd/Ctrl + ,`         | Open settings        | Global          |
+| `Cmd/Ctrl + B`         | Toggle sidebar       | Global          |
+| `Cmd/Ctrl + 1-9`       | Switch provider      | Global          |
+| `Cmd/Ctrl + Shift + A` | Accept diff          | Diff modal open |
+| `Cmd/Ctrl + Shift + R` | Reject diff          | Diff modal open |
 
 #### Implementation:
 
@@ -576,23 +520,20 @@ export function useKeyboardShortcuts() {
 
 | Library      | Version | Purpose           |
 | ------------ | ------- | ----------------- |
-| React        | 18.x    | UI framework      |
-| TypeScript   | 5.x     | Type safety       |
+| React        | 19.x    | UI framework      |
+| TypeScript   | 5.5+    | Type safety       |
 | Tailwind CSS | 4.0     | Styling           |
 | shadcn/ui    | latest  | Component library |
 
 ### Enhanced Components
 
-| Library                | Purpose             | Usage                      |
-| ---------------------- | ------------------- | -------------------------- |
-| **CMDK**               | Command palette     | `Cmd+K` navigation         |
-| **Sonner**             | Toast notifications | User feedback              |
-| **Vaul**               | Drawer component    | Mobile-like panels         |
-| **Framer Motion**      | Animations          | Micro-interactions         |
-| **Three.js**           | 3D workspace        | Spatial code visualization |
-| **@react-three/fiber** | React Three.js      | 3D React components        |
-| **Yjs**                | CRDT collaboration  | Real-time multiplayer      |
-| **WebRTC**             | P2P communication   | Voice chat, screen share   |
+| Library           | Purpose             | Usage                    |
+| ----------------- | ------------------- | ------------------------ |
+| **CMDK**          | Command palette     | `Cmd+K` navigation       |
+| **Sonner**        | Toast notifications | User feedback            |
+| **Vaul**          | Drawer component    | Mobile-like panels       |
+| **Framer Motion** | Animations          | Micro-interactions       |
+| **WebRTC**        | P2P communication   | Voice chat, screen share |
 
 ### Code & Editor
 
@@ -617,232 +558,9 @@ export function useKeyboardShortcuts() {
 | **Vitest**     | Unit testing         |
 | **Playwright** | E2E testing          |
 
-## 7. Accessibility (A11y) Checklist
+## 7. Component Library & Design System
 
-- [ ] All interactive elements have focus states (`focus:ring-2`).
-- [ ] Color contrast ratios meet WCAG AA standards (4.5:1).
-- [ ] Images and icons have proper `alt` text or `aria-label`.
-- [ ] The diff viewer is navigable via keyboard.
-- [ ] Screen reader announcements for critical events (e.g., "Edit proposed", "Changes saved").
-
-## 8. Data Integration & References
-
-- **AI Provider Configurations:** The visual components in this design (Provider Selector, Settings page) pull their data and logic from the technical specifications defined in [`PROVIDERS.md`](./PROVIDERS.md).
-- **Example:** The "Add Provider" form in Section 4.1 is built to populate the configuration schema defined in `PROVIDERS.md`.
-
----
-
-## 9. Advanced Visual & Motion Guidelines (High-Gloss / Fluid)
-
-**Directive:** Implement a "High-Gloss" aesthetic using Glassmorphism and Fluid Motion, but strictly subordinate to trust, clarity, and performance.
-
-### 9.1 Approved Visual Enhancements
-
-- **Framer Motion:** Use for state transitions (provider switch, toast in/out, modal enter/exit, file tree expand).
-  - **Constraint:** Durations ≤ 200ms. No easing that implies "action completed" prematurely.
-- **Three.js Integration:** 3D workspace with smooth camera transitions and physics-based interactions.
-- **WebGPU Shaders:** Hardware-accelerated visual effects for performance indicators and quantum visualizations.
-- **Quantum Visualization:** Circuit diagrams and qubit state representations with real-time updates.
-- **Collaborative Cursors:** Real-time multiplayer cursors with smooth interpolation and user identification.
-- **Radix/shadcn base:** Maintain for all interactive components to ensure keyboard/A11y invariants.
-- **Selective Glassmorphism:**
-  - **Allowed:** Header bar, Modals (outer frame), Sidebars (subtle backdrop-blur).
-  - **BANNED:** The Diff Viewer and Code Surfaces MUST remain high-contrast and opaque.
-- **Revolutionary Features:**
-  - **3D Workspace:** Immersive code visualization with spatial navigation
-  - **Quantum Interface:** Circuit visualization and algorithm selection
-  - **WebGPU Indicators:** Real-time hardware acceleration status
-  - **Collaboration UI:** Multi-user presence and conflict resolution
-
-### 4.8 3D Workspace Visualization
-
-Immersive code exploration using Three.js and spatial computing.
-
-#### 3D Code Architecture View
-
-```typescript
-// 3D workspace with code relationships
-export const Workspace3D = () => {
-  const { nodes, edges } = useCodeGraph()
-
-  return (
-    <Canvas>
-      <CodeArchitecture3D
-        nodes={nodes}
-        edges={edges}
-        onNodeSelect={navigateToCode}
-        physics={true}
-        clustering={true}
-      />
-      <OrbitControls />
-      <Environment preset="studio" />
-    </Canvas>
-  )
-}
-```
-
-### 4.9 Multiplayer Collaboration Interface
-
-Real-time presence indicators and collaborative editing UI.
-
-#### Collaborative Cursors
-
-```typescript
-// Multi-user cursor tracking
-export const CollaborativeCursors = () => {
-  const { users, awareness } = useCollaboration()
-
-  return (
-    <>
-      {users.map(user => (
-        <UserCursor
-          key={user.id}
-          position={user.cursor}
-          color={user.color}
-          name={user.name}
-          isTyping={user.isTyping}
-        />
-      ))}
-    </>
-  )
-}
-```
-
----
-
-_This is a living document. Update as design decisions are made during implementation._
-
-### 3D Workspace Visualization
-
-AIDE includes an immersive 3D workspace for spatial code navigation and visualization.
-
-#### 3D File Tree
-
-- **Spatial Layout:** Files and folders arranged in 3D space with depth indicating hierarchy
-- **Interactive Navigation:** Mouse/keyboard controls for rotating, zooming, and panning
-- **Visual Connections:** Lines connecting related files (imports, dependencies)
-- **Code Density:** File size represented by visual volume/height
-- **Activity Heatmap:** Recent changes shown with color intensity
-
-#### 3D Code Editor
-
-- **Layered Views:** Multiple files open as floating panels in 3D space
-- **Semantic Visualization:** Functions, classes, and modules as 3D objects
-- **Dependency Graph:** Real-time 3D visualization of code relationships
-- **Collaborative Cursors:** Other users' cursors visible in 3D space during multiplayer
-
-### Multiplayer Collaboration Interface
-
-Real-time collaborative editing with end-to-end encryption and conflict resolution.
-
-#### Collaboration Panel
-
-- **Active Users:** List of connected collaborators with avatars
-- **Presence Indicators:** Real-time cursor positions and selections
-- **Voice Chat:** Integrated voice communication with spatial audio
-- **Screen Sharing:** Share specific code sections or entire workspace
-
-#### Conflict Resolution UI
-
-- **Merge Interface:** Visual diff viewer for conflicting changes
-- **Version History:** Timeline view of all collaborative edits
-- **Rollback Controls:** One-click revert to previous states
-- **Permission System:** Role-based access control (read, write, admin)
-
-### Quantum Computing Interface
-
-Code optimization using quantum algorithms and simulators.
-
-#### Quantum Optimizer Panel
-
-- **Circuit Visualization:** Quantum circuit representation of optimization problems
-- **Algorithm Selection:** Choose from quantum optimization algorithms (QAOA, VQE, etc.)
-- **Performance Metrics:** Quantum speedup indicators and classical comparison
-- **Simulator Controls:** Select quantum backend (local simulator, cloud quantum computers)
-
-#### Quantum Code Analysis
-
-- **Complexity Mapping:** Visualize code complexity as quantum state space
-- **Optimization Suggestions:** AI-powered recommendations using quantum algorithms
-- **Quantum Profiler:** Performance analysis using quantum computing principles
-
-### Advanced Motion & Physics
-
-Cinematic user experience with physics-based interactions.
-
-#### Physics Engine
-
-- **Realistic Animations:** Smooth, physics-based transitions for all UI elements
-- **Gesture Recognition:** Natural hand gestures for 3D navigation
-- **Haptic Feedback:** Tactile responses for interactions (requires compatible hardware)
-- **Particle Effects:** Visual feedback for file operations and AI thinking states
-
-#### Adaptive Interface
-
-- **Eye Tracking:** Interface adapts based on user's gaze patterns
-- **Context Awareness:** UI elements appear/disappear based on current task
-- **Predictive Layout:** Interface anticipates user needs and pre-loads relevant panels
-- **Biometric Integration:** Stress detection to adjust interface complexity
-
-### Voice and Gesture Control
-
-Natural interaction methods beyond keyboard and mouse.
-
-#### Voice Commands
-
-- **File Operations:** "Open main.py", "Save all files", "Create new component"
-- **AI Interaction:** "Ask Claude to review this function", "Generate tests for this class"
-- **Navigation:** "Go to line 42", "Find all references", "Switch to terminal"
-- **Workspace Control:** "Show file tree", "Hide sidebar", "Enter focus mode"
-
-#### Gesture Recognition
-
-- **Hand Tracking:** 3D hand tracking for spatial navigation
-- **Air Gestures:** Pinch, swipe, and rotate gestures for code manipulation
-- **Multi-touch:** Advanced touch gestures on compatible displays
-- **Eye Gestures:** Blink patterns for hands-free control
-
-### Time Travel Debugging
-
-Event sourcing with complete history replay and quantum-enhanced debugging.
-
-#### Timeline Interface
-
-- **Event Stream:** Chronological view of all code changes and AI interactions
-- **Branching Visualization:** Git-like branching for different debugging paths
-- **State Snapshots:** Instant restoration to any previous application state
-- **Quantum Replay:** Use quantum algorithms to explore multiple debugging scenarios simultaneously
-
-#### Debug Controls
-
-- **Temporal Navigation:** Step forward/backward through code execution
-- **Parallel Debugging:** Debug multiple code paths simultaneously
-- **Predictive Debugging:** AI predicts potential bugs before they occur
-- **Quantum Debugging:** Explore superposition of possible bug states
-
-### Blockchain Audit System
-
-Immutable audit trail with post-quantum cryptography.
-
-#### Audit Dashboard
-
-- **Transaction Log:** All file operations recorded on local blockchain
-- **Integrity Verification:** Cryptographic proof of file authenticity
-- **Access History:** Complete record of who accessed what and when
-- **Compliance Reports:** Automated generation of security compliance reports
-
-#### Security Controls
-
-- **Post-Quantum Encryption:** Future-proof cryptographic algorithms
-- **Zero-Knowledge Proofs:** Verify operations without revealing sensitive data
-- **Multi-Signature Approval:** Require multiple approvals for critical operations
-- **Quantum Key Distribution:** Ultra-secure key exchange using quantum mechanics
-
----
-
-## 5. Component Library & Design System
-
-### 5.1 Core Components
+### 7.1 Core Components
 
 All components follow the design principles and use the semantic color tokens defined in Section 2.
 
@@ -880,7 +598,7 @@ interface DialogProps {
 }
 ```
 
-### 5.2 Specialized Components
+### 7.2 Specialized Components
 
 #### Provider Selector
 
@@ -913,7 +631,7 @@ interface DialogProps {
 - Code block syntax highlighting
 - File attachment indicators
 
-### 5.3 Animation Guidelines
+### 7.3 Animation Guidelines
 
 - **Duration:** Keep animations under 200ms for responsiveness
 - **Easing:** Use `ease-out` for entering, `ease-in` for exiting
@@ -921,7 +639,7 @@ interface DialogProps {
 - **Purpose:** Animations should provide feedback or guide attention
 - **Consistency:** Use consistent timing and easing across components
 
-### 5.4 Accessibility Standards
+### 7.4 Accessibility Standards
 
 - **WCAG AA Compliance:** All components meet WCAG 2.1 AA standards
 - **Keyboard Navigation:** Full keyboard accessibility with logical tab order
@@ -929,7 +647,7 @@ interface DialogProps {
 - **Color Contrast:** Minimum 4.5:1 contrast ratio for text
 - **Focus Indicators:** Clear visual focus indicators for all interactive elements
 
-### 5.5 Responsive Design
+### 7.5 Responsive Design
 
 - **Breakpoints:** Mobile (320px+), Tablet (768px+), Desktop (1024px+)
 - **Fluid Typography:** Responsive font sizes using clamp()
@@ -939,9 +657,9 @@ interface DialogProps {
 
 ---
 
-## 6. User Experience Flows
+## 8. User Experience Flows (Extended)
 
-### 6.1 First-Time Setup Flow
+### 8.1 First-Time Setup Flow
 
 1. **Welcome Screen:** Brief introduction to AIDE capabilities
 2. **Provider Configuration:** Add first AI provider with guided setup
@@ -950,7 +668,7 @@ interface DialogProps {
 5. **Quick Tour:** Interactive tutorial of main features
 6. **First Chat:** Guided first interaction with AI
 
-### 6.2 Daily Usage Flow
+### 8.2 Daily Usage Flow
 
 1. **Launch:** App opens to last workspace and provider
 2. **Quick Actions:** Command palette for common tasks
@@ -959,7 +677,7 @@ interface DialogProps {
 5. **Review Changes:** Approve/reject AI suggestions
 6. **Collaboration:** Invite others for real-time editing
 
-### 6.3 Error Recovery Flow
+### 8.3 Error Recovery Flow
 
 1. **Error Detection:** Clear error messages with context
 2. **Suggested Actions:** Actionable steps to resolve issues
@@ -969,9 +687,9 @@ interface DialogProps {
 
 ---
 
-## 7. Implementation Guidelines
+## 9. Implementation Guidelines
 
-### 7.1 Component Development
+### 9.1 Component Development
 
 - Use TypeScript for all components
 - Follow React best practices and hooks patterns
@@ -979,7 +697,7 @@ interface DialogProps {
 - Include comprehensive prop validation
 - Write unit tests for all components
 
-### 7.2 Styling Approach
+### 9.2 Styling Approach
 
 - Use Tailwind CSS utility classes
 - Create custom CSS variables for theme tokens
@@ -987,7 +705,7 @@ interface DialogProps {
 - Use CSS-in-JS sparingly for dynamic styles
 - Maintain consistent spacing scale
 
-### 7.3 Performance Considerations
+### 9.3 Performance Considerations
 
 - Lazy load non-critical components
 - Implement virtual scrolling for large lists
@@ -995,7 +713,7 @@ interface DialogProps {
 - Use proper key props for list items
 - Monitor bundle size and code splitting
 
-### 7.4 Testing Strategy
+### 9.4 Testing Strategy
 
 - Unit tests for individual components
 - Integration tests for user flows
@@ -1005,9 +723,9 @@ interface DialogProps {
 
 ---
 
-## 8. Future Enhancements
+## 10. Future Enhancements
 
-### 8.1 Advanced Features
+### 10.1 Advanced Features
 
 - **Plugin System:** Third-party extensions and themes
 - **Custom Workflows:** User-defined automation sequences
@@ -1015,13 +733,28 @@ interface DialogProps {
 - **Team Management:** Organization-level user and permission management
 - **API Integration:** Connect with external development tools
 
-### 8.2 Platform Expansion
+### 10.2 Platform Expansion
 
 - **Web Version:** Browser-based AIDE for cloud development
 - **Mobile Companion:** Mobile app for code review and monitoring
 - **VS Code Extension:** Integration with popular editors
 - **CLI Tool:** Command-line interface for automation
 - **Cloud Sync:** Synchronize settings and workspaces across devices
+
+---
+
+## 11. Accessibility (A11y) Checklist
+
+- [ ] All interactive elements have focus states (`focus:ring-2`).
+- [ ] Color contrast ratios meet WCAG AA standards (4.5:1).
+- [ ] Images and icons have proper `alt` text or `aria-label`.
+- [ ] The diff viewer is navigable via keyboard.
+- [ ] Screen reader announcements for critical events (e.g., "Edit proposed", "Changes saved").
+
+## 12. Data Integration & References
+
+- **AI Provider Configurations:** The visual components in this design (Provider Selector, Settings page) pull their data and logic from the technical specifications defined in [`PROVIDERS.md`](./PROVIDERS.md). Specifically: provider templates in Section "Provider Templates (API Configuration Only)", CLI agents in "CLI Agents Integration".
+- **Example:** The "Add Provider" form in Section 4.1 is built to populate the configuration schema defined in `PROVIDERS.md`.
 
 ---
 

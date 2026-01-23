@@ -10,10 +10,10 @@
 
 | #   | Principle                                    | Description                                                                                                                  |
 | --- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Models are NEVER hardcoded**               | All AI models are fetched dynamically from provider APIs at runtime. (Exception: Local WebGPU uses pre-defined model files). |
+| 1   | **Models are NEVER hardcoded**               | All AI models are fetched dynamically from provider APIs at runtime. |
 | 2   | **User selects the model**                   | After selecting a provider, the app fetches available models and user picks one. The `selectedModel` field starts as `null`. |
 | 3   | **Priority order matters**                   | `openai_compatible` providers first (cost-efficient), `openai` direct last (expensive fallback).                             |
-| 4   | **Fallback models are last resort**          | The `fallback_models` field is ONLY used when a provider's `/models` endpoint is unavailable or fails.                       |
+| 4   | **Fallback models are last resort**          | The `fallbackModels` field is ONLY used when a provider's `/models` endpoint is unavailable or fails.                       |
 | 5   | **CLI agents ≠ HTTP providers**              | CLI agents (Aider, Copilot CLI) run local commands. HTTP providers call remote APIs. Different validation logic applies.     |
 | 6   | **API keys are NEVER stored in plaintext**   | All API keys must be encrypted using OS-native keychain (Windows Credential Manager, macOS Keychain, Linux libsecret).       |
 | 7   | **Provider templates define endpoints only** | The JSON templates in this doc define API endpoints and auth methods, NOT available models.                                  |
@@ -44,22 +44,32 @@
 | Fetch models dynamically from `/models` endpoint | Hardcode model names like `"gpt-4"` in code    |
 | Use `selectedModel: null` as default             | Use `defaultModel: "gpt-4-turbo"`              |
 | Check if `selectedModel` exists before API call  | Assume a model is always selected              |
-| Use `fallback_models` only when API fails        | Use `fallback_models` as primary source        |
+| Use `fallbackModels` only when API fails        | Use `fallbackModels` as primary source        |
 | Store API keys in OS keychain                    | Store API keys in config files or localStorage |
 | Validate CLI agents by checking binary exists    | Try to `fetch()` CLI agent endpoints           |
 
 ### Quick Reference: Provider Types
 
-| Type                | Example Providers             | Models Endpoint      | Auth      |
-| ------------------- | ----------------------------- | -------------------- | --------- |
-| `openai_compatible` | OpenRouter, Groq, Together AI | `/models`            | Bearer    |
-| `openai`            | OpenAI (direct)               | `/models`            | Bearer    |
-| `anthropic`         | Anthropic Claude              | None (fallback)      | x-api-key |
-| `google`            | Google Gemini                 | `/models`            | Bearer    |
-| `local`             | Ollama, LM Studio             | `/tags` or `/models` | None      |
-| `local_inference`   | WebGPU + WASM                 | None (built-in)      | None      |
-| `cli_agent`         | Aider, Copilot CLI            | N/A (local binary)   | None      |
-| `quantum`           | Qiskit, Cirq                  | None                 | API Key   |
+| Type                | Example Providers             | Models Endpoint      | Auth          |
+| ------------------- | ----------------------------- | -------------------- | ------------- |
+| `openai_compatible` | OpenRouter, Groq, Together AI | `/models`            | Bearer        |
+| `openai`            | OpenAI (direct)               | `/models`            | Bearer        |
+| `anthropic`         | Anthropic Claude              | None (fallback)      | x-api-key     |
+| `google`            | Google Gemini                 | `/models`            | Bearer        |
+| `mistral`           | Mistral AI                    | `/models`            | Bearer        |
+| `cohere`            | Cohere                        | `/models`            | Bearer        |
+| `bedrock`           | Amazon Bedrock                | None (fallback)      | AWS           |
+| `vertex`            | Google Vertex AI              | `/models`            | Bearer        |
+| `replicate`         | Replicate                     | `/models`            | Bearer        |
+| `huggingface`       | HuggingFace Inference         | `/models`            | Bearer        |
+| `ai21`              | AI21 Labs                     | None (fallback)      | Bearer        |
+| `writer`            | Writer                        | None (fallback)      | Bearer        |
+| `reka`              | Reka AI                       | None (fallback)      | Bearer        |
+| `inflection`        | Inflection AI                 | None (fallback)      | Bearer        |
+| `blackbox`          | Blackbox AI                   | None (fallback)      | Bearer        |
+| `opencode`          | OpenCode Zen                  | None (fallback)      | Bearer        |
+| `local`             | Ollama, LM Studio             | `/tags` or `/models` | None          |
+| `cli_agent`         | Aider, Copilot CLI            | N/A (local binary)   | None          |
 
 ---
 
@@ -75,10 +85,8 @@ This document defines the configuration specifications for all AI providers supp
 > 2. Pre-configured `openai_compatible` providers (OpenRouter, Groq, Together, etc.)
 > 3. Native providers (Anthropic, Google, Mistral, etc.)
 > 4. Local providers (Ollama, LM Studio)
-> 5. **Local Inference (WebGPU/WASM)** - Hardware-accelerated local AI
-> 6. CLI Agents (Aider, Copilot CLI, etc.)
-> 7. **Quantum Providers** - Experimental quantum optimization
-> 8. `openai` (direct) - **Last resort fallback** (most expensive)
+> 5. CLI Agents (Aider, Copilot CLI, etc.)
+> 6. `openai` (direct) - **Last resort fallback** (most expensive)
 
 ### Example Cloud Providers (HTTP)
 
@@ -97,24 +105,24 @@ This document defines the configuration specifications for all AI providers supp
 
 > **Note:** Models are fetched dynamically from each provider's API. The "Models Endpoint" column shows where AIDE fetches available models. Providers marked "None (fallback)" use a static fallback list.
 
-> **Note:** `openai_compatible` is the generic type for any OpenAI-compatible API. Specific providers like OpenRouter, Groq, Together AI all use this type.
+> **Note:** This table shows examples of cloud providers. The complete list of 30 provider templates (including 2 local providers) is in the [Provider Templates](#provider-templates-api-configuration-only) section below.
 
 ### CLI Agents (Local) - Priorities 51-62
 
-| ID             | Agent Name         | Command        | Installation                             |
-| -------------- | ------------------ | -------------- | ---------------------------------------- |
-| `aider`        | Aider AI           | `aider`        | `pip install aider-chat`                 |
-| `gpt-engineer` | GPT Engineer       | `gpt-engineer` | `pip install gpt-engineer`               |
-| `goose`        | Goose CLI          | `goose`        | `pip install goose-ai`                   |
-| `gh-copilot`   | GitHub Copilot CLI | `gh copilot`   | `gh extension install github/gh-copilot` |
-| `claude-code`  | Claude Code        | `claude-code`  | `pip install claude-code`                |
-| `gemini-cli`   | Gemini CLI         | `gemini`       | `pip install gemini-cli`                 |
-| `opencode`     | OpenCode           | `opencode`     | `npm install -g opencode-cli`            |
-| `blackbox`     | Blackbox CLI       | `blackbox`     | `npm install -g blackbox-cli`            |
-| `crush`        | Crush CLI          | `crush`        | `cargo install crush-cli`                |
-| `codex`        | Codex CLI          | `codex`        | `pip install codex-cli`                  |
-| `warp`         | Warp AI            | Built-in       | Download Warp terminal                   |
-| `droid`        | Droid              | `droid`        | `npm install -g droid-cli`               |
+| ID             | Agent Name         | Command        | Installation                             | Priority |
+| -------------- | ------------------ | -------------- | ---------------------------------------- | -------- |
+| `aider`        | Aider AI           | `aider`        | `pip install aider-chat`                 | 51       |
+| `gpt-engineer` | GPT Engineer       | `gpt-engineer` | `pip install gpt-engineer`               | 52       |
+| `goose`        | Goose CLI          | `goose`        | `pip install goose-ai`                   | 53       |
+| `gh-copilot`   | GitHub Copilot CLI | `gh copilot`   | `gh extension install github/gh-copilot` | 54       |
+| `claude-code`  | Claude Code        | `claude-code`  | `pip install claude-code`                | 55       |
+| `gemini-cli`   | Gemini CLI         | `gemini`       | `pip install gemini-cli`                 | 56       |
+| `opencode`     | OpenCode           | `opencode`     | `npm install -g opencode-cli`            | 57       |
+| `blackbox`     | Blackbox CLI       | `blackbox`     | `npm install -g blackbox-cli`            | 58       |
+| `crush`        | Crush CLI          | `crush`        | `cargo install crush-cli`                | 59       |
+| `codex`        | Codex CLI          | `codex`        | `pip install codex-cli`                  | 60       |
+| `warp`         | Warp AI            | Built-in       | Download Warp terminal                   | 61       |
+| `droid`        | Droid              | `droid`        | `npm install -g droid-cli`               | 62       |
 
 ## Dynamic Model Discovery
 
@@ -244,55 +252,22 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 
 > **Note:** OpenRouter requires `extraHeaders` for rankings.
 
-### 8. Local WebGPU Inference
+### 8. Local Ollama
 
 ```json
 {
-  "type": "local_inference",
+  "type": "local",
   "config": {
-    "name": "Local WebGPU Inference",
-    "endpoint": "local://webgpu",
+    "name": "Local Ollama",
+    "endpoint": "http://localhost:11434/api",
     "authType": "none",
-    "modelsEndpoint": null,
-    "chatEndpoint": "/infer",
-    "hardwareAcceleration": "webgpu",
-    "modelFiles": [
-      "codellama-7b-q4_0.gguf",
-      "deepseek-coder-16b-q4_0.gguf",
-      "claude-3-sonnet-q4_0.gguf"
-    ],
-    "quantization": "q4_0",
-    "fallbackModels": [
-      "codellama-7b-q4",
-      "deepseek-coder-16b-q4",
-      "claude-3-sonnet-q4"
-    ]
+    "modelsEndpoint": "/tags",
+    "chatEndpoint": "/chat"
   }
 }
 ```
 
-> **Note:** For Local WebGPU, the `modelFiles` list defines the compatible quantized models supported by the local engine. The app checks for these files locally or prompts the user to download them.
-
-### 9. Quantum Computing Provider
-
-```json
-{
-  "type": "quantum",
-  "config": {
-    "name": "Quantum Optimization",
-    "endpoint": "http://localhost:8000/v1",
-    "authType": "quantum-token",
-    "modelsEndpoint": null,
-    "chatEndpoint": "/optimize",
-    "quantumBackend": "simulator",
-    "qubits": 32,
-    "algorithm": "QAOA",
-    "fallbackModels": ["qaoa-optimizer", "vqe-solver", "grover-searcher"]
-  }
-}
-```
-
-### 10. Azure OpenAI
+### 9. Azure OpenAI
 
 ```json
 {
@@ -307,7 +282,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 11. Replicate
+### 10. Replicate
 
 ```json
 {
@@ -322,7 +297,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 12. Groq
+### 11. Groq
 
 ```json
 {
@@ -337,7 +312,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 13. HuggingFace
+### 12. HuggingFace
 
 ```json
 {
@@ -352,7 +327,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 14. Bedrock (Amazon)
+### 13. Bedrock (Amazon)
 
 ```json
 {
@@ -364,14 +339,15 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
     "modelsEndpoint": null,
     "chatEndpoint": "/model/{model}/invoke",
     "fallbackModels": [
-      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-5-sonnet-20240229-v1:0",
+      "anthropic.claude-3-opus-20240229-v1:0",
       "amazon.titan-text-express-v1"
     ]
   }
 }
 ```
 
-### 15. Vertex AI (Google)
+### 14. Vertex AI (Google)
 
 ```json
 {
@@ -386,7 +362,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 16. AI21 Labs
+### 15. AI21 Labs
 
 ```json
 {
@@ -402,7 +378,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 17. Writer
+### 16. Writer
 
 ```json
 {
@@ -418,7 +394,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 18. Reka AI
+### 17. Reka AI
 
 ```json
 {
@@ -434,7 +410,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 19. Perplexity AI
+### 18. Perplexity AI
 
 ```json
 {
@@ -449,7 +425,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 20. xAI (Grok)
+### 19. xAI (Grok)
 
 ```json
 {
@@ -464,7 +440,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 21. Inflection AI
+### 20. Inflection AI
 
 ```json
 {
@@ -480,7 +456,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 22. 01.AI
+### 21. 01.AI
 
 ```json
 {
@@ -495,7 +471,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 23. Together AI
+### 22. Together AI
 
 ```json
 {
@@ -510,7 +486,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 24. Anyscale
+### 23. Anyscale
 
 ```json
 {
@@ -525,7 +501,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 25. Fireworks AI
+### 24. Fireworks AI
 
 ```json
 {
@@ -540,7 +516,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 26. DeepInfra
+### 25. DeepInfra
 
 ```json
 {
@@ -555,7 +531,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 27. Lepton AI
+### 26. Lepton AI
 
 ```json
 {
@@ -570,7 +546,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 28. Monster API
+### 27. Monster API
 
 ```json
 {
@@ -585,7 +561,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 29. Novita AI
+### 28. Novita AI
 
 ```json
 {
@@ -600,12 +576,12 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 30. Blackbox AI
+### 29. Blackbox AI
 
 ```json
 {
-  "provider_type": "blackbox",
-  "config_template": {
+  "type": "blackbox",
+  "config": {
     "name": "Blackbox AI",
     "endpoint": "https://api.blackbox.ai/v1",
     "authType": "bearer",
@@ -616,18 +592,33 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 31. OpenCode Zen
+### 30. OpenCode Zen
 
 ```json
 {
-  "provider_type": "opencode",
-  "config_template": {
+  "type": "opencode",
+  "config": {
     "name": "OpenCode Zen",
     "endpoint": "https://api.opencode.ai/v1",
     "authType": "bearer",
     "modelsEndpoint": null,
     "chatEndpoint": "/completions",
     "fallbackModels": ["opencode-instruct", "opencode-base"]
+  }
+}
+```
+
+### 31. LM Studio
+
+```json
+{
+  "type": "local",
+  "config": {
+    "name": "LM Studio",
+    "endpoint": "http://localhost:1234/v1",
+    "authType": "none",
+    "modelsEndpoint": "/models",
+    "chatEndpoint": "/chat/completions"
   }
 }
 ```
@@ -666,9 +657,7 @@ interface CloudProviderConfig extends BaseProviderConfig {
     | "inflection"
     | "blackbox"
     | "opencode"
-    | "local"
-    | "local_inference"
-    | "quantum";
+    | "local";
   endpoint: string;
   config: {
     authType:
@@ -676,8 +665,7 @@ interface CloudProviderConfig extends BaseProviderConfig {
       | "x-api-key"
       | "api-key"
       | "aws"
-      | "none"
-      | "quantum-token";
+      | "none";
     modelsEndpoint: string | null;
     chatEndpoint: string;
     headers?: Record<string, string>;
@@ -973,122 +961,6 @@ aide providers add \
   --no-auth
 
 # Note: Model selection happens in the UI after provider is added
-```
-
-## Vercel AI SDK Integration
-
-### Provider Setup with AI SDK
-
-```typescript
-// lib/ai/providers.ts
-import { createOpenAI } from "@ai-sdk/openai";
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createMistral } from "@ai-sdk/mistral";
-
-export function createProvider(config: AIProviderConfig) {
-  if (config.type === "cli_agent") {
-    throw new Error(
-      "CLI Agents cannot be used with the Vercel AI SDK directly. Use the Terminal Interface.",
-    );
-  }
-
-  switch (config.type) {
-    case "openai":
-      return createOpenAI({ apiKey: config.apiKey, baseURL: config.endpoint });
-
-    case "anthropic":
-      return createAnthropic({ apiKey: config.apiKey });
-
-    case "google":
-      return createGoogleGenerativeAI({ apiKey: config.apiKey });
-
-    case "mistral":
-      return createMistral({ apiKey: config.apiKey });
-
-    case "openai_compatible":
-      // For OpenRouter, Groq, local models
-      return createOpenAI({ apiKey: config.apiKey, baseURL: config.endpoint });
-
-    default:
-      throw new Error(`Unknown provider type: ${config.type}`);
-  }
-}
-```
-
-### Streaming Chat Implementation
-
-```typescript
-// lib/ai/chat.ts
-import { streamText } from "ai";
-import { createProvider } from "./providers";
-
-export async function streamChat(
-  config: AIProviderConfig,
-  messages: Message[],
-  tools: ToolSet,
-) {
-  const provider = createProvider(config);
-
-  if (!config.selectedModel) {
-    throw new Error("No model selected. Please select a model first.");
-  }
-
-  const result = await streamText({
-    model: provider(config.selectedModel),
-    messages,
-    tools,
-    maxTokens: config.config.maxTokens || 4096,
-    temperature: config.config.temperature || 0.7,
-  });
-
-  return result;
-}
-```
-
-### Tool Definitions for File Operations
-
-```typescript
-// lib/ai/tools.ts
-import { tool } from "ai";
-import { z } from "zod";
-import { invoke } from "@tauri-apps/api/core";
-
-export const fileTools = {
-  readFile: tool({
-    description: "Read the contents of a file in the workspace",
-    parameters: z.object({
-      filePath: z.string().describe("Path to the file relative to workspace"),
-    }),
-    execute: async ({ filePath }) => {
-      return await invoke("read_file", { path: filePath });
-    },
-  }),
-
-  proposeEdit: tool({
-    description:
-      "Propose an edit to a file. User must approve before applying.",
-    parameters: z.object({
-      filePath: z.string().describe("Path to the file"),
-      newContent: z.string().describe("The complete new content of the file"),
-      explanation: z.string().describe("Brief explanation of changes"),
-    }),
-    execute: async ({ filePath, newContent, explanation }) => {
-      // This triggers the diff modal in the UI
-      return { filePath, newContent, explanation, status: "pending_approval" };
-    },
-  }),
-
-  listFiles: tool({
-    description: "List files in a directory within the workspace",
-    parameters: z.object({
-      directory: z.string().describe("Directory path relative to workspace"),
-    }),
-    execute: async ({ directory }) => {
-      return await invoke("list_files", { path: directory });
-    },
-  }),
-};
 ```
 
 ## CLI Agents Integration
@@ -1609,7 +1481,8 @@ function getFallbackModels(providerType: string): ModelInfo[] {
       "claude-3-haiku",
     ],
     bedrock: [
-      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-5-sonnet-20240229-v1:0",
+      "anthropic.claude-3-opus-20240229-v1:0",
       "amazon.titan-text-express-v1",
     ],
     ai21: ["j2-ultra", "j2-mid", "j2-light"],
@@ -1645,37 +1518,9 @@ interface ModelInfo {
 - **Accurate**: Shows only currently available models
 - **No App Updates**: New models work without AIDE updates
 
-## Local AI Models (Quantized)
-
-AIDE supports local inference with quantized models for privacy and speed.
-
-### Supported Local Models
-
-| Model                  | Size | Quantization | Use Case        |
-| ---------------------- | ---- | ------------ | --------------- |
-| CodeLlama-7B-Q4        | 4GB  | GGUF Q4_0    | General coding  |
-| DeepSeek-Coder-16B-Q4  | 8GB  | GGUF Q4_0    | Advanced coding |
-| Claude-3-Sonnet-Q4     | 12GB | GGUF Q4_0    | Code review     |
-| Mistral-7B-Instruct-Q4 | 4GB  | GGUF Q4_0    | Quick tasks     |
-
-### Local Inference Configuration
-
-```json
-{
-  "type": "local_inference",
-  "config": {
-    "name": "Local WebGPU Inference",
-    "endpoint": "local://webgpu",
-    "models": ["codellama-7b-q4", "deepseek-coder-16b-q4"],
-    "hardware_acceleration": "webgpu",
-    "fallback": "wasm"
-  }
-}
-```
-
 ---
 
 **Last Updated**: `2024-12-19`  
 **AIDE Version**: `1.0.0`  
-**Supported Providers**: 31 provider templates (29 cloud + 1 local + 1 quantum) + 12 CLI agents = 43 Total  
+**Supported Providers**: 31 provider templates (29 cloud + 2 local) + 12 CLI agents = 43 Total  
 **Config Version**: `1.0.0`

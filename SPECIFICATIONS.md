@@ -8,15 +8,15 @@
 
 ### Core Architecture Principles
 
-| #   | Principle                        | Description                                                                                                |
-| --- | -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 1   | **Models are NEVER hardcoded**   | All AI models are fetched dynamically from provider APIs. See `PROVIDERS.md`.                              |
-| 2   | **User selects the model**       | After adding a provider, user must select a model from the fetched list. `selectedModel` starts as `null`. |
-| 3   | **Priority order matters**       | `openai_compatible` providers first (cost-efficient), `openai` direct last (expensive fallback).           |
-| 4   | **API keys in OS keychain only** | Never store API keys in config files, localStorage, or plain text.                                         |
-| 5   | **Diff Modal is sacred**         | File changes must always show a diff view. User must explicitly Accept or Reject. No auto-apply.           |
-| 6   | **Workspace sandboxing**         | All file operations are confined to the user-selected workspace directory.                                 |
-| 7   | **No telemetry**                 | The app never phones home. All communication is with user-configured AI providers only.                    |
+| #   | Principle                        | Description                                                                                                                                                       |
+| --- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Models are NEVER hardcoded**   | All AI models are fetched dynamically from provider APIs. See `PROVIDERS.md`. |
+| 2   | **User selects the model**       | After adding a provider, user must select a model from the fetched list. `selectedModel` starts as `null`.                                                        |
+| 3   | **Priority order matters**       | `openai_compatible` providers first (cost-efficient), `openai` direct last (expensive fallback).                                                                  |
+| 4   | **API keys in OS keychain only** | Never store API keys in config files, localStorage, or plain text.                                                                                                |
+| 5   | **Diff Modal is sacred**         | File changes must always show a diff view. User must explicitly Accept or Reject. No auto-apply.                                                                  |
+| 6   | **Workspace sandboxing**         | All file operations are confined to the user-selected workspace directory.                                                                                        |
+| 7   | **No telemetry**                 | The app never phones home. All communication is with user-configured AI providers only.                                                                           |
 
 ### Cross-Reference Documents
 
@@ -81,95 +81,57 @@
 - **As a user,** I have a clean, familiar chat interface for conversing with the AI.
 - **As a user,** I can see a visual indicator of the currently active AI provider.
 - **As a user,** I can see a log of file activities (reads, proposed edits, applied changes) in a status panel.
+- 🤖 **43 AI Providers** (31 provider templates: 29 cloud + 2 local + 12 CLI agents)
 
 ## 3. Technical Architecture & Stack
 
 ### 3.1 Mandated Tech Stack
 
-| Component                   | Technology                                                                                                                                    | Why Chosen                                                |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| **Desktop Framework**       | [Tauri 2.5](https://v2.tauri.app/) + WASM Edge Functions                                                                                      | Small, fast, secure apps with native AI inference         |
-| **AI Orchestration**        | [Vercel AI SDK 4.0](https://sdk.vercel.ai/) + [LangChain](https://js.langchain.com/) + Local Inference                                        | Streaming-first with multi-provider + WebGPU acceleration |
-| **Frontend UI**             | React 19 + Million.js + TypeScript 5.5 + Tailwind CSS 4.0                                                                                     | 70% faster renders with compile-time optimization         |
-| **3D Workspace**            | Three.js + Spatial Computing + @react-three/fiber                                                                                             | Immersive code visualization and navigation               |
-| **Local WebGPU Inference**  | WebGPU + WASM + Quantized Models (GGUF/GGML)                                                                                                  | Hardware-accelerated local AI at native speed             |
-| **Real-time Collaboration** | WebRTC + CRDT (Yjs) + End-to-End Encryption                                                                                                   | Multiplayer editing with privacy                          |
-| **Quantum Computing**       | Qiskit + Cirq + Quantum Simulators                                                                                                            | Code optimization via quantum algorithms                  |
-| **Security**                | Post-Quantum Crypto + Local Blockchain Audit + OS Keychain                                                                                    | Future-proof security with immutable audit trail          |
-| **State Management**        | Zustand + TanStack Query                                                                                                                      | Centralized store with robust server-state caching        |
-| **Local Database**          | [Turso](https://turso.tech/) + [LanceDB](https://lancedb.com/) + Vector Embeddings                                                            | Edge SQLite + GPU-accelerated vector search               |
-| **Code Editor**             | [Monaco Editor](https://microsoft.github.io/monaco-editor/) + [Shiki](https://shiki.style/) + Semantic Analysis                               | VS Code-grade editing + AI-powered code intelligence      |
-| **Motion & UX**             | [Framer Motion 11](https://www.framer.com/motion/) + Physics + Adaptive UI                                                                    | Cinematic experience with context-aware interface         |
-| **Dev Tools**               | [Vite 6](https://vitejs.dev/) + [Biome 2.0](https://biomejs.dev/) + [Vitest 2](https://vitest.dev/) + [Playwright 2](https://playwright.dev/) | Rust-based tooling for maximum performance                |
+| Component             | Technology                                                  | Why Chosen                                      |
+| --------------------- | ----------------------------------------------------------- | ----------------------------------------------- |
+| **Desktop Framework** | [Tauri 2.5](https://v2.tauri.app/)                          | Small, fast, secure desktop apps                |
+| **AI HTTP Client**    | Custom fetch/streaming implementation                        | Lightweight, provider-agnostic, supports streaming |
+| **Frontend UI**       | React 19 + TypeScript 5.5 + Tailwind CSS 4.0                | Modern, type-safe UI with utility-first styling |
+| **State Management**  | Zustand + TanStack Query                                    | Lightweight state + robust server-state caching |
+| **Local Database**    | [Turso](https://turso.tech/) (SQLite)                       | Edge SQLite with type-safe ORM via Drizzle      |
+| **Code Editor**       | [Monaco Editor](https://microsoft.github.io/monaco-editor/) | VS Code-grade editing for diff viewer           |
+| **Dev Tools**         | Vite 6 + Biome 2.0 + Vitest 2 + Playwright 2                | Fast builds, linting/formatting, testing        |
 
 ### 3.2 Complete System Architecture
 
-````mermaid
+```mermaid
 graph TB
-    User[User Input] --> Frontend[React 19 + Three.js + Million.js]
-    Frontend --> Tauri[Tauri 2.5 + WASM + WebGPU]
+    User[User Input] --> Frontend[React 19 + TypeScript + Tailwind]
+    Frontend --> Tauri[Tauri 2.5]
 
     Tauri --> MultiAI[Multi-AI Orchestrator]
-    Tauri --> LocalAI[Local WebGPU Inference]
-    Tauri --> Quantum[Quantum Optimizer]
-    Tauri --> Blockchain[Blockchain Audit System]
-    Tauri --> Collaboration[CRDT Collaboration Engine]
+    Tauri --> FileOps[File Operations]
 
-    MultiAI --> Cloud[29+ Cloud Providers]
-    MultiAI --> Local[WebGPU Local Models]
-    MultiAI --> QuantumAPI[Quantum Computing APIs]
+    MultiAI --> HTTP[31+ HTTP Providers (Cloud & Local)]
     MultiAI --> CLI[12 CLI Agents]
 
-    LocalAI --> WebGPU[WebGPU Acceleration]
-    LocalAI --> WASM[WASM Runtime]
-    LocalAI --> Models[Quantized GGUF Models]
-
-    Quantum --> Qiskit[Qiskit Simulator]
-    Quantum --> Cirq[Cirq Quantum]
-
-    Blockchain --> Audit[Immutable Audit Trail]
-    Blockchain --> PostQuantum[Post-Quantum Crypto]
-
-    Collaboration --> WebRTC[WebRTC P2P]
-    Collaboration --> CRDT[CRDT Synchronization]
-    Collaboration --> E2E[End-to-End Encryption]
-
-    FileOps[File Operations] --> ReadWrite[Read/Write Files]
-    FileOps --> Diff[Diff Modal + 3D Visualization]
+    FileOps --> ReadWrite[Read/Write Files]
+    FileOps --> Diff[Diff Modal]
     FileOps --> Sandbox[Workspace Sandbox]
 
-    subgraph "Complete Data Layer"
-        Turso[(Turso Edge SQLite)]
-        LanceDB[(LanceDB Vector DB)]
-        VectorIndex[Vector Index]
-        SemanticSearch[Semantic Search]
-    end
-
-    Frontend --> Turso
-    Frontend --> LanceDB
-    Frontend --> ThreeJS[3D Workspace Renderer]
-    Frontend --> AdaptiveUI[Adaptive Interface]
-```ollaboration]
-    end
-
-    Frontend --> LanceDB
-    Frontend --> EventSourcing
-    Frontend --> ThreeJS
-    Frontend --> CRDT
-````
+    Frontend --> Turso[(Turso SQLite)]
+```
 
 ### 3.3 Key Security Model
 
 1.  **File System Sandboxing:** The app's `tauri.conf.json` will define a strict allow-list for file system access, scoped initially to the user-selected workspace directory.
 2.  **Credential Storage:** API keys will be encrypted and stored using the OS-native keychain (Windows Credential Manager, macOS Keychain, Linux libsecret) via Tauri's `tauri-plugin-store` or similar.
 3.  **No Telemetry:** The application will not phone home. All communication is strictly between the app and the user's configured AI provider endpoint.
+
+- **Exception:** OpenRouter requires `HTTP-Referer` and `X-Title` headers for API ranking. These contain only app identification, not user data.
+
 4.  **Explicit Consent:** The **diff-and-confirm** step is non-optional for the MVP. An "auto-apply" mode may be a configurable setting in the future, defaulting to OFF.
 
 ### 3.4 Current State Management (Phase 1)
 
 #### Zustand Stores Structure
 
-```typescript
+````typescript
 // stores/provider-store.ts
 interface ProviderStore {
   // State
@@ -238,10 +200,12 @@ interface UIStore {
   toggleSidebar: () => void;
   toggleActivityLog: () => void;
   toggleCommandPalette: () => void;
-  toggleSettings: () => void;
+
+
   setTheme: (theme: "light" | "dark" | "system") => void;
 }
-```
+
+
 
 #### Provider Store Implementation Example
 
@@ -342,8 +306,7 @@ export const useProviderStore = create<ProviderStore>()(
         activeModel: state.activeModel,
       }),
     },
-  ),
-);
+}
 ```
 
 #### TanStack Query for Model Fetching
@@ -404,7 +367,8 @@ function getFallbackModels(providerType: string): ModelInfo[] {
       "claude-3-haiku",
     ],
     bedrock: [
-      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-5-sonnet-20240229-v1:0",
+      "anthropic.claude-3-opus-20240229-v1:0",
       "amazon.titan-text-express-v1",
     ],
     ai21: ["j2-ultra", "j2-mid", "j2-light"],
@@ -557,37 +521,28 @@ export async function runCLIAgent(
 | Secret exposure     | API keys passed via env vars, never command args     |
 | Arbitrary execution | Only pre-approved CLI agents can be invoked          |
 
-## 4. Complete Feature Set
+### 4. Complete Feature Set
 
 AIDE delivers a revolutionary development environment with the following complete feature set:
 
 ### Core AI Features
 
-- 🤖 **43+ AI Providers**: OpenAI, Anthropic, Google Gemini, OpenRouter, Groq, etc.
-- ⚡ **Local WebGPU Inference**: Hardware-accelerated local AI with quantized models
-- 🧠 **Multi-AI Orchestration**: Intelligent routing and consensus across providers
-- 🔮 **Quantum Optimization**: Quantum algorithms for code optimization
+- 🤖 **43 AI Providers** (31 provider templates: 29 cloud + 2 local + 12 CLI agents)
+- 🔄 **Dynamic Model Fetching**: Models fetched live from provider APIs
+- 💬 **Streaming Chat Interface**: Real-time AI conversations
 
-### Workspace & Collaboration
+### Workspace & Security
 
-- 🌌 **3D Spatial Workspace**: Immersive code visualization with Three.js
-- 🤝 **Real-time Collaboration**: Multiplayer editing with CRDT synchronization
-- 🔒 **End-to-End Encryption**: Privacy-first collaboration
-- 📁 **Smart File Operations**: AI-powered file reading, analysis, and editing
-
-### Security & Privacy
-
-- 🛡️ **Post-Quantum Cryptography**: Future-proof encryption (Kyber-1024)
-- 📜 **Blockchain Audit Trail**: Immutable record of all file operations
+- � **Secure File Operations**: Read and edit files with mandatory user confirmation
+- 🏝️ **Workspace Sandboxing**: Strict file access limited to user-selected directories
+- 🔍 **Diff Viewer**: Clear visual diffs for all proposed changes
 - 🔐 **OS Keychain Storage**: API keys stored in hardware-secured keychains
-- 🏝️ **Workspace Sandboxing**: Strict file access boundaries
 
 ### Development Experience
 
-- 🎨 **Adaptive UI**: Context-aware interface that evolves with usage
-- ⚡ **WebGPU Acceleration**: 10x faster AI inference
-- 🔍 **Semantic Code Search**: Vector-based code understanding
-- 🕰️ **Time-travel Debugging**: Event-sourced state management
+- 🎨 **Clean UI**: Modern, responsive interface
+- ⚡ **Fast Performance**: Optimized with Tauri's Rust backend
+- �️ **CLI Agent Integration**: Execute AI tools like Aider, Copilot CLI
 
 ## 5. Detailed User Workflow (MVP)
 
@@ -616,8 +571,8 @@ User opens the AIDE application for the first time.
 1. After saving provider, app automatically fetches models from `/models` endpoint.
 2. A loading spinner appears: "Fetching available models..."
 3. Model dropdown populates with live models from the API.
-4. User selects a model (e.g., `anthropic/claude-3.5-sonnet`).
-5. App saves the selection and shows toast: "Now using claude-3.5-sonnet with OpenRouter".
+4. User selects a model (e.g., `anthropic/claude-3-5-sonnet`).
+5. App saves the selection and shows toast: "Now using claude-3-5-sonnet with OpenRouter".
 6. **Edge Case:** If model fetch fails:
    - Show warning: "Could not fetch models. Using cached list."
    - Display fallback models (if available for provider type).
@@ -663,7 +618,7 @@ User opens the AIDE application for the first time.
 
 1. **If user clicks Accept:**
    - Tauri Rust backend writes new content to file.
-   - Modal closes with fade animation.
+   - Modal closes instantly (no animation).
    - Toast appears: "✓ Changes applied to src/main.js"
    - Chat shows system message: "✓ Changes applied to `src/main.js`."
    - Activity log (future) adds entry.
@@ -726,9 +681,11 @@ aide-desktop/
 │   │       └── command-palette.tsx
 │   ├── lib/
 │   │   ├── ai/
-│   │   │   ├── provider-adapter.ts
+│   │   │   ├── providers.ts       # Provider HTTP client
+│   │   │   ├── chat.ts            # Streaming chat implementation
 │   │   │   ├── tools.ts           # File read/write tools
-│   │   │   └── agent.ts           # LangChain agent setup
+│   │   │   ├── model-discovery.ts # Dynamic model fetching
+│   │   │   └── agent.ts           # AI agent setup
 │   │   ├── cli/
 │   │   │   ├── execute.ts         # CLI agent execution (v1.0.0+)
 │   │   │   └── detection.ts       # CLI binary detection
@@ -745,7 +702,7 @@ aide-desktop/
 │   │   ├── chat-store.ts
 │   │   └── ui-store.ts
 │   ├── hooks/
-│   │   ├── use-ai.ts              # Vercel AI SDK hook
+│   │   ├── use-ai.ts              # AI chat hook
 │   │   ├── use-file-operations.ts
 │   │   ├── use-keyboard-shortcuts.ts
 │   ├── styles/
@@ -788,6 +745,14 @@ aide-desktop/
 └── UI_UX_SPECIFICATION.md
 ```
 
+### Configuration Files
+
+| File                | Purpose                                                     |
+| ------------------- | ----------------------------------------------------------- |
+| `drizzle.config.ts` | Database connection and migration settings for Drizzle ORM  |
+| `biome.json`        | Linting and formatting rules (replaces ESLint + Prettier)   |
+| `tauri.conf.json`   | Tauri app configuration, permissions, and security settings |
+
 ## 8. Success Metrics for MVP
 
 ### Functional Metrics
@@ -827,188 +792,5 @@ aide-desktop/
 | Thinking state  | Always visible (spinner + status bar)   |
 | File context    | Clear which file is being discussed     |
 
-### 3.7 Local WebGPU Inference Engine
 
-AIDE includes a complete local WebGPU inference system for privacy and performance.
-
-#### WebGPU + WASM Architecture
-
-```typescript
-// Local inference with hardware acceleration
-export class LocalInferenceEngine {
-  private webgpuEngine: WebGPUInference;
-  private wasmRuntime: WASMRuntime;
-  private quantizedModels: Map<string, QuantizedModel>;
-
-  async initialize() {
-    // WebGPU for GPU acceleration
-    if (await WebGPUInference.isSupported()) {
-      this.webgpuEngine = new WebGPUInference();
-      await this.webgpuEngine.initialize();
-    }
-
-    // WASM fallback for CPU inference
-    this.wasmRuntime = await WASMRuntime.load();
-
-    // Load quantized models (5-10x faster)
-    await this.loadQuantizedModels([
-      "codellama-7b-q4",
-      "deepseek-coder-16b-q4",
-      "claude-3-sonnet-q4",
-    ]);
-  }
-}
-```
-
-### 3.8 Multiplayer Collaboration System
-
-Real-time collaborative editing with end-to-end encryption and conflict resolution.
-
-#### CRDT-Based Synchronization
-
-```typescript
-// Conflict-free collaborative editing
-export class CollaborativeWorkspace {
-  private ydoc: Y.Doc;
-  private provider: WebrtcProvider;
-  private encryption: E2EEncryption;
-
-  constructor(workspaceId: string) {
-    this.ydoc = new Y.Doc();
-    this.provider = new WebrtcProvider(workspaceId, this.ydoc);
-    this.encryption = new E2EEncryption();
-
-    // End-to-end encryption for privacy
-    this.provider.on("peers", (peers) => {
-      peers.forEach((peer) => this.encryption.exchangeKeys(peer));
-    });
-  }
-}
-```
-
-### 3.9 Quantum Computing Interface
-
-Code optimization using quantum algorithms and simulators.
-
-#### Quantum Code Optimizer
-
-```typescript
-// Quantum-enhanced optimization
-export class QuantumCodeOptimizer {
-  private qiskitBackend: QiskitSimulator;
-  private circuitBuilder: QuantumCircuitBuilder;
-
-  async optimizeCode(codeAst: AST): Promise<OptimizedCode> {
-    // Convert optimization problem to quantum circuit
-    const circuit = this.circuitBuilder.encode(codeAst);
-
-    // Execute on quantum simulator
-    const result = await this.qiskitBackend.execute(circuit);
-
-    // Decode quantum result to optimized code
-    return this.circuitBuilder.decode(result);
-  }
-}
-```
-
----
-
-### 3.10 Blockchain Audit System
-
-Immutable audit trail with post-quantum cryptography for complete security compliance.
-
-#### Local Blockchain Architecture
-
-```typescript
-// Immutable audit trail for all file operations
-export class BlockchainAuditSystem {
-  private blockchain: LocalBlockchain;
-  private quantumCrypto: PostQuantumCrypto;
-  private auditStore: AuditStore;
-
-  constructor() {
-    this.blockchain = new LocalBlockchain({
-      algorithm: "post-quantum-sha3",
-      blockSize: 1024,
-      difficulty: 4,
-    });
-    this.quantumCrypto = new PostQuantumCrypto("CRYSTALS-Kyber");
-  }
-
-  async recordFileOperation(operation: FileOperation): Promise<AuditBlock> {
-    const auditEntry = {
-      timestamp: Date.now(),
-      operation: operation.type,
-      filePath: operation.path,
-      userHash: await this.quantumCrypto.hash(operation.user),
-      contentHash: await this.quantumCrypto.hash(operation.content),
-      signature: await this.quantumCrypto.sign(operation),
-    };
-
-    return await this.blockchain.addBlock(auditEntry);
-  }
-}
-```
-
-#### Compliance Features
-
-- **Immutable History**: All file operations permanently recorded
-- **Zero-Knowledge Proofs**: Verify operations without revealing content
-- **Multi-Signature Approval**: Require multiple approvals for critical operations
-- **Quantum-Resistant**: Future-proof against quantum computer attacks
-- **Compliance Reports**: Automated SOC2, GDPR, HIPAA compliance reporting
-
-### 3.11 3D Workspace Architecture
-
-Immersive spatial computing environment for code visualization and navigation.
-
-#### 3D Engine Integration
-
-```typescript
-// Three.js integration for 3D workspace
-export class Workspace3D {
-  private scene: THREE.Scene;
-  private renderer: THREE.WebGLRenderer;
-  private camera: THREE.PerspectiveCamera;
-  private spatialIndex: SpatialIndex;
-
-  constructor(container: HTMLElement) {
-    this.scene = new THREE.Scene();
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000,
-    );
-
-    // Spatial indexing for performance
-    this.spatialIndex = new SpatialIndex();
-
-    this.setupLighting();
-    this.setupControls();
-    this.setupPhysics();
-  }
-
-  renderFileTree(fileTree: FileNode[]): void {
-    // Convert file tree to 3D spatial layout
-    const spatialLayout = this.calculateSpatialLayout(fileTree);
-
-    spatialLayout.forEach((node) => {
-      const mesh = this.createFileMesh(node);
-      this.scene.add(mesh);
-      this.spatialIndex.add(mesh, node.bounds);
-    });
-  }
-}
-```
-
-#### Spatial Features
-
-- **File Hierarchy Visualization**: 3D representation of directory structure
-- **Code Relationship Mapping**: Visual connections between related files
-- **Collaborative Presence**: Real-time 3D avatars for multiplayer editing
-- **Spatial Navigation**: Natural movement through codebase using VR/AR controls
-- **Performance Optimization**: Spatial indexing and level-of-detail rendering
-
----
+````
