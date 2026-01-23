@@ -62,7 +62,6 @@ pub struct LedgerState {
     pub policy: Mutex<BudgetPolicy>,
     /// Last seen budget policy version
     pub last_budget_version: Mutex<semver::Version>,
-}
     pub budget_key: Mutex<Option<VerifyingKey>>, // L2-4: Policy Trust Anchor
 }
 
