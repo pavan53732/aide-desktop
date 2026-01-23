@@ -117,8 +117,8 @@ This document defines the configuration specifications for all AI providers supp
 | `gh-copilot`   | GitHub Copilot CLI | `gh copilot`   | `gh extension install github/gh-copilot` | 54       |
 | `claude-code`  | Claude Code        | `claude-code`  | `pip install claude-code`                | 55       |
 | `gemini-cli`   | Gemini CLI         | `gemini`       | `pip install gemini-cli`                 | 56       |
-| `opencode`     | OpenCode           | `opencode`     | `npm install -g opencode-cli`            | 57       |
-| `blackbox`     | Blackbox CLI       | `blackbox`     | `npm install -g blackbox-cli`            | 58       |
+| `opencode_cli` | OpenCode           | `opencode`     | `npm install -g opencode-cli`            | 57       |
+| `blackbox_cli` | Blackbox CLI       | `blackbox`     | `npm install -g blackbox-cli`            | 58       |
 | `crush`        | Crush CLI          | `crush`        | `cargo install crush-cli`                | 59       |
 | `codex`        | Codex CLI          | `codex`        | `pip install codex-cli`                  | 60       |
 | `warp`         | Warp AI            | Built-in       | Download Warp terminal                   | 61       |
@@ -357,7 +357,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
     "endpoint": "https://{region}-aiplatform.googleapis.com/v1",
     "authType": "bearer",
     "modelsEndpoint": "/models",
-    "chatEndpoint": "/projects/{project}/locations/{region}/publishers/google/models/{model}:predict"
+    "chatEndpoint": "/projects/{project}/locations/{region}/publishers/google/models/{model}:streamGenerateContent"
   }
 }
 ```
@@ -576,11 +576,11 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 29. Blackbox AI
+### 29. Blackbox AI (API)
 
 ```json
 {
-  "type": "blackbox",
+  "type": "blackbox_api",
   "config": {
     "name": "Blackbox AI",
     "endpoint": "https://api.blackbox.ai/v1",
@@ -592,11 +592,11 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-### 30. OpenCode Zen
+### 30. OpenCode Zen (API)
 
 ```json
 {
-  "type": "opencode",
+  "type": "opencode_api",
   "config": {
     "name": "OpenCode Zen",
     "endpoint": "https://api.opencode.ai/v1",
@@ -655,8 +655,8 @@ interface CloudProviderConfig extends BaseProviderConfig {
     | "writer"
     | "reka"
     | "inflection"
-    | "blackbox"
-    | "opencode"
+    | "blackbox_api"
+    | "opencode_api"
     | "local";
   endpoint: string;
   config: {
@@ -1122,11 +1122,11 @@ async function isCommandAvailable(
 }
 ```
 
-#### 5. OpenCode
+#### 5. OpenCode CLI
 
 ```json
 {
-  "id": "opencode",
+  "id": "opencode_cli",
   "name": "OpenCode",
   "type": "cli_agent",
   "command": "opencode",
@@ -1153,7 +1153,7 @@ async function isCommandAvailable(
 
 ```json
 {
-  "id": "blackbox",
+  "id": "blackbox_cli",
   "name": "Blackbox CLI",
   "type": "cli_agent",
   "command": "blackbox",

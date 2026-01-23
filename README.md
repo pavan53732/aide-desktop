@@ -20,7 +20,7 @@
 > 2. [`PROVIDERS.md`](./PROVIDERS.md) - AI provider configurations (models are fetched dynamically, NEVER hardcoded)
 > 3. [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) - UI components, design system
 >
-> **Key Rule:** Models are fetched from provider APIs at runtime. `selectedModel` starts as `null`. Never hardcode model names (Exception: `local_inference` uses configurable local model files).
+> **Key Rule:** Models are fetched from provider APIs at runtime. `selectedModel` starts as `null`. Never hardcode model names.
 
 ---
 
