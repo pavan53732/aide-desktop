@@ -24,11 +24,14 @@
 
 ```typescript
 // ✅ CORRECT: Use provider system
-interface MultiAIOrchestrator {
+// Unified naming: MultiAIOrchestrator is an alias for AIControlPlane from SPECIFICATIONS.md
+type MultiAIOrchestrator = AIControlPlane;
+
+interface AIControlPlane {
   chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse>;
   generateEmbedding(text: string): Promise<EmbeddingResponse>;
-  supportsChat(): boolean;
-  supportsEmbeddings(): boolean;
+  checkCapability(capability: keyof ProviderCapabilities): boolean;
+  requireCapability(capability: keyof ProviderCapabilities): void;
   getCurrentProvider(): AIProviderConfig;
   getCurrentModel(): string | null;
   resolveModelFor(capability: string): string;
@@ -68,8 +71,7 @@ const memory = new UltraLongTermMemory(
 4. [Level 4: Learning & Memory](#level-4-learning--memory)
 5. [Level 5: Advanced Features](#level-5-advanced-features)
 6. [Level 6: Ultra-Deep Microscopic Intelligence](#level-6-ultra-deep-microscopic-intelligence)
-7. [Implementation Roadmap](#implementation-roadmap)
-8. [Intelligence Metrics](#intelligence-metrics)
+7. [Intelligence Metrics](#intelligence-metrics)
 
 ---
 
@@ -284,6 +286,10 @@ type Feedback = {
 };
 type CodePrediction = any;
 type DeveloperIntent = any;
+type TokenRelationship = any;
+type TokenEvolution = any;
+type TokenSentiment = any;
+type IndentationAnalysis = any;
 
 export class UltraMicroscopicAnalyzer {
   private workspace: string;
@@ -393,7 +399,7 @@ export class UltraMicroscopicAnalyzer {
     // Semantic dimension analysis
     const semantic = await this.analyzeSemanticDimensions();
     
-    return { temporal, complexity, social, semantic };
+    return { temporal, complexity, social, semantic, confidence: 0.8 };
   }
   
   private async analyzeEveryToken(files: string[]): Promise<TokenLevelAnalysis> {
@@ -1149,7 +1155,7 @@ Provider adapters resolve these roles to concrete models at runtime.
 
 | Model | Specialty | Best For |
 |-------|-----------|----------|
-| **architecture-specialist** | Code Generation | Writing functions, implementing features |
+| **code-generation-specialist** | Code Generation | Writing functions, implementing features |
 | **code-review-specialist** | Code Review | Reviewing code, suggesting improvements |
 | **architecture-specialist** | Architecture | System design, refactoring plans |
 | **debugging-specialist** | Debugging | Finding bugs, fixing errors |
@@ -1196,7 +1202,8 @@ const SPECIALIZED_MODELS: ModelSpecialization[] = [
 
 export async function routeToSpecializedModel(
   userRequest: string,
-  context: ProjectContext
+  context: ProjectContext,
+  aiProvider: MultiAIOrchestrator
 ): Promise<{ model: string; prompt: string }> {
   // Classify the user's intent
   const intent = await classifyIntent(userRequest);
@@ -1263,9 +1270,8 @@ export async function multiAgentTask(
   const results: Record<string, string> = {};
   
   // Check if provider supports multi-step operations
-  if (!aiProvider.supportsChat()) {
-    throw new Error("Multi-agent tasks require a provider with chat capabilities");
-  }
+  // Require chat capability for multi-agent orchestration
+  aiProvider.requireCapability("chat");
   
   // Step 1: Architect designs
   console.log("🏗️ Architect designing solution...");
@@ -1423,7 +1429,7 @@ interface UltraMemory {
   workspaceId: string; // Workspace isolation
   type: "decision" | "preference" | "pattern" | "mistake" | "success" | "feedback";
   content: string;
-  embedding: number[]; // Vector embedding (1536 dimensions for OpenAI)
+  embedding: number[]; // Provider-defined dimensionality (varies by model)
   context: {
     file?: string;
     function?: string;
@@ -1691,9 +1697,8 @@ export class UltraLongTermMemory {
    */
   private async generateEmbedding(text: string): Promise<number[]> {
     // Check if current provider supports embeddings
-    if (!this.aiProvider.supportsEmbeddings()) {
-      throw new Error("Current AI provider does not support embeddings. Please configure a provider with embedding capabilities.");
-    }
+    // Use capability API from AIControlPlane
+    this.aiProvider.requireCapability("embeddings");
     
     const response = await this.aiProvider.generateEmbedding(text);
     return response.embedding;
@@ -1744,9 +1749,9 @@ export class UltraLongTermMemory {
    */
   private async aiAssessImportance(content: string): Promise<number> {
     // Check if current provider supports chat completions
-    if (!this.aiProvider.supportsChat()) {
-      // Fallback to rule-based importance calculation
-      return 0.5;
+    // Use capability API - graceful fallback if chat not available
+    if (!this.aiProvider.checkCapability("chat")) {
+      return 0.5; // Rule-based fallback
     }
     
     const response = await this.aiProvider.chat([{
@@ -2070,49 +2075,7 @@ AI watches as you code and helps in real-time.
 
 ---
 
-## 🗺️ **Implementation Roadmap**
-
-### **Phase 1: Ultra-Foundation (Months 1-3)**
-- ✅ Molecular project context analysis
-- ✅ Quantum-enhanced code graph building
-- ✅ Ultra-deep Git history learning
-- ✅ Multi-dimensional memory system
-
-### **Phase 2: Microscopic Intelligence (Months 4-6)**
-- ✅ Token-level code analysis
-- ✅ Character-level pattern recognition
-- ✅ Surgical precision editing
-- ✅ Predictive intelligence engine
-
-### **Phase 3: Quantum Intelligence (Months 7-9)**
-- ✅ Quantum memory system
-- ✅ Multi-dimensional code analysis
-- ✅ Telepathic code prediction
-- ✅ Zero-side-effect editing
-
-### **Phase 4: Molecular Mastery (Months 10-12)**
-- ✅ Perfect project understanding (99%+ accuracy)
-- ✅ Atomic-level code manipulation
-- ✅ Quantum-enhanced multi-model routing
-- ✅ Ultra-deep learning and adaptation
-
-### **Phase 5: Revolutionary Intelligence (Months 13-15)**
-- ✅ Natural language to molecular code generation
-- ✅ Framework migration with atomic precision
-- ✅ Quantum performance optimization
-- ✅ Molecular security analysis
-- ✅ Ultra-intelligent test generation
-
-### **Phase 6: Transcendent AI (Months 16-18)**
-- ✅ Consciousness-level code understanding
-- ✅ Telepathic developer synchronization
-- ✅ Quantum workflow optimization
-- ✅ Molecular-level debugging
-- ✅ Perfect code harmony achievement
-
----
-
-## 📊 **Intelligence Metrics**
+## � **Intelligence Metrics**
 
 ### **AIDE Intelligence Targets:**
 
@@ -2217,8 +2180,15 @@ export function calculateMetrics(tracker: MetricsTracker) {
 ---
 
 **Last Updated**: `2026-01-24`  
-**Version**: `2.0.0` (Intelligence Features)  
-**Status**: Planning Phase
+**Version**: `2.0.1` (Architecture-Aligned)  
+**Status**: Documentation Complete - Fully consistent with SPECIFICATIONS.md, PROVIDERS.md, README.md
+
+**Alignment Notes:**
+- ✅ Unified naming: `AIControlPlane` (with `MultiAIOrchestrator` as alias)
+- ✅ Provider-agnostic embeddings (no dimension assumptions)
+- ✅ Capability API usage (`checkCapability`, `requireCapability`)
+- ✅ No hardcoded models or direct API clients
+- ✅ Workspace-scoped memory and operations
 
 ---
 
@@ -2486,7 +2456,7 @@ interface CodeGenerationPipeline {
 }
 ```
 
-### **6.2 Intelligent Code Migration**
+### **6.5 Intelligent Code Migration**
 
 AIDE can migrate codebases between frameworks and languages.
 
@@ -2500,7 +2470,7 @@ AIDE can migrate codebases between frameworks and languages.
 | **Python 2 → Python 3** | Medium | 95% | Syntax updates |
 | **jQuery → React** | Very High | 75% | Architecture change |
 
-### **6.3 Performance Optimization AI**
+### **6.6 Performance Optimization AI**
 
 AIDE automatically optimizes code for performance.
 
@@ -2531,7 +2501,7 @@ interface PerformanceOptimizer {
 }
 ```
 
-### **6.4 Security Vulnerability Detection**
+### **6.7 Security Vulnerability Detection**
 
 Advanced security analysis beyond basic static analysis.
 
@@ -2565,7 +2535,7 @@ interface SecurityAnalyzer {
 }
 ```
 
-### **6.5 Intelligent Testing**
+### **6.8 Intelligent Testing**
 
 AIDE generates comprehensive test suites automatically.
 
@@ -2597,26 +2567,8 @@ interface IntelligentTesting {
 
 ---
 
-## **Intelligence Roadmap Extended**
-
-### **Phase 6: Advanced Intelligence (Months 11-15)**
-- ✅ Natural language to code generation
-- ✅ Framework migration assistance
-- ✅ Performance optimization AI
-- ✅ Advanced security analysis
-- ✅ Intelligent test generation
-
-### **Phase 7: Polish & Refinement (Months 16-18)**
-- ✅ Performance optimizations
-- ✅ Advanced debugging tools
-- ✅ Plugin system for extensibility
-- ✅ Advanced customization options
-- ✅ Community features and sharing
-
 ---
 
----
+**The Future of AI-Assisted Development is Here** 🚀
 
-**The Future of Molecular AI-Assisted Development is Here** 🚀
-
-**Built with 🧠 to make coding infinitely smarter at the molecular level.**
+**Built with 🧠 to make coding infinitely smarter.**

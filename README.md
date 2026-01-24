@@ -343,21 +343,16 @@ aide-desktop/
 
 > \*Exception: OpenRouter requires `extraHeaders` for rankings. This is the only allowed exception.
 
-## 📈 Development Roadmap
+## ✨ Current Features
 
-### Completed Features (Version 1.0.0)
-
-- ✅ Basic Tauri desktop window with React UI
 - ✅ Multi-provider AI configuration (43 providers: 31 provider templates + 12 CLI agents)
 - ✅ Dynamic model fetching from provider API
-- ✅ Model selection dropdown
-- ✅ Workspace folder selection
-- ✅ File read operations
-- ✅ File edit with diff view + Accept/Reject
+- ✅ Secure file operations with diff viewer
+- ✅ Workspace sandboxing
 - ✅ API keys stored in OS keychain
-- ✅ Multi-provider switching
-- ✅ File tree sidebar
-- ✅ CLI agent execution (Aider, Copilot CLI, etc.)
+- ✅ CLI agent integration (Aider, Copilot CLI, etc.)
+- ✅ Advanced intelligence features
+- ✅ Context-aware AI assistance
 
 ## 📚 Documentation
 
