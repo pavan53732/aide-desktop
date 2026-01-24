@@ -1,5 +1,0 @@
-D:\aide-desktop\src-tauri\target\debug\deps\dunce-3e3bd29be80d2b57.d: C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dunce-1.0.5\src\lib.rs
-
-D:\aide-desktop\src-tauri\target\debug\deps\libdunce-3e3bd29be80d2b57.rmeta: C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dunce-1.0.5\src\lib.rs
-
-C:\Users\pavan\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dunce-1.0.5\src\lib.rs:

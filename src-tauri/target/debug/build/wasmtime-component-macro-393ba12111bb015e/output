@@ -1,2 +1,0 @@
-cargo:rerun-if-changed=build.rs
-cargo:rustc-env=DEBUG_OUTPUT_DIR=D:\aide-desktop\src-tauri\target\debug\build\wasmtime-component-macro-393ba12111bb015e\out
