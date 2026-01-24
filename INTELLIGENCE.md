@@ -31,6 +31,7 @@ interface MultiAIOrchestrator {
   supportsEmbeddings(): boolean;
   getCurrentProvider(): AIProviderConfig;
   getCurrentModel(): string | null;
+  resolveModelFor(capability: string): string;
 }
 
 // ❌ WRONG: Direct API clients
@@ -61,12 +62,14 @@ const memory = new UltraLongTermMemory(
 
 ## 📋 Table of Contents
 
-1. [Level 1: Context Awareness](#level-1-context-awareness-)
-2. [Level 2: Proactive Intelligence](#level-2-proactive-intelligence-)
-3. [Level 3: Multi-Model Intelligence](#level-3-multi-model-intelligence-)
-4. [Level 4: Learning & Memory](#level-4-learning--memory-)
-5. [Level 5: Advanced Features](#level-5-advanced-features-)
-6. [Implementation Roadmap](#-implementation-roadmap)
+1. [Level 1: Context Awareness](#level-1-context-awareness)
+2. [Level 2: Proactive Intelligence](#level-2-proactive-intelligence)
+3. [Level 3: Multi-Model Intelligence](#level-3-multi-model-intelligence)
+4. [Level 4: Learning & Memory](#level-4-learning--memory)
+5. [Level 5: Advanced Features](#level-5-advanced-features)
+6. [Level 6: Ultra-Deep Microscopic Intelligence](#level-6-ultra-deep-microscopic-intelligence)
+7. [Implementation Roadmap](#implementation-roadmap)
+8. [Intelligence Metrics](#intelligence-metrics)
 
 ---
 
@@ -269,10 +272,23 @@ interface MicroscopicPatterns {
   codeBlocks: CodeBlockAnalysis[];
 }
 
+// Placeholder types — must be defined in core/types.ts
+type Token = { value: string; type: string };
+type TokenContext = Record<string, any>;
+class QuantumAnalysisState {}
+type UserActivity = Record<string, any>;
+type Feedback = {
+  accepted: boolean;
+  suggestion: string;
+  actualSolution?: string;
+};
+type CodePrediction = any;
+type DeveloperIntent = any;
+
 export class UltraMicroscopicAnalyzer {
   private workspace: string;
   private cache: Map<string, any> = new Map();
-  private quantumState: QuantumAnalysisState = new QuantumAnalysisState();
+  private quantumState = new QuantumAnalysisState();
   
   constructor(workspace: string) {
     this.workspace = workspace;
@@ -355,8 +371,13 @@ export class UltraMicroscopicAnalyzer {
       tokenAnalysis,
       characterPatterns,
       atomicDependencies,
-      microscopicPatterns
+      microscopicPatterns,
+      confidence: this.calculateMolecularCoverage(files)
     };
+  }
+  
+  private calculateMolecularCoverage(files: string[]): number {
+    return Math.min(1, files.length / 10); // simple heuristic placeholder
   }
   
   private async analyzeDimensional(): Promise<any> {
@@ -431,7 +452,14 @@ export class UltraMicroscopicAnalyzer {
     return patterns;
   }
   
-  private calculateUltraConfidence(data: any): number {
+  private calculateUltraConfidence(data: {
+    molecularInfo: { coverage: number };
+    dimensionalInfo: { confidence: number };
+    languageInfo: { confidence: number };
+    frameworkInfo: { confidence: number };
+    architectureInfo: { confidence: number };
+    domainInfo: { confidence: number };
+  }): number {
     // Ultra-precise weighted average with molecular-level accuracy
     const weights = {
       molecular: 0.30,      // Molecular analysis weight
@@ -443,7 +471,7 @@ export class UltraMicroscopicAnalyzer {
     };
     
     const score = 
-      (data.molecularInfo.confidence * weights.molecular) +
+      (data.molecularInfo.coverage * weights.molecular) +
       (data.dimensionalInfo.confidence * weights.dimensional) +
       (data.languageInfo.confidence * weights.language) +
       (data.frameworkInfo.confidence * weights.framework) +
@@ -685,25 +713,7 @@ export class UltraMicroscopicAnalyzer {
     return { type, entities, workflows, confidence };
   }
   
-  private calculateOverallConfidence(data: any): number {
-    // Weighted average of individual confidences
-    const weights = {
-      language: 0.25,
-      framework: 0.25,
-      architecture: 0.20,
-      domain: 0.15,
-      codeQuality: 0.15
-    };
-    
-    const score = 
-      (data.languageInfo.confidence * weights.language) +
-      (data.frameworkInfo.confidence * weights.framework) +
-      (data.architectureInfo.confidence * weights.architecture) +
-      (data.domainInfo.confidence * weights.domain) +
-      (0.8 * weights.codeQuality); // Assume 0.8 for code quality
-    
-    return score;
-  }
+
   
   // Helper methods...
   private async getAllFiles(): Promise<string[]> {
@@ -737,7 +747,7 @@ export class UltraMicroscopicAnalyzer {
 #### **Usage:**
 
 ```typescript
-const analyzer = new UltraProjectAnalyzer(workspacePath);
+const analyzer = new UltraMicroscopicAnalyzer(workspacePath);
 const context = await analyzer.analyze();
 
 console.log(`Project: ${context.framework.name}`);
@@ -1134,13 +1144,16 @@ AIDE routes tasks to specialized AI models for optimal results.
 
 #### **Model Specializations:**
 
+NOTE: modelId values are logical roles, not provider model names.
+Provider adapters resolve these roles to concrete models at runtime.
+
 | Model | Specialty | Best For |
 |-------|-----------|----------|
-| **DeepSeek Coder 33B** | Code Generation | Writing functions, implementing features |
-| **Claude 3 Opus** | Code Review | Reviewing code, suggesting improvements |
-| **GPT-4 Turbo** | Architecture | System design, refactoring plans |
-| **CodeLlama 70B** | Debugging | Finding bugs, fixing errors |
-| **Gemini Pro** | Documentation | Writing docs, explaining APIs |
+| **architecture-specialist** | Code Generation | Writing functions, implementing features |
+| **code-review-specialist** | Code Review | Reviewing code, suggesting improvements |
+| **architecture-specialist** | Architecture | System design, refactoring plans |
+| **debugging-specialist** | Debugging | Finding bugs, fixing errors |
+| **documentation-specialist** | Documentation | Writing docs, explaining APIs |
 
 #### **Implementation:**
 
@@ -1155,27 +1168,27 @@ interface ModelSpecialization {
 
 const SPECIALIZED_MODELS: ModelSpecialization[] = [
   {
-    modelId: "deepseek-coder-33b",
+    modelId: "code-generation-specialist",
     specialty: "code_generation",
     useCases: ["write_function", "create_file", "implement_feature"]
   },
   {
-    modelId: "claude-3-opus",
+    modelId: "code-review-specialist",
     specialty: "code_review",
     useCases: ["review_code", "suggest_improvements", "explain_code"]
   },
   {
-    modelId: "gpt-4-turbo",
+    modelId: "architecture-specialist",
     specialty: "architecture",
     useCases: ["design_system", "plan_refactor", "suggest_patterns"]
   },
   {
-    modelId: "codellama-70b",
+    modelId: "debugging-specialist",
     specialty: "debugging",
     useCases: ["find_bug", "fix_error", "analyze_crash"]
   },
   {
-    modelId: "gemini-pro",
+    modelId: "documentation-specialist",
     specialty: "documentation",
     useCases: ["write_docs", "explain_api", "generate_readme"]
   }
@@ -1209,7 +1222,8 @@ export async function routeToSpecializedModel(
     Provide a ${specialist.specialty}-focused solution.
   `;
   
-  return { model: specialist.modelId, prompt: enhancedPrompt };
+  const resolved = aiProvider.resolveModelFor(specialist.modelId);
+  return { model: resolved, prompt: enhancedPrompt };
 }
 ```
 
@@ -1221,13 +1235,13 @@ Multiple AI agents work together on complex tasks.
 
 #### **Agent Roles:**
 
-| Agent | Model | Responsibility |
-|-------|-------|----------------|
-| **Architect** | GPT-4 Turbo | Designs system architecture |
-| **Developer** | DeepSeek Coder | Writes implementation code |
-| **Tester** | Claude 3 Sonnet | Creates comprehensive tests |
-| **Reviewer** | Claude 3 Opus | Reviews code quality |
-| **Security** | GPT-4 | Analyzes security vulnerabilities |
+| Agent | Requirements | Responsibility |
+|-------|--------------|----------------|
+| **Architect** | Requires: reasoning + long-context | Designs system architecture |
+| **Developer** | Requires: code-generation | Writes implementation code |
+| **Tester** | Requires: test-generation | Creates comprehensive tests |
+| **Reviewer** | Requires: critique + diff | Reviews code quality |
+| **Security** | Requires: vulnerability-analysis | Analyzes security vulnerabilities |
 
 #### **Workflow:**
 
@@ -1322,7 +1336,8 @@ export async function multiAgentTask(
 ```typescript
 const result = await multiAgentTask(
   "Create a secure payment processing system",
-  projectContext
+  projectContext,
+  aiProvider
 );
 ```
 
@@ -1388,11 +1403,11 @@ AIDE uses a **quantum-enhanced, multi-dimensional memory system** with perfect r
 | **Semantic** | Months to years | Unlimited | < 50ms | Code knowledge, patterns learned |
 | **Crystallized** | Years to decades | Unlimited | < 100ms | Deep wisdom, architectural principles |
 | **Immortal** | Forever | Unlimited | < 200ms | Core insights, never-forget moments |
-│        SEMANTIC INDEX (Vector Embeddings)               │
-│  - Fast similarity search                               │
-│  - Topic clustering                                     │
-│  - Context retrieval                                    │
-└─────────────────────────────────────────────────────────┘
+
+### Semantic Index
+- Vector embeddings for similarity search
+- Topic clustering
+- Context retrieval
 ```
 
 #### **Ultra-Advanced Implementation:**
@@ -1401,7 +1416,6 @@ AIDE uses a **quantum-enhanced, multi-dimensional memory system** with perfect r
 // lib/intelligence/ultra-memory.ts
 import { Database } from "better-sqlite3";
 import { LanceDB } from "vectordb"; // Vector database
-import OpenAI from "openai";
 
 interface UltraMemory {
   id: string;
@@ -1432,6 +1446,11 @@ interface MemoryCluster {
   coherence: number; // 0-1
 }
 
+// Simple hash function placeholder (replace with proper crypto.sha256 in production)
+function sha256(text: string): string {
+  return `hash_${text.length}_${text.slice(0, 8)}`;
+}
+
 export class UltraLongTermMemory {
   private db: Database;
   private vectorDB: LanceDB;
@@ -1445,15 +1464,16 @@ export class UltraLongTermMemory {
   
   constructor(
     workspaceId: string,
-    dbPath: string, 
-    vectorDBPath: string, 
+    dbPath: string,
     aiProvider: MultiAIOrchestrator
   ) {
     this.workspaceId = workspaceId;
     this.db = new Database(dbPath);
-    this.vectorDB = await LanceDB.connect(vectorDBPath);
     this.aiProvider = aiProvider; // Inject provider system
-    
+  }
+  
+  async initialize(vectorDBPath: string): Promise<void> {
+    this.vectorDB = await LanceDB.connect(vectorDBPath);
     this.initializeDatabase();
     this.loadRecentMemories();
   }
@@ -1559,7 +1579,7 @@ export class UltraLongTermMemory {
       id: memory.id,
       vector: embedding,
       metadata: {
-        content: memory.content,
+        hash: sha256(memory.content),
         type: memory.type,
         importance: memory.importance,
         timestamp: memory.timestamp.getTime()
@@ -1607,6 +1627,7 @@ export class UltraLongTermMemory {
     
     // Step 4: Filter by criteria
     let filtered = hybrid.filter(m => 
+      m.workspaceId === this.workspaceId &&
       m.importance >= minImportance &&
       (!options?.types || options.types.includes(m.type))
     );
@@ -1705,9 +1726,9 @@ export class UltraLongTermMemory {
     if (content.length > 200) score += 0.05; // Detailed = important
     
     // Context-based signals
-    if (context.tags.includes("security")) score += 0.15;
-    if (context.tags.includes("performance")) score += 0.1;
-    if (context.tags.includes("architecture")) score += 0.1;
+    if (context.tags?.includes("security")) score += 0.15;
+    if (context.tags?.includes("performance")) score += 0.1;
+    if (context.tags?.includes("architecture")) score += 0.1;
     
     // Use AI to assess importance for complex cases
     if (score < 0.6 && content.length > 50) {
@@ -1879,8 +1900,11 @@ async function example() {
   const memory = new UltraLongTermMemory(
     workspaceId,                    // Workspace isolation
     `./data/workspaces/${workspaceId}/memories.db`,  // Workspace-specific DB
-    `./data/workspaces/${workspaceId}/vectors`,      // Workspace-specific vectors
     aiProvider                      // Inject provider system
+  );
+  
+  await memory.initialize(
+    `./data/workspaces/${workspaceId}/vectors`       // Workspace-specific vectors
   );
   
   // Store a decision
@@ -2437,7 +2461,7 @@ export class PredictiveIntelligence {
 }
 ```
 
-### **6.1 Code Generation from Natural Language**
+### **6.4 Code Generation from Natural Language**
 
 AIDE can generate entire features from high-level descriptions.
 
