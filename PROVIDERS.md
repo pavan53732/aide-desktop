@@ -1,5 +1,10 @@
 # AIDE - AI Provider Configuration Reference
 
+> Constitution Status: Ratified  
+> Stability Tier: Core  
+> Last Amended: 2026-01-24  
+> Governing Document: SPECIFICATIONS.md
+
 ---
 
 ## ⚠️ IMPORTANT: Read This First
@@ -73,9 +78,30 @@
 
 ---
 
+## Governance & Change Control
+
+This document is governed by the **AIDE Constitution** defined in `SPECIFICATIONS.md`.
+
+All changes to this file MUST:
+1. Preserve the **dynamic model discovery rule** (no hardcoded models)
+2. Preserve the **provider priority strategy**
+3. Preserve the **CLI vs HTTP provider separation**
+4. Preserve the **AIControlPlane as the single AI authority**
+5. Update the `Last Amended` field in the header
+
+Breaking changes to:
+- Provider schema
+- Capability flags
+- Tauri command names
+- Fallback strategy
+
+Require a corresponding amendment in `SPECIFICATIONS.md`.
+
+---
+
 ## Overview
 
-This document defines the configuration specifications for all AI providers supported by AIDE (AI Desktop Editor). Each provider includes endpoint details, authentication methods, and standardized configuration templates.
+This document defines the **constitutional provider schema and configuration law** for all AI providers supported by AIDE (AI Desktop Editor). Each provider includes endpoint details, authentication methods, and standardized configuration templates.
 
 ## Provider Quick Reference
 
@@ -751,7 +777,6 @@ export type AIProviderConfig = CloudProviderConfig | CLIProviderConfig;
 
 ```json
 {
-  "version": "1.0.0",
   "providers": [
     {
       "id": "custom-openai-compatible",
@@ -1047,7 +1072,7 @@ async function isCommandAvailable(
   args: string[],
 ): Promise<boolean> {
   try {
-    await invoke("check_command", { command, args });
+    await invoke("check_cli_availability", { command, args });
     return true;
   } catch {
     return false;
@@ -1630,7 +1655,4 @@ interface ModelInfo {
 
 ---
 
-**Last Updated**: `2024-12-19`  
-**AIDE Version**: `1.0.0`  
-**Supported Providers**: 31 provider templates (29 cloud + 2 local) + 12 CLI agents = 43 Total  
-**Config Version**: `1.0.0`
+**Supported Providers**: 31 provider templates (29 cloud + 2 local) + 12 CLI agents = 43 Total

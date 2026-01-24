@@ -1,5 +1,9 @@
 # Project AIDE: AI Desktop Editor - Complete Specification
 
+> Constitution Status: Ratified  
+> Stability Tier: Core  
+> Last Amended: 2026-01-24
+
 ---
 
 ## ⚠️ IMPORTANT: Read This First
@@ -25,7 +29,7 @@
 | [`PROVIDERS.md`](./PROVIDERS.md)                     | AI provider configurations, model fetching, CLI agents |
 | [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) | UI components, design system, user flows               |
 | [`INTELLIGENCE.md`](./INTELLIGENCE.md)               | Advanced AI intelligence features and capabilities     |
-| [`SPECIFICATIONS.md`](./SPECIFICATIONS.md)           | This file - architecture, tech stack, MVP scope        |
+| [`SPECIFICATIONS.md`](./SPECIFICATIONS.md)           | Constitutional law — architecture, security, command contracts |
 | [`README.md`](./README.md)                           | Quick start, installation, project overview            |
 
 ### Key Data Flow
@@ -53,6 +57,34 @@
 | Store API keys in OS keychain             | Store API keys in JSON config or localStorage |
 | Show diff modal for all file changes      | Auto-apply changes without user confirmation  |
 | Confine file operations to workspace      | Allow access to files outside workspace       |
+
+---
+
+## Constitutional Change Process
+
+This document is part of AIDE's **Core constitutional layer**.
+
+Any modification to this file MUST follow these rules:
+
+1. **Amendment Required**  
+   Every change must update the `Last Amended` field in the header.
+
+2. **Backward Compatibility Declaration**  
+   Changes MUST explicitly state whether they are:
+   - Non-breaking (compatible with existing implementations), or
+   - Breaking (requires implementation changes in frontend, backend, or providers)
+
+3. **Cross-Document Consistency**  
+   If a change affects:
+   - AI provider behavior → update `PROVIDERS.md`
+   - UI behavior → update `UI_UX_SPECIFICATION.md`
+   - Intelligence behavior → update `INTELLIGENCE.md`
+
+4. **Command Contract Protection**  
+   Public Tauri commands (e.g., `run_cli_agent`, `check_cli_availability`, file operations, keychain access) are part of the constitutional API surface and MUST NOT be renamed without a breaking-change declaration.
+
+5. **Human-in-the-Loop Enforcement**  
+   No amendment may weaken the diff-and-confirm requirement or workspace sandboxing.
 
 ---
 
@@ -799,7 +831,7 @@ aide-desktop/
 │   │   │   ├── model-discovery.ts # Dynamic model fetching
 │   │   │   └── agent.ts           # AI agent setup
 │   │   ├── cli/
-│   │   │   ├── execute.ts         # CLI agent execution (v1.0.0+)
+│   │   │   ├── execute.ts         # CLI agent execution
 │   │   │   └── detection.ts       # CLI binary detection
 │   │   ├── db/
 │   │   │   ├── index.ts           # Database client
@@ -827,7 +859,7 @@ aide-desktop/
 │   │   │   ├── file_ops.rs        # read_file, write_file
 │   │   │   ├── workspace.rs       # select_workspace
 │   │   │   ├── keychain.rs        # secure storage
-│   │   │   └── cli_agents.rs      # CLI agent execution (v1.0.0+)
+│   │   │   └── cli_agents.rs      # CLI agent execution
 │   │   └── main.rs
 │   ├── Cargo.toml
 │   └── tauri.conf.json

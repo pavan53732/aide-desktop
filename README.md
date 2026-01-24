@@ -1,11 +1,16 @@
 ﻿# AIDE - AI Desktop Editor
 
+> Document Status: Living Specification  
+> Stability Tier: Stable  
+> Last Updated: 2026-01-24  
+> Governing Document: SPECIFICATIONS.md
+
 <p align="center">
   <strong>Your configurable AI bridge to local files</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-In_Development-yellow" alt="Status">
+  <img src="https://img.shields.io/badge/Status-Living_Specification-blue" alt="Status">
   <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
 </p>
@@ -25,6 +30,22 @@
 
 ---
 
+## Governance & Authority
+
+This README is a **Stable, user-facing charter** governed by `SPECIFICATIONS.md`.
+
+Rules:
+1. This document MUST NOT define architecture, command contracts, or provider behavior.
+2. Technical authority resides in:
+   - `SPECIFICATIONS.md` (system law)
+   - `PROVIDERS.md` (AI provider law)
+   - `UI_UX_SPECIFICATION.md` (interface law)
+3. Any change that affects installation, security model, or distribution mechanics
+   MUST be reflected in `SPECIFICATIONS.md`.
+4. The `Last Updated` field in the header MUST be maintained.
+
+---
+
 ## 🚀 Overview
 
 **AIDE** (AI Desktop Editor) is a secure, privacy-focused desktop application that allows you to chat with your choice of AI provider (OpenAI, Anthropic, Google Gemini, OpenRouter, local models, etc.) to directly **read, analyze, and edit files** within a controlled local workspace.
@@ -35,7 +56,7 @@
 
 1. **Download** the installer:
    - Go to [Releases](https://github.com/yourusername/aide-desktop/releases)
-   - Download `AIDE_1.0.0_x64_en-US.msi` (5-15 MB)
+   - Download `AIDE_<platform>_<arch>.msi` (5-15 MB)
 
 2. **Install**:
    - Double-click the downloaded `.msi` file
@@ -136,8 +157,8 @@ pnpm db:studio    # Open Drizzle Studio
 pnpm tauri build
 
 # Output location:
-# src-tauri/target/release/bundle/msi/AIDE_1.0.0_x64_en-US.msi (Installer)
-# src-tauri/target/release/bundle/nsis/AIDE_1.0.0_x64-setup.exe (NSIS Installer)
+# src-tauri/target/release/bundle/msi/AIDE_<platform>_<arch>.msi (Installer)
+# src-tauri/target/release/bundle/nsis/AIDE_<platform>_<arch>-setup.exe (NSIS Installer)
 # src-tauri/target/release/AIDE.exe (Portable)
 ```
 
@@ -147,8 +168,8 @@ After building, you get multiple distribution options:
 
 | File | Type | Size | Use Case |
 |------|------|------|----------|
-| `AIDE_1.0.0_x64_en-US.msi` | Windows Installer | 5-15 MB | Standard installation with shortcuts |
-| `AIDE_1.0.0_x64-setup.exe` | NSIS Installer | 5-15 MB | Custom branded installer |
+| `AIDE_<platform>_<arch>.msi` | Windows Installer | 5-15 MB | Standard installation with shortcuts |
+| `AIDE_<platform>_<arch>-setup.exe` | NSIS Installer | 5-15 MB | Custom branded installer |
 | `AIDE.exe` | Portable Executable | 5-10 MB | Run without installation (USB, testing) |
 
 ### Installing on Other Windows PCs
@@ -156,7 +177,7 @@ After building, you get multiple distribution options:
 **For End Users (No Development Tools Required):**
 
 1. **MSI Installer (Recommended):**
-   - Download `AIDE_1.0.0_x64_en-US.msi`
+   - Download `AIDE_<platform>_<arch>.msi`
    - Double-click to run installer
    - Follow installation wizard
    - App appears in Start Menu
@@ -172,15 +193,15 @@ After building, you get multiple distribution options:
    - 100 MB disk space
    - No Node.js, npm, or development tools required
 
-### Release Distribution
+### Distribution & Publishing
 
 ```bash
 # Create GitHub Release with installers
-gh release create v1.0.0 \
+gh release create <release-tag> \
   src-tauri/target/release/bundle/msi/*.msi \
   src-tauri/target/release/bundle/nsis/*.exe \
-  --title "AIDE v1.0.0" \
-  --notes "Initial release"
+  --title "AIDE Release" \
+  --notes "Release notes"
 
 # Or manually upload to:
 # - GitHub Releases
@@ -235,7 +256,7 @@ AIDE uses **Tauri 2.5** for superior performance and developer experience:
 pnpm tauri build
 
 # Deploy to company network share
-\\company-server\apps\AIDE_1.0.0_x64.msi
+\\company-server\apps\AIDE_<platform>_<arch>.msi
 
 # Employees install via Group Policy or self-service
 # No Node.js or dev tools needed on employee machines
@@ -245,7 +266,7 @@ pnpm tauri build
 ```bash
 # Build and release
 pnpm tauri build
-gh release create v1.0.0 src-tauri/target/release/bundle/msi/*.msi
+gh release create <release-tag> src-tauri/target/release/bundle/msi/*.msi
 
 # Users download from GitHub/website and install
 # Works like any commercial Windows application

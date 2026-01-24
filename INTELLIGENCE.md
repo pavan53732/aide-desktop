@@ -1,5 +1,11 @@
 # AIDE - Intelligence & AI Features Specification
 
+> Constitution Status: Draft  
+> Stability Tier: Experimental  
+> Last Amended: 2026-01-24  
+> Governing Document: SPECIFICATIONS.md  
+> Binding Authority: Non-Binding (Informational / Exploratory Only)
+
 ---
 
 ## ⚠️ IMPORTANT: Read This First
@@ -60,6 +66,24 @@ const memory = new UltraLongTermMemory(
   aiProvider                                       // Configured provider
 );
 ```
+
+---
+
+## Governance & Authority Scope
+
+This document defines **experimental and aspirational intelligence behavior**.
+
+Rules:
+1. This file is **NON-BINDING**. It MUST NOT override `SPECIFICATIONS.md`, `PROVIDERS.md`, or `UI_UX_SPECIFICATION.md`.
+2. Features defined here are **optional, staged, or future-facing** unless explicitly ratified into Core documents.
+3. Any feature that introduces:
+   - New Tauri commands
+   - New provider capabilities
+   - New data storage formats
+   - New automated file-write behavior
+
+   MUST be formally amended into `SPECIFICATIONS.md` before implementation.
+4. The `Last Amended` field in the header MUST be updated for any change.
 
 ---
 
@@ -2096,10 +2120,8 @@ AIDE aims to achieve revolutionary intelligence levels that surpass all existing
 
 | Tool | Context Accuracy | User Acceptance | AIDE Target |
 |------|------------------|-----------------|-------------|
-| GitHub Copilot | ~75-80% | ~70-75% | **99%** |
-| Cursor AI | ~80-85% | ~75-80% | **99%** |
-| Replit Agent | ~70-75% | ~65-70% | **99%** |
-| Senior Developer | ~85-90% | ~80-85% | **99%** |
+| Industry Baseline (Coding Assistants) | Varies | Varies | **99% Target** |
+| Expert Human Developer | Varies | Varies | **99% Target** |
 
 ### **Personal Productivity Metrics:**
 
@@ -2179,16 +2201,14 @@ export function calculateMetrics(tracker: MetricsTracker) {
 
 ---
 
-**Last Updated**: `2026-01-24`  
-**Version**: `2.0.1` (Architecture-Aligned)  
-**Status**: Documentation Complete - Fully consistent with SPECIFICATIONS.md, PROVIDERS.md, README.md
+## Alignment Notes
 
-**Alignment Notes:**
-- ✅ Unified naming: `AIControlPlane` (with `MultiAIOrchestrator` as alias)
-- ✅ Provider-agnostic embeddings (no dimension assumptions)
-- ✅ Capability API usage (`checkCapability`, `requireCapability`)
-- ✅ No hardcoded models or direct API clients
-- ✅ Workspace-scoped memory and operations
+This document aligns with the Core Constitution in `SPECIFICATIONS.md`:
+
+- Uses `AIControlPlane` as the canonical provider interface
+- Enforces provider-agnostic embeddings and capability checks
+- Prohibits hardcoded models and direct API clients
+- Preserves workspace-scoped memory and operations
 
 ---
 
@@ -2569,6 +2589,6 @@ interface IntelligentTesting {
 
 ---
 
-**The Future of AI-Assisted Development is Here** 🚀
+**AIDE Intelligence Roadmap — Experimental and Evolving** 🚀
 
 **Built with 🧠 to make coding infinitely smarter.**
