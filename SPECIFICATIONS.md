@@ -126,11 +126,114 @@ graph TB
 2.  **Credential Storage:** API keys will be encrypted and stored using the OS-native keychain (Windows Credential Manager, macOS Keychain, Linux libsecret) via Tauri's `tauri-plugin-store` or similar.
 3.  **No Telemetry:** The application will not phone home. All communication is strictly between the app and the user's configured AI provider endpoint.
 
+- **Telemetry Definition:** Any data sent to non-user-configured endpoints, including behavioral data, usage statistics, error reports, or content analysis sent to third parties.
 - **Exception:** OpenRouter requires `HTTP-Referer` and `X-Title` headers for API ranking. These contain only app identification, not user data.
+- **Allowed:** Communication with user-configured AI providers for legitimate AI operations (chat, embeddings, model fetching).
+- **Prohibited:** Analytics, crash reporting, usage tracking, content analysis sent to non-configured endpoints.
 
 4.  **Explicit Consent:** The **diff-and-confirm** step is non-optional for the MVP. An "auto-apply" mode may be a configurable setting in the future, defaulting to OFF.
 
-### 3.4 Current State Management (Phase 1)
+### 3.4 AI Control Plane Architecture
+
+**AIDE uses a single, unified AI control plane to prevent architectural conflicts and ensure consistent behavior.**
+
+#### Single AI Authority
+
+```typescript
+// Single source of truth for all AI operations
+interface AIControlPlane {
+  // Provider Management
+  activeProvider: AIProviderConfig | null;
+  availableProviders: AIProviderConfig[];
+  
+  // Model Management  
+  selectedModel: string | null;
+  availableModels: ModelInfo[];
+  
+  // Capability Management
+  checkCapability(capability: keyof ProviderCapabilities): boolean;
+  requireCapability(capability: keyof ProviderCapabilities): void;
+  
+  // AI Operations (all go through this interface)
+  chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse>;
+  generateEmbedding(text: string): Promise<EmbeddingResponse>;
+  
+  // Fallback Management
+  fallbackToNextProvider(): Promise<boolean>;
+  handleProviderFailure(error: Error): Promise<void>;
+}
+```
+
+#### Architecture Rules
+
+| Rule | Description | Enforcement |
+|------|-------------|-------------|
+| **Single AI Interface** | All AI operations must go through `AIControlPlane` | No direct API clients allowed |
+| **Capability Checking** | Check provider capabilities before operations | Throw error if capability missing |
+| **Model Validation** | Verify `selectedModel` is not null before AI calls | Prevent undefined model errors |
+| **Provider Isolation** | Each provider manages its own models and config | No cross-provider contamination |
+| **Graceful Fallback** | Auto-fallback to next provider on failure | Maintain service continuity |
+
+#### Integration with Intelligence Features
+
+```typescript
+// Intelligence features must use the control plane
+class IntelligenceSystem {
+  constructor(private aiControlPlane: AIControlPlane) {}
+  
+  async analyzeCode(code: string): Promise<Analysis> {
+    // Check capability first
+    this.aiControlPlane.requireCapability('chat');
+    
+    // Use control plane for AI operations
+    const response = await this.aiControlPlane.chat([{
+      role: 'user',
+      content: `Analyze this code: ${code}`
+    }]);
+    
+    return parseAnalysis(response.content);
+  }
+}
+
+// Memory system must use control plane
+class MemorySystem {
+  constructor(private aiControlPlane: AIControlPlane) {}
+  
+  async generateEmbedding(text: string): Promise<number[]> {
+    // Check capability first
+    this.aiControlPlane.requireCapability('embeddings');
+    
+    // Use control plane for embeddings
+    const response = await this.aiControlPlane.generateEmbedding(text);
+    return response.embedding;
+  }
+}
+```
+
+#### Preventing Architectural Conflicts
+
+**Before (Conflicting Systems):**
+```typescript
+// ❌ WRONG: Multiple AI systems
+const openaiClient = new OpenAI({ apiKey: "..." });           // System A
+const providerSystem = new ProviderOrchestrator();            // System B  
+const intelligenceSystem = new IntelligenceSystem();         // System C
+
+// These systems can diverge and conflict
+```
+
+**After (Unified Control Plane):**
+```typescript
+// ✅ CORRECT: Single AI authority
+const aiControlPlane = new AIControlPlane(userConfig);
+const providerSystem = aiControlPlane;                       // Same system
+const intelligenceSystem = new IntelligenceSystem(aiControlPlane); // Uses control plane
+const memorySystem = new MemorySystem(aiControlPlane);       // Uses control plane
+
+// All systems use the same AI interface
+```
+
+### 3.5 Current State Management (Phase 1)
 
 #### Zustand Stores Structure
 
@@ -386,7 +489,7 @@ function getFallbackModels(providerType: string): ModelInfo[] {
 }
 ```
 
-### 3.5 Database Schema (Drizzle ORM)
+### 3.6 Database Schema (Drizzle ORM)
 
 ```typescript
 // lib/db/schema.ts
@@ -431,7 +534,7 @@ export const preferences = sqliteTable("preferences", {
 });
 ```
 
-### 3.6 CLI Agent Integration
+### 3.7 CLI Agent Integration
 
 #### Execution Strategy
 

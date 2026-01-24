@@ -16,6 +16,46 @@
 | 4   | **Multi-Model**                    | AIDE routes tasks to specialized AI models for better results                                 |
 | 5   | **Collaborative**                  | Multiple AI agents work together on complex tasks                                             |
 | 6   | **Predictive**                     | AIDE anticipates what you need next based on your workflow                                    |
+| 7   | **Provider-Agnostic**              | All intelligence features work through the configured provider system, never hardcoded models |
+
+### AI Provider Integration
+
+**CRITICAL:** All intelligence features must use the configured AI provider system from `PROVIDERS.md`. Never hardcode model names or create direct API clients.
+
+```typescript
+// ✅ CORRECT: Use provider system
+interface MultiAIOrchestrator {
+  chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse>;
+  generateEmbedding(text: string): Promise<EmbeddingResponse>;
+  supportsChat(): boolean;
+  supportsEmbeddings(): boolean;
+  getCurrentProvider(): AIProviderConfig;
+  getCurrentModel(): string | null;
+}
+
+// ❌ WRONG: Direct API clients
+// const openai = new OpenAI({ apiKey: "..." });
+// const response = await openai.chat.completions.create({ model: "gpt-4", ... });
+```
+
+### Workspace Sandboxing
+
+All intelligence features must respect workspace boundaries:
+
+```typescript
+interface WorkspaceScopedMemory {
+  workspaceId: string;        // Unique workspace identifier
+  workspacePath: string;      // Absolute path to workspace
+  memories: UltraMemory[];    // Scoped to this workspace only
+}
+
+// Memory isolation by workspace
+const memory = new UltraLongTermMemory(
+  `./data/workspaces/${workspaceId}/memories.db`,  // Workspace-specific DB
+  `./data/workspaces/${workspaceId}/vectors`,      // Workspace-specific vectors
+  aiProvider                                       // Configured provider
+);
+```
 
 ---
 
@@ -1203,33 +1243,75 @@ User Request → Architect designs → Developer implements → Tester writes te
 
 export async function multiAgentTask(
   task: string,
-  context: ProjectContext
+  context: ProjectContext,
+  aiProvider: MultiAIOrchestrator
 ): Promise<string> {
   const results: Record<string, string> = {};
   
+  // Check if provider supports multi-step operations
+  if (!aiProvider.supportsChat()) {
+    throw new Error("Multi-agent tasks require a provider with chat capabilities");
+  }
+  
   // Step 1: Architect designs
   console.log("🏗️ Architect designing solution...");
-  results.design = await callAI("gpt-4-turbo", `Design: ${task}`);
+  results.design = await aiProvider.chat([{
+    role: "system",
+    content: "You are a software architect. Design a solution for the given task."
+  }, {
+    role: "user", 
+    content: `Design: ${task}`
+  }]);
   
   // Step 2: Developer implements
   console.log("👨‍💻 Developer implementing...");
-  results.code = await callAI("deepseek-coder", `Implement: ${results.design}`);
+  results.code = await aiProvider.chat([{
+    role: "system",
+    content: "You are a senior developer. Implement the given design."
+  }, {
+    role: "user",
+    content: `Implement: ${results.design}`
+  }]);
   
   // Step 3: Tester writes tests
   console.log("🧪 Tester writing tests...");
-  results.tests = await callAI("claude-3-sonnet", `Test: ${results.code}`);
+  results.tests = await aiProvider.chat([{
+    role: "system", 
+    content: "You are a QA engineer. Write comprehensive tests for the given code."
+  }, {
+    role: "user",
+    content: `Test: ${results.code}`
+  }]);
   
   // Step 4: Security audits
   console.log("🔒 Security analyzing...");
-  results.securityReport = await callAI("gpt-4", `Audit: ${results.code}`);
+  results.securityReport = await aiProvider.chat([{
+    role: "system",
+    content: "You are a security expert. Audit the given code for vulnerabilities."
+  }, {
+    role: "user",
+    content: `Audit: ${results.code}`
+  }]);
   
   // Step 5: Reviewer checks
   console.log("👀 Reviewer checking...");
-  results.review = await callAI("claude-3-opus", `Review: ${results.code}`);
+  results.review = await aiProvider.chat([{
+    role: "system",
+    content: "You are a code reviewer. Review the code and suggest improvements."
+  }, {
+    role: "user",
+    content: `Review: ${results.code}`
+  }]);
   
   // Step 6: Developer refines
   console.log("✨ Applying improvements...");
-  const finalCode = await callAI("deepseek-coder", `Improve: ${results.code} based on ${results.review}`);
+  const finalCode = await aiProvider.chat([{
+    role: "system",
+    content: "You are a senior developer. Improve the code based on the review feedback."
+  }, {
+    role: "user",
+    content: `Improve: ${results.code} based on ${results.review}`
+  }]);
   
   return finalCode;
 }
@@ -1324,6 +1406,7 @@ import OpenAI from "openai";
 interface UltraMemory {
   id: string;
   timestamp: Date;
+  workspaceId: string; // Workspace isolation
   type: "decision" | "preference" | "pattern" | "mistake" | "success" | "feedback";
   content: string;
   embedding: number[]; // Vector embedding (1536 dimensions for OpenAI)
@@ -1352,17 +1435,24 @@ interface MemoryCluster {
 export class UltraLongTermMemory {
   private db: Database;
   private vectorDB: LanceDB;
-  private openai: OpenAI;
+  private aiProvider: MultiAIOrchestrator; // Use provider system instead of direct OpenAI
+  private workspaceId: string; // Workspace isolation
   
   // Multi-tier storage
   private workingMemory: Map<string, UltraMemory> = new Map(); // Current session
   private shortTermCache: Map<string, UltraMemory> = new Map(); // Last 24h
   private clusters: Map<string, MemoryCluster> = new Map();
   
-  constructor(dbPath: string, vectorDBPath: string) {
+  constructor(
+    workspaceId: string,
+    dbPath: string, 
+    vectorDBPath: string, 
+    aiProvider: MultiAIOrchestrator
+  ) {
+    this.workspaceId = workspaceId;
     this.db = new Database(dbPath);
     this.vectorDB = await LanceDB.connect(vectorDBPath);
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    this.aiProvider = aiProvider; // Inject provider system
     
     this.initializeDatabase();
     this.loadRecentMemories();
@@ -1374,6 +1464,7 @@ export class UltraLongTermMemory {
       CREATE TABLE IF NOT EXISTS memories (
         id TEXT PRIMARY KEY,
         timestamp INTEGER NOT NULL,
+        workspace_id TEXT NOT NULL,
         type TEXT NOT NULL,
         content TEXT NOT NULL,
         embedding BLOB NOT NULL,
@@ -1386,6 +1477,7 @@ export class UltraLongTermMemory {
         decay_factor REAL DEFAULT 1.0
       );
       
+      CREATE INDEX IF NOT EXISTS idx_workspace ON memories(workspace_id);
       CREATE INDEX IF NOT EXISTS idx_timestamp ON memories(timestamp);
       CREATE INDEX IF NOT EXISTS idx_importance ON memories(importance DESC);
       CREATE INDEX IF NOT EXISTS idx_type ON memories(type);
@@ -1393,12 +1485,15 @@ export class UltraLongTermMemory {
       
       CREATE TABLE IF NOT EXISTS memory_clusters (
         id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
         topic TEXT NOT NULL,
         centroid BLOB NOT NULL,
         coherence REAL NOT NULL,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL
       );
+      
+      CREATE INDEX IF NOT EXISTS idx_cluster_workspace ON memory_clusters(workspace_id);
       
       CREATE TABLE IF NOT EXISTS memory_relations (
         memory_id TEXT NOT NULL,
@@ -1434,6 +1529,7 @@ export class UltraLongTermMemory {
     const memory: UltraMemory = {
       id: this.generateId(),
       timestamp: new Date(),
+      workspaceId: this.workspaceId, // Workspace isolation
       type: input.type,
       content: input.content,
       embedding,
@@ -1570,15 +1666,16 @@ export class UltraLongTermMemory {
   }
   
   /**
-   * Generate embedding using OpenAI
+   * Generate embedding using configured AI provider
    */
   private async generateEmbedding(text: string): Promise<number[]> {
-    const response = await this.openai.embeddings.create({
-      model: "text-embedding-3-small",
-      input: text
-    });
+    // Check if current provider supports embeddings
+    if (!this.aiProvider.supportsEmbeddings()) {
+      throw new Error("Current AI provider does not support embeddings. Please configure a provider with embedding capabilities.");
+    }
     
-    return response.data[0].embedding;
+    const response = await this.aiProvider.generateEmbedding(text);
+    return response.embedding;
   }
   
   /**
@@ -1622,22 +1719,26 @@ export class UltraLongTermMemory {
   }
   
   /**
-   * AI-powered importance assessment
+   * AI-powered importance assessment using configured provider
    */
   private async aiAssessImportance(content: string): Promise<number> {
-    const response = await this.openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [{
-        role: "system",
-        content: "Rate the importance of this developer memory from 0.0 to 1.0. Consider: Is it a crucial decision? A recurring pattern? A critical preference?"
-      }, {
-        role: "user",
-        content
-      }],
-      max_tokens: 10
+    // Check if current provider supports chat completions
+    if (!this.aiProvider.supportsChat()) {
+      // Fallback to rule-based importance calculation
+      return 0.5;
+    }
+    
+    const response = await this.aiProvider.chat([{
+      role: "system",
+      content: "Rate the importance of this developer memory from 0.0 to 1.0. Consider: Is it a crucial decision? A recurring pattern? A critical preference? Respond with only a number."
+    }, {
+      role: "user",
+      content
+    }], {
+      maxTokens: 10
     });
     
-    const rating = parseFloat(response.choices[0].message.content || "0.5");
+    const rating = parseFloat(response.content || "0.5");
     return Math.min(1.0, Math.max(0.0, rating));
   }
   
@@ -1771,9 +1872,15 @@ export class UltraLongTermMemory {
  * Usage Example
  */
 async function example() {
+  // Get AI provider from the main application
+  const aiProvider = await getConfiguredAIProvider(); // From provider system
+  const workspaceId = getCurrentWorkspaceId(); // From workspace system
+  
   const memory = new UltraLongTermMemory(
-    "./data/memories.db",
-    "./data/vectors"
+    workspaceId,                    // Workspace isolation
+    `./data/workspaces/${workspaceId}/memories.db`,  // Workspace-specific DB
+    `./data/workspaces/${workspaceId}/vectors`,      // Workspace-specific vectors
+    aiProvider                      // Inject provider system
   );
   
   // Store a decision
@@ -1856,38 +1963,46 @@ AI suggests code → User accepts/rejects → AI analyzes feedback
 // lib/intelligence/self-improvement.ts
 
 export class SelfImprovement {
+  constructor(private aiProvider: MultiAIOrchestrator, private memory: UltraLongTermMemory) {}
+  
   async learnFromFeedback(feedback: Feedback): Promise<void> {
     if (!feedback.accepted) {
-      // Analyze why it was rejected
-      const analysis = await callAI("gpt-4", `
-        I suggested this code:
-        ${feedback.suggestion}
+      // Analyze why it was rejected using configured provider
+      if (this.aiProvider.supportsChat()) {
+        const analysis = await this.aiProvider.chat([{
+          role: "user",
+          content: `I suggested this code:
+${feedback.suggestion}
+
+But the user rejected it. Why might this have been rejected? What could be improved?`
+        }]);
         
-        But the user rejected it. Why?
-      `);
-      
-      // Store the lesson
-      await memory.remember({
-        type: "mistake",
-        content: `Suggestion rejected: ${analysis}`,
-        importance: 0.9
-      });
+        // Store the lesson
+        await this.memory.remember({
+          type: "mistake",
+          content: `Suggestion rejected: ${analysis.content}`,
+          importance: 0.9
+        });
+      }
     }
     
     if (feedback.actualSolution) {
-      // Learn from better solution
-      const comparison = await callAI("claude-3-opus", `
-        I suggested: ${feedback.suggestion}
-        User preferred: ${feedback.actualSolution}
+      // Learn from better solution using configured provider
+      if (this.aiProvider.supportsChat()) {
+        const comparison = await this.aiProvider.chat([{
+          role: "user", 
+          content: `I suggested: ${feedback.suggestion}
+User preferred: ${feedback.actualSolution}
+
+What makes their solution better? What patterns should I learn?`
+        }]);
         
-        What makes theirs better?
-      `);
-      
-      await memory.remember({
-        type: "pattern",
-        content: `Better approach: ${comparison}`,
-        importance: 1.0
-      });
+        await this.memory.remember({
+          type: "pattern",
+          content: `Better approach: ${comparison.content}`,
+          importance: 1.0
+        });
+      }
     }
   }
 }

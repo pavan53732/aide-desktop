@@ -144,7 +144,17 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
     "endpoint": "https://api.openai.com/v1",
     "authType": "bearer",
     "modelsEndpoint": "/models",
-    "chatEndpoint": "/chat/completions"
+    "chatEndpoint": "/chat/completions",
+    "capabilities": {
+      "chat": true,
+      "embeddings": true,
+      "streaming": true,
+      "functionCalling": true,
+      "vision": true,
+      "codeGeneration": true,
+      "largeContext": true,
+      "multimodal": true
+    }
   }
 }
 ```
@@ -160,6 +170,16 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
     "authType": "x-api-key",
     "modelsEndpoint": null,
     "chatEndpoint": "/messages",
+    "capabilities": {
+      "chat": true,
+      "embeddings": false,
+      "streaming": true,
+      "functionCalling": true,
+      "vision": true,
+      "codeGeneration": true,
+      "largeContext": true,
+      "multimodal": true
+    },
     "fallbackModels": [
       "claude-3-5-sonnet",
       "claude-3-opus",
@@ -242,6 +262,16 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
     "authType": "bearer",
     "modelsEndpoint": "/models",
     "chatEndpoint": "/chat/completions",
+    "capabilities": {
+      "chat": true,
+      "embeddings": false,
+      "streaming": true,
+      "functionCalling": true,
+      "vision": true,
+      "codeGeneration": true,
+      "largeContext": true,
+      "multimodal": true
+    },
     "extraHeaders": {
       "HTTP-Referer": "https://aide-app.com",
       "X-Title": "AIDE Desktop Editor"
@@ -262,7 +292,17 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
     "endpoint": "http://localhost:11434/api",
     "authType": "none",
     "modelsEndpoint": "/tags",
-    "chatEndpoint": "/chat"
+    "chatEndpoint": "/chat",
+    "capabilities": {
+      "chat": true,
+      "embeddings": true,
+      "streaming": true,
+      "functionCalling": false,
+      "vision": false,
+      "codeGeneration": true,
+      "largeContext": false,
+      "multimodal": false
+    }
   }
 }
 ```
@@ -636,6 +676,19 @@ interface BaseProviderConfig {
   priority: number;
   apiKey: string; // Encrypted reference
   selectedModel: string | null; // User-selected at runtime
+  capabilities: ProviderCapabilities; // What this provider can do
+}
+
+// Provider capabilities
+interface ProviderCapabilities {
+  chat: boolean;              // Supports chat completions
+  embeddings: boolean;        // Supports text embeddings
+  streaming: boolean;         // Supports streaming responses
+  functionCalling: boolean;   // Supports function/tool calling
+  vision: boolean;           // Supports image understanding
+  codeGeneration: boolean;   // Optimized for code generation
+  largeContext: boolean;     // Supports large context windows (>32k tokens)
+  multimodal: boolean;       // Supports multiple input types
 }
 
 // 1. HTTP/Cloud Providers (OpenAI, Anthropic, etc.)
@@ -1442,6 +1495,61 @@ async function validateProvider(config: AIProviderConfig): Promise<boolean> {
   } catch (error) {
     console.error(`Provider ${config.name} validation failed:`, error);
     return false;
+  }
+}
+
+// Capability checking functions
+export function checkProviderCapability(
+  provider: AIProviderConfig,
+  capability: keyof ProviderCapabilities
+): boolean {
+  return provider.capabilities?.[capability] ?? false;
+}
+
+export function requiresCapability(
+  provider: AIProviderConfig,
+  capability: keyof ProviderCapabilities,
+  operation: string
+): void {
+  if (!checkProviderCapability(provider, capability)) {
+    throw new Error(
+      `Operation "${operation}" requires ${capability} capability, but provider "${provider.name}" does not support it.`
+    );
+  }
+}
+
+// Multi-AI Orchestrator with capability checking
+export class MultiAIOrchestrator {
+  constructor(private currentProvider: AIProviderConfig) {}
+  
+  async chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse> {
+    requiresCapability(this.currentProvider, 'chat', 'chat completion');
+    // Implementation...
+  }
+  
+  async generateEmbedding(text: string): Promise<EmbeddingResponse> {
+    requiresCapability(this.currentProvider, 'embeddings', 'embedding generation');
+    // Implementation...
+  }
+  
+  supportsChat(): boolean {
+    return checkProviderCapability(this.currentProvider, 'chat');
+  }
+  
+  supportsEmbeddings(): boolean {
+    return checkProviderCapability(this.currentProvider, 'embeddings');
+  }
+  
+  supportsStreaming(): boolean {
+    return checkProviderCapability(this.currentProvider, 'streaming');
+  }
+  
+  getCurrentProvider(): AIProviderConfig {
+    return this.currentProvider;
+  }
+  
+  getCurrentModel(): string | null {
+    return this.currentProvider.selectedModel;
   }
 }
 ```

@@ -281,7 +281,7 @@ cp src-tauri/target/release/AIDE.exe E:\Tools\
 
 ### Example Provider Configuration
 
-See `PROVIDERS.md` for complete setup details for 30+ AI services.
+See `PROVIDERS.md` for complete setup details for all supported AI services.
 
 ## 🎯 Usage Examples
 
