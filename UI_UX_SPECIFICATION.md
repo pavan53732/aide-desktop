@@ -757,3 +757,4 @@ interface DialogProps {
 ---
 
 This UI/UX specification provides comprehensive guidance for implementing AIDE's user interface with a focus on usability, accessibility, and advanced features. All components should be implemented following these guidelines to ensure a consistent and professional user experience.
+

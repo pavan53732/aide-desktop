@@ -24,6 +24,7 @@
 | ---------------------------------------------------- | ------------------------------------------------------ |
 | [`PROVIDERS.md`](./PROVIDERS.md)                     | AI provider configurations, model fetching, CLI agents |
 | [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) | UI components, design system, user flows               |
+| [`INTELLIGENCE.md`](./INTELLIGENCE.md)               | Advanced AI intelligence features and capabilities     |
 | [`SPECIFICATIONS.md`](./SPECIFICATIONS.md)           | This file - architecture, tech stack, MVP scope        |
 | [`README.md`](./README.md)                           | Quick start, installation, project overview            |
 
@@ -772,6 +773,17 @@ aide-desktop/
 | Model selection    | < 30 seconds | From provider selection to model chosen        |
 | File edit flow     | < 1 minute   | From request to diff modal appearing           |
 
+### Performance Metrics
+
+| Metric                | Target        | Measurement                                    |
+| --------------------- | ------------- | ---------------------------------------------- |
+| App startup time      | < 3 seconds   | From click to fully loaded UI                  |
+| File tree loading     | < 1 second    | For projects up to 10,000 files               |
+| Model fetching        | < 5 seconds   | API call to populate dropdown                  |
+| Memory usage          | < 200 MB      | Idle state with workspace loaded               |
+| Large file handling   | Files up to 1MB | Diff viewer performance                      |
+| Concurrent requests   | 3 simultaneous | Multiple AI conversations                     |
+
 ### Security Metrics
 
 | Metric               | Target         | Verification                                         |
@@ -802,3 +814,70 @@ aide-desktop/
 
 
 ````
+
+### 9. Offline & Fallback Strategy
+
+#### Network Resilience
+
+| Scenario | Behavior | User Experience |
+|----------|----------|-----------------|
+| **Internet Down** | Switch to local providers (Ollama, LM Studio) | "Switched to local model due to network issues" |
+| **Provider API Down** | Fallback to next priority provider | "OpenRouter unavailable, using Groq instead" |
+| **Model Fetch Fails** | Use cached/fallback model list | "Using cached models for this provider" |
+| **Streaming Interrupted** | Graceful retry with exponential backoff | Progress indicator with retry count |
+
+#### Local-First Features
+
+```typescript
+// Features that work offline
+const offlineCapabilities = {
+  fileOperations: true,     // Read, write, diff files
+  workspaceNavigation: true, // File tree, search
+  syntaxHighlighting: true,  // Code display
+  diffViewer: true,         // Compare changes
+  settingsManagement: true,  // Configure providers
+  conversationHistory: true, // View past chats
+  
+  // Requires internet
+  aiChat: false,            // Needs provider API
+  modelFetching: false,     // Needs provider API
+  providerTesting: false    // Needs provider API
+};
+```
+
+#### Graceful Degradation
+
+- **No Internet**: Show clear offline indicator, suggest local providers
+- **Slow Connection**: Show progress indicators, allow cancellation
+- **API Errors**: Display helpful error messages with retry options
+- **Rate Limits**: Automatic backoff with user notification
+### 10. Developer Experience (DX) Enhancements
+
+#### Hot Reload & Development
+
+```typescript
+// Development-specific features
+interface DevModeFeatures {
+  hotReload: boolean;           // Instant UI updates
+  debugMode: boolean;           // Verbose logging
+  mockProviders: boolean;       // Test without API keys
+  performanceMetrics: boolean;  // Real-time performance data
+  errorBoundaries: boolean;     // Graceful error handling
+}
+```
+
+#### Debug & Diagnostics
+
+| Feature | Purpose | Implementation |
+|---------|---------|----------------|
+| **Request Logging** | Debug API calls | Log all provider requests/responses |
+| **Performance Monitor** | Identify bottlenecks | Track render times, memory usage |
+| **Error Reporting** | Crash diagnostics | Structured error logs with context |
+| **Health Checks** | System status | Provider connectivity, file permissions |
+
+#### Developer Tools Integration
+
+- **VS Code Extension**: Quick AIDE integration
+- **CLI Tool**: Batch operations and automation
+- **API Endpoints**: Programmatic access to AIDE features
+- **Plugin System**: Third-party extensions
