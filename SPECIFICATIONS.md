@@ -2,7 +2,7 @@
 
 > Constitution Status: Ratified  
 > Stability Tier: Core  
-> Last Amended: 2026-01-24
+> Last Amended: 2026-01-25
 
 ---
 
@@ -114,7 +114,7 @@ Any modification to this file MUST follow these rules:
 - **As a user,** I have a clean, familiar chat interface for conversing with the AI.
 - **As a user,** I can see a visual indicator of the currently active AI provider.
 - **As a user,** I can see a log of file activities (reads, proposed edits, applied changes) in a status panel.
-- 🤖 **43 AI Providers** (31 provider templates: 29 cloud + 2 local + 12 CLI agents)
+- 🤖 **44 AI Providers** (31 provider templates: 29 cloud + 2 local + 13 CLI agents)
 
 ## 3. Technical Architecture & Stack
 

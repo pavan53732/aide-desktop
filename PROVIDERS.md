@@ -2,7 +2,7 @@
 
 > Constitution Status: Ratified  
 > Stability Tier: Core  
-> Last Amended: 2026-01-24  
+> Last Amended: 2026-01-25  
 > Governing Document: SPECIFICATIONS.md
 
 ---
@@ -149,6 +149,7 @@ This document defines the **constitutional provider schema and configuration law
 | `codex`        | Codex CLI          | `codex`        | `pip install codex-cli`                  | 60       |
 | `warp`         | Warp AI            | Built-in       | Download Warp terminal                   | 61       |
 | `droid`        | Droid              | `droid`        | `npm install -g droid-cli`               | 62       |
+| `qwen_cli`     | Qwen CLI           | `qwen`         | `pip install qwen-cli`                   | 63       |
 
 ## Dynamic Model Discovery
 
@@ -1055,6 +1056,7 @@ export async function detectInstalledCLIAgents(): Promise<CLIAgentInfo[]> {
     { id: "gpt-engineer", command: "gpt-engineer", checkArgs: ["--version"] },
     { id: "goose", command: "goose", checkArgs: ["--version"] },
     { id: "gh-copilot", command: "gh", checkArgs: ["copilot", "--version"] },
+    { id: "qwen_cli", command: "qwen", checkArgs: ["--version"] },
     // ... other agents
   ];
 
@@ -1439,6 +1441,41 @@ async function isCommandAvailable(
 }
 ```
 
+#### 13. Qwen CLI
+
+```json
+{
+  "id": "qwen_cli",
+  "name": "Qwen CLI",
+  "type": "cli_agent",
+  "command": "qwen",
+  "description": "Alibaba Cloud Qwen AI model command-line interface",
+  "capabilities": [
+    "chat",
+    "code-generation",
+    "text-analysis",
+    "chinese-language"
+  ],
+  "installation": {
+    "method": "pip",
+    "command": "pip install qwen-cli",
+    "verify": "qwen --version",
+    "requirements": ["Python 3.8+"]
+  },
+  "usage": {
+    "chat": "qwen chat \"<prompt>\"",
+    "generate": "qwen generate --file <input>",
+    "analyze": "qwen analyze <code_file>"
+  },
+  "config": {
+    "authType": "api_key",
+    "environmentVars": {
+      "QWEN_API_KEY": "optional"
+    }
+  }
+}
+```
+
 ### CLI Agent Installation Guide
 
 #### Prerequisites Check
@@ -1655,4 +1692,4 @@ interface ModelInfo {
 
 ---
 
-**Supported Providers**: 31 provider templates (29 cloud + 2 local) + 12 CLI agents = 43 Total
+**Supported Providers**: 31 provider templates (29 cloud + 2 local) + 13 CLI agents = 44 Total

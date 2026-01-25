@@ -2,7 +2,7 @@
 
 > Document Status: Living Specification  
 > Stability Tier: Stable  
-> Last Updated: 2026-01-24  
+> Last Updated: 2026-01-25  
 > Governing Document: SPECIFICATIONS.md
 
 <p align="center">
@@ -79,7 +79,7 @@ Rules:
 
 ## ✨ Key Features
 
-- **🤖 Multi-Provider AI Hub**: Connect and configure 43 AI providers (31 provider templates: 29 cloud + 2 local + 12 CLI agents) in one interface
+- **🤖 Multi-Provider AI Hub**: Connect and configure 44 AI providers (31 provider templates: 29 cloud + 2 local + 13 CLI agents) in one interface
 - **🧠 Advanced Intelligence**: Context-aware AI that understands your entire project, learns from your style, and predicts your needs
 - **🔒 Secure File Operations**: Read and edit files with mandatory user confirmation
 - **💾 Local-First & Private**: Your API keys and file data stay on your machine
@@ -366,7 +366,7 @@ aide-desktop/
 
 ## ✨ Current Features
 
-- ✅ Multi-provider AI configuration (43 providers: 31 provider templates + 12 CLI agents)
+- ✅ Multi-provider AI configuration (44 providers: 31 provider templates + 13 CLI agents)
 - ✅ Dynamic model fetching from provider API
 - ✅ Secure file operations with diff viewer
 - ✅ Workspace sandboxing
@@ -381,7 +381,7 @@ aide-desktop/
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | [`README.md`](./README.md)                           | This file - quick start and overview                                                     |
 | [`SPECIFICATIONS.md`](./SPECIFICATIONS.md)           | Complete technical specification, architecture, feature set                              |
-| [`PROVIDERS.md`](./PROVIDERS.md)                     | AI provider configurations: 31 templates (29 cloud + 2 local) + 12 CLI agents = 43 total |
+| [`PROVIDERS.md`](./PROVIDERS.md)                     | AI provider configurations: 31 templates (29 cloud + 2 local) + 13 CLI agents = 44 total |
 | [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) | UI components, design system, user flows                                                 |
 | [`INTELLIGENCE.md`](./INTELLIGENCE.md)               | Advanced AI intelligence features: context awareness, learning, multi-model routing      |
 
