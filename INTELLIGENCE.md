@@ -1006,13 +1006,46 @@ export async function analyzeWorkspaceProactively(
 ```typescript
 // lib/intelligence/smart-proactive-analyzer.ts
 
+interface ProactiveAnalysisSettings {
+  enabled: boolean;                // Default: false (opt-in)
+  scope: 'off' | 'security-only' | 'performance-only' | 'all';
+  maxFilesPerSession: number;      // Default: 10 files max
+  maxCostPerSession: number;       // Default: $1.00 max
+  currentSessionCost: number;      // Track spending
+  currentSessionFiles: number;     // Track file count
+  resetTime: Date;                 // Daily reset
+}
+
 class SmartProactiveAnalyzer {
   private analysisQueue = new Set<string>();
   private lastAnalysis = new Map<string, number>();
   private isAnalyzing = false;
+  private settings: ProactiveAnalysisSettings;
   
-  // Only analyze changed files
+  constructor(settings: ProactiveAnalysisSettings) {
+    this.settings = settings;
+  }
+  
+  // FIX 2: Add user controls and budget limits
   onFileChange(filePath: string): void {
+    // User control: Check if proactive analysis is enabled
+    if (!this.settings.enabled) {
+      return;
+    }
+    
+    // Budget control: Check session limits
+    if (this.settings.currentSessionFiles >= this.settings.maxFilesPerSession) {
+      console.log(`📊 Proactive analysis paused: ${this.settings.maxFilesPerSession} file limit reached`);
+      this.showBudgetNotification('file-limit');
+      return;
+    }
+    
+    if (this.settings.currentSessionCost >= this.settings.maxCostPerSession) {
+      console.log(`💰 Proactive analysis paused: $${this.settings.maxCostPerSession} cost limit reached`);
+      this.showBudgetNotification('cost-limit');
+      return;
+    }
+    
     const lastCheck = this.lastAnalysis.get(filePath) || 0;
     const now = Date.now();
     
@@ -1024,9 +1057,54 @@ class SmartProactiveAnalyzer {
     // Add to queue
     this.analysisQueue.add(filePath);
     this.lastAnalysis.set(filePath, now);
+    this.settings.currentSessionFiles++;
     
     // Debounce: Wait 5 seconds for more changes
     this.debouncedProcess();
+  }
+  
+  private showBudgetNotification(limitType: 'file-limit' | 'cost-limit'): void {
+    const messages = {
+      'file-limit': `Proactive analysis paused: ${this.settings.maxFilesPerSession} file limit reached today.`,
+      'cost-limit': `Proactive analysis paused: $${this.settings.maxCostPerSession} cost limit reached today.`
+    };
+    
+    showNotification({
+      title: "📊 Proactive Analysis Paused",
+      message: messages[limitType],
+      actions: [
+        { label: "Increase Limit", onClick: () => this.openProactiveSettings() },
+        { label: "Reset Tomorrow", onClick: () => {} },
+        { label: "Disable", onClick: () => this.disableProactive() }
+      ]
+    });
+  }
+  
+  private openProactiveSettings(): void {
+    // Open settings modal for proactive analysis
+    console.log("Opening proactive analysis settings...");
+  }
+  
+  private disableProactive(): void {
+    this.settings.enabled = false;
+    console.log("Proactive analysis disabled by user");
+  }
+  
+  // Reset daily limits at midnight
+  private resetDailyLimits(): void {
+    const now = new Date();
+    if (now >= this.settings.resetTime) {
+      this.settings.currentSessionCost = 0;
+      this.settings.currentSessionFiles = 0;
+      
+      // Set next reset time to tomorrow midnight
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      this.settings.resetTime = tomorrow;
+      
+      console.log("📊 Proactive analysis limits reset for new day");
+    }
   }
   
   private debouncedProcess = debounce(() => {
@@ -2503,9 +2581,32 @@ export class ProductionMemorySystem {
     dbPath: string,
     aiProvider: MultiAIOrchestrator
   ) {
-    this.workspaceId = workspaceId;
-    this.db = new Database(dbPath);
+    // FIX 1: Sanitize workspaceId to prevent path traversal
+    this.workspaceId = this.sanitizeWorkspaceId(workspaceId);
+    
+    // Use sanitized ID in paths
+    const sanitizedDbPath = dbPath.replace('{workspaceId}', this.workspaceId);
+    this.db = new Database(sanitizedDbPath);
     this.aiProvider = aiProvider;
+  }
+  
+  // Security: Prevent path traversal attacks
+  private sanitizeWorkspaceId(id: string): string {
+    // Only allow alphanumeric characters, hyphens, and underscores
+    const sanitized = id.replace(/[^a-zA-Z0-9_-]/g, '');
+    
+    // Prevent empty or dangerous IDs
+    if (sanitized.length === 0) {
+      throw new Error('Invalid workspace ID: must contain alphanumeric characters');
+    }
+    
+    // Prevent reserved names
+    const reserved = ['con', 'prn', 'aux', 'nul', 'com1', 'com2', 'lpt1', 'lpt2'];
+    if (reserved.includes(sanitized.toLowerCase())) {
+      throw new Error(`Invalid workspace ID: '${sanitized}' is a reserved name`);
+    }
+    
+    return sanitized;
   }
   
   // Get current storage info
