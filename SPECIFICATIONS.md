@@ -2,7 +2,7 @@
 
 > Constitution Status: Ratified  
 > Stability Tier: Core  
-> Last Amended: 2026-01-25
+> Last Amended: 2026-01-27
 
 ---
 
@@ -80,8 +80,8 @@ Any modification to this file MUST follow these rules:
    - UI behavior → update `UI_UX_SPECIFICATION.md`
    - Intelligence behavior → update `INTELLIGENCE.md`
 
-4. **Command Contract Protection**  
-   Public Tauri commands (e.g., `run_cli_agent`, `check_cli_availability`, file operations, keychain access) are part of the constitutional API surface and MUST NOT be renamed without a breaking-change declaration.
+4.  **Command Contract Protection**  
+   Public IPC handlers (e.g., `run-cli-agent`, `check-cli-availability`, file operations, keychain access) are part of the constitutional API surface and MUST NOT be renamed without a breaking-change declaration.
 
 5. **Human-in-the-Loop Enforcement**  
    No amendment may weaken the diff-and-confirm requirement or workspace sandboxing.
@@ -122,40 +122,48 @@ Any modification to this file MUST follow these rules:
 
 | Component             | Technology                                                  | Why Chosen                                      |
 | --------------------- | ----------------------------------------------------------- | ----------------------------------------------- |
-| **Desktop Framework** | [Tauri 2.5](https://v2.tauri.app/)                          | Small, fast, secure desktop apps                |
-| **AI HTTP Client**    | Custom fetch/streaming implementation                        | Lightweight, provider-agnostic, supports streaming |
-| **Frontend UI**       | React 19 + TypeScript 5.5 + Tailwind CSS 4.0                | Modern, type-safe UI with utility-first styling |
-| **State Management**  | Zustand + TanStack Query                                    | Lightweight state + robust server-state caching |
-| **Local Database**    | [Turso](https://turso.tech/) (SQLite)                       | Edge SQLite with type-safe ORM via Drizzle      |
+| **Desktop Framework** | [Electron 33](https://www.electronjs.org/)                  | Full system access, mature ecosystem, battle-tested |
+| **Backend Runtime**   | Node.js 20+ (Electron Main Process)                         | Full npm ecosystem, native module support       |
+| **AI HTTP Client**    | Native fetch + EventSource (SSE streaming)                  | Lightweight, provider-agnostic, streaming support |
+| **Frontend UI**       | React 19 + TypeScript 5.7 + Tailwind CSS 4.0               | Modern, type-safe UI with utility-first styling |
+| **State Management**  | Zustand 5 + TanStack Query v5                               | Lightweight state + robust server-state caching |
+| **Local Database**    | Better-SQLite3 + Drizzle ORM v0.36                          | Fastest SQLite for Node.js with type-safe ORM   |
 | **Code Editor**       | [Monaco Editor](https://microsoft.github.io/monaco-editor/) | VS Code-grade editing for diff viewer           |
-| **UI Components**     | [shadcn/ui](https://ui.shadcn.com/) + Custom Components     | Provider cards, badges, model selectors         |
-| **Icon System**       | [Lucide React](https://lucide.dev/)                         | Consistent iconography and provider logos       |
-| **Dev Tools**         | Vite 6 + Biome 2.0 + Vitest 2 + Playwright 2                | Fast builds, linting/formatting, testing        |
+| **UI Components**     | [shadcn/ui v2](https://ui.shadcn.com/)                      | Accessible, customizable components             |
+| **Animations**        | Framer Motion v11                                           | Professional, smooth animations                 |
+| **UI Polish**         | Sonner (toasts) + Vaul (drawers) + cmdk (command palette)   | Beautiful, accessible UI patterns               |
+| **Icon System**       | [Lucide React v0.460](https://lucide.dev/)                  | Consistent iconography and provider logos       |
+| **Dev Tools**         | Vite 6 + Biome 2.0 + Vitest 3 + Playwright 2                | Fast builds, unified tooling, comprehensive testing |
+| **Packaging**         | electron-builder v25                                        | Production-ready installers and auto-updates    |
 
 ### 3.2 Complete System Architecture
 
 ```mermaid
 graph TB
     User[User Input] --> Frontend[React 19 + TypeScript + Tailwind]
-    Frontend --> Tauri[Tauri 2.5]
+    Frontend --> IPC[Electron IPC]
 
-    Tauri --> MultiAI[Multi-AI Orchestrator]
-    Tauri --> FileOps[File Operations]
+    IPC --> Main[Electron Main Process]
+    Main --> MultiAI[Multi-AI Orchestrator]
+    Main --> FileOps[File Operations]
+    Main --> CLIExec[CLI Execution]
 
-    MultiAI --> HTTP[31+ HTTP Providers (Cloud & Local)]
-    MultiAI --> CLI[12 CLI Agents]
+    MultiAI --> HTTP[31+ HTTP Providers Cloud & Local]
+    MultiAI --> LocalAI[Ollama/LM Studio]
+    CLIExec --> CLI[13 CLI Agents]
 
-    FileOps --> ReadWrite[Read/Write Files]
+    FileOps --> NodeFS[Node.js fs/promises]
     FileOps --> Diff[Diff Modal]
     FileOps --> Sandbox[Workspace Sandbox]
 
-    Frontend --> Turso[(Turso SQLite)]
+    Main --> SQLite[(Better-SQLite3 + Drizzle)]
+    Main --> Keychain[Keytar - OS Keychain]
 ```
 
 ### 3.3 Key Security Model
 
-1.  **File System Sandboxing:** The app's `tauri.conf.json` will define a strict allow-list for file system access, scoped initially to the user-selected workspace directory.
-2.  **Credential Storage:** API keys will be encrypted and stored using Windows Credential Manager via Tauri's `tauri-plugin-store` or similar.
+1.  **File System Sandboxing:** The app enforces strict file access limited to user-selected workspace directory. All file operations are validated before execution in the Main process.
+2.  **Credential Storage:** API keys are encrypted and stored using Windows Credential Manager via the `keytar` library (native Node.js module).
 3.  **No Telemetry:** The application will not phone home. All communication is strictly between the app and the user's configured AI provider endpoint.
 
 - **Telemetry Definition:** Any data sent to non-user-configured endpoints, including behavioral data, usage statistics, error reports, or content analysis sent to third parties.
@@ -570,59 +578,85 @@ export const preferences = sqliteTable("preferences", {
 
 #### Execution Strategy
 
-CLI agents (Aider, GPT Engineer, Copilot CLI, etc.) will be invoked from the Tauri Rust backend using `std::process::Command`.
+CLI agents (Aider, GPT Engineer, Copilot CLI, etc.) are invoked from the Electron Main process using Node.js `child_process`.
 
-```rust
-// src-tauri/src/commands/cli_agents.rs
-use std::process::{Command, Stdio};
-use tauri::command;
+```typescript
+// electron/main/cli-agents.ts
+import { spawn } from 'child_process';
+import { ipcMain } from 'electron';
 
-#[command]
-pub async fn run_cli_agent(
-    agent_command: String,
-    args: Vec<String>,
-    working_dir: String,
-    env_vars: std::collections::HashMap<String, String>,
-) -> Result<String, String> {
-    let mut cmd = Command::new(&agent_command);
-
-    cmd.args(&args)
-       .current_dir(&working_dir)
-       .stdout(Stdio::piped())
-       .stderr(Stdio::piped());
-
-    // Set environment variables (e.g., OPENAI_API_KEY from keychain)
-    for (key, value) in env_vars {
-        cmd.env(key, value);
-    }
-
-    let output = cmd.output().map_err(|e| e.to_string())?;
-
-    if output.status.success() {
-        Ok(String::from_utf8_lossy(&output.stdout).to_string())
-    } else {
-        Err(String::from_utf8_lossy(&output.stderr).to_string())
-    }
+interface CLIExecutionOptions {
+  command: string;
+  args: string[];
+  workingDir: string;
+  envVars: Record<string, string>;
 }
 
-#[command]
-pub async fn check_cli_availability(command: String) -> Result<bool, String> {
-    let result = Command::new("where")
-        .arg(&command)
-        .output();
+// IPC Handler for CLI execution
+ipcMain.handle('run-cli-agent', async (event, options: CLIExecutionOptions) => {
+  try {
+    const { command, args, workingDir, envVars } = options;
+    
+    return await executeCLIAgent(command, args, workingDir, envVars);
+  } catch (error) {
+    throw new Error(`CLI execution failed: ${error.message}`);
+  }
+});
 
-    match result {
-        Ok(output) => Ok(output.status.success()),
-        Err(_) => Ok(false),
-    }
+export async function executeCLIAgent(
+  command: string,
+  args: string[],
+  workingDir: string,
+  envVars: Record<string, string>
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn(command, args, {
+      cwd: workingDir,
+      env: { ...process.env, ...envVars },
+      shell: true
+    });
+    
+    let stdout = '';
+    let stderr = '';
+    
+    proc.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+    
+    proc.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+    
+    proc.on('close', (code) => {
+      if (code === 0) {
+        resolve(stdout);
+      } else {
+        reject(new Error(stderr || `Process exited with code ${code}`));
+      }
+    });
+    
+    proc.on('error', (error) => {
+      reject(error);
+    });
+  });
 }
+
+// Check CLI availability
+ipcMain.handle('check-cli-availability', async (event, command: string) => {
+  try {
+    await executeCLIAgent('where', [command], process.cwd(), {});
+    return true;
+  } catch {
+    return false;
+  }
+});
 ```
 
 #### Frontend Integration
 
 ```typescript
 // lib/cli/execute.ts
-import { invoke } from "@tauri-apps/api/core";
+const { ipcRenderer } = window.electron;
 
 export async function runCLIAgent(
   agent: CLIProviderConfig,
@@ -632,15 +666,19 @@ export async function runCLIAgent(
   const envVars: Record<string, string> = {};
 
   if (agent.config.environmentVars?.OPENAI_API_KEY) {
-    envVars.OPENAI_API_KEY = await invoke("get_api_key", { key: "openai" });
+    envVars.OPENAI_API_KEY = await ipcRenderer.invoke('get-api-key', 'openai');
   }
 
-  return await invoke("run_cli_agent", {
-    agentCommand: agent.command,
+  return await ipcRenderer.invoke('run-cli-agent', {
+    command: agent.command,
     args: [prompt],
     workingDir: agent.workingDirectory || process.cwd(),
     envVars,
   });
+}
+
+export async function checkCLIAvailability(command: string): Promise<boolean> {
+  return await ipcRenderer.invoke('check-cli-availability', command);
 }
 ```
 
