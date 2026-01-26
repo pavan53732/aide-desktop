@@ -691,6 +691,318 @@ export async function checkCLIAvailability(command: string): Promise<boolean> {
 | Secret exposure     | API keys passed via env vars, never command args     |
 | Arbitrary execution | Only pre-approved CLI agents can be invoked          |
 
+### 3.8 Frontend Component Architecture
+
+#### Component Structure with Animations
+
+```typescript
+// src/components/animations/
+animations/
+├── variants.ts              // Reusable animation variants
+├── transitions.ts           // Timing presets
+├── micro-interactions.tsx   // Common animations
+└── hooks/
+    ├── use-hover-lift.ts
+    └── use-scale-on-tap.ts
+```
+
+#### Animation Variants Library
+
+```typescript
+// src/components/animations/variants.ts
+import { Variants } from 'framer-motion';
+
+export const fadeInUp: Variants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 }
+};
+
+export const scaleIn: Variants = {
+  initial: { opacity: 0, scale: 0.95 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.95 }
+};
+
+export const slideInRight: Variants = {
+  initial: { x: 100, opacity: 0 },
+  animate: { x: 0, opacity: 1 },
+  exit: { x: -100, opacity: 0 }
+};
+
+export const hoverLift: Variants = {
+  initial: { y: 0 },
+  hover: { y: -4, boxShadow: "0 10px 25px rgba(0,0,0,0.15)" }
+};
+
+export const buttonTap: Variants = {
+  tap: { scale: 0.95 }
+};
+```
+
+#### Transition Presets
+
+```typescript
+// src/components/animations/transitions.ts
+import { Transition } from 'framer-motion';
+
+export const spring: Transition = {
+  type: "spring",
+  stiffness: 400,
+  damping: 30
+};
+
+export const easeOut: Transition = {
+  duration: 0.3,
+  ease: [0.4, 0, 0.2, 1] // Tailwind's ease-out
+};
+
+export const smooth: Transition = {
+  duration: 0.5,
+  ease: [0.25, 0.1, 0.25, 1] // Custom smooth curve
+};
+```
+
+#### Reusable Animation Components
+
+```typescript
+// src/components/animations/micro-interactions.tsx
+import { motion } from 'framer-motion';
+import { fadeInUp, hoverLift, buttonTap } from './variants';
+import { spring, easeOut } from './transitions';
+
+// Animated Card with hover effect
+export const AnimatedCard = ({ children, ...props }) => (
+  <motion.div
+    variants={hoverLift}
+    initial="initial"
+    whileHover="hover"
+    transition={spring}
+    {...props}
+  >
+    {children}
+  </motion.div>
+);
+
+// Animated Button with tap effect
+export const AnimatedButton = ({ children, ...props }) => (
+  <motion.button
+    variants={buttonTap}
+    whileTap="tap"
+    transition={easeOut}
+    {...props}
+  >
+    {children}
+  </motion.button>
+);
+
+// Fade in wrapper for pages
+export const PageTransition = ({ children }) => (
+  <motion.div
+    variants={fadeInUp}
+    initial="initial"
+    animate="animate"
+    exit="exit"
+    transition={easeOut}
+  >
+    {children}
+  </motion.div>
+);
+
+// Stagger children animation
+export const StaggerContainer = ({ children, ...props }) => (
+  <motion.div
+    initial="initial"
+    animate="animate"
+    variants={{
+      animate: {
+        transition: {
+          staggerChildren: 0.1
+        }
+      }
+    }}
+    {...props}
+  >
+    {children}
+  </motion.div>
+);
+```
+
+### 3.9 Animation & Motion System
+
+#### Animation Performance Guidelines
+
+| Principle | Implementation | Why |
+|-----------|----------------|-----|
+| **Transform over position** | Use `x`, `y` vs `left`, `top` | GPU accelerated |
+| **Opacity animations** | Safe to animate | Composited layer |
+| **Scale for size changes** | Use `scale` vs `width`/`height` | Smoother performance |
+| **Layout animations** | Use `layout` prop sparingly | Can be expensive |
+| **Reduce motion** | Respect `prefers-reduced-motion` | Accessibility |
+
+#### Motion Presets
+
+```typescript
+// src/lib/utils/motion.ts
+export const motionPresets = {
+  // Instant animations (for critical interactions)
+  instant: { duration: 0 },
+  
+  // Fast animations (for feedback)
+  fast: { duration: 0.15, ease: "easeOut" },
+  
+  // Normal animations (default)
+  normal: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+  
+  // Slow animations (for emphasis)
+  slow: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
+  
+  // Spring animations (for organic feel)
+  spring: {
+    type: "spring",
+    stiffness: 400,
+    damping: 30
+  },
+  
+  // Bouncy spring (for playful interactions)
+  bouncySpring: {
+    type: "spring",
+    stiffness: 600,
+    damping: 20
+  }
+};
+
+// Respect user preferences
+export const getMotionConfig = () => {
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+  
+  return prefersReducedMotion 
+    ? { duration: 0 } // Instant
+    : motionPresets.normal;
+};
+```
+
+### 3.10 Design Token System
+
+#### Spacing Scale
+
+```typescript
+// tailwind.config.ts
+export default {
+  theme: {
+    spacing: {
+      px: '1px',
+      0: '0',
+      0.5: '0.125rem',  // 2px
+      1: '0.25rem',      // 4px
+      1.5: '0.375rem',   // 6px
+      2: '0.5rem',       // 8px
+      2.5: '0.625rem',   // 10px
+      3: '0.75rem',      // 12px
+      3.5: '0.875rem',   // 14px
+      4: '1rem',         // 16px
+      5: '1.25rem',      // 20px
+      6: '1.5rem',       // 24px
+      7: '1.75rem',      // 28px
+      8: '2rem',         // 32px
+      9: '2.25rem',      // 36px
+      10: '2.5rem',      // 40px
+      11: '2.75rem',     // 44px
+      12: '3rem',        // 48px
+      14: '3.5rem',      // 56px
+      16: '4rem',        // 64px
+      20: '5rem',        // 80px
+      24: '6rem',        // 96px
+      28: '7rem',        // 112px
+      32: '8rem',        // 128px
+      36: '9rem',        // 144px
+      40: '10rem',       // 160px
+      44: '11rem',       // 176px
+      48: '12rem',       // 192px
+      52: '13rem',       // 208px
+      56: '14rem',       // 224px
+      60: '15rem',       // 240px
+      64: '16rem',       // 256px
+      72: '18rem',       // 288px
+      80: '20rem',       // 320px
+      96: '24rem',       // 384px
+    }
+  }
+};
+```
+
+#### Shadow System
+
+```typescript
+// tailwind.config.ts
+export default {
+  theme: {
+    extend: {
+      boxShadow: {
+        // Elevation system
+        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'DEFAULT': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+        '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        
+        // Colored shadows for emphasis
+        'primary': '0 10px 25px -5px rgba(59, 130, 246, 0.3)',
+        'success': '0 10px 25px -5px rgba(16, 185, 129, 0.3)',
+        'error': '0 10px 25px -5px rgba(239, 68, 68, 0.3)',
+        
+        // Inner shadow
+        'inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
+      }
+    }
+  }
+};
+```
+
+#### Border Radius System
+
+```typescript
+// tailwind.config.ts
+export default {
+  theme: {
+    borderRadius: {
+      'none': '0',
+      'sm': '0.125rem',    // 2px
+      'DEFAULT': '0.25rem', // 4px
+      'md': '0.375rem',    // 6px
+      'lg': '0.5rem',      // 8px
+      'xl': '0.75rem',     // 12px
+      '2xl': '1rem',       // 16px
+      '3xl': '1.5rem',     // 24px
+      'full': '9999px',
+    }
+  }
+};
+```
+
+#### Z-Index Layering System
+
+```typescript
+// src/lib/utils/z-index.ts
+export const zIndex = {
+  base: 0,
+  dropdown: 1000,
+  sticky: 1100,
+  fixed: 1200,
+  modalBackdrop: 1300,
+  modal: 1400,
+  popover: 1500,
+  toast: 1600,
+  tooltip: 1700,
+} as const;
+
+// Usage in components
+// className="z-[1400]" or style={{ zIndex: zIndex.modal }}
+```
+
 ### 4. Complete Feature Set
 
 AIDE delivers a revolutionary development environment with the following complete feature set:

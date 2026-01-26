@@ -514,14 +514,625 @@ export function useKeyboardShortcuts() {
 }
 ```
 
-## 6. Recommended Tools & Implementation
+## 6. Loading States & Skeleton Screens
+
+### 6.1 Skeleton Component System
+
+```typescript
+// components/ui/skeleton.tsx
+import { cn } from "@/lib/utils";
+
+interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
+
+export function Skeleton({ className, ...props }: SkeletonProps) {
+  return (
+    <div
+      className={cn(
+        "animate-pulse rounded-md bg-muted",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+// With shimmer effect
+export function SkeletonShimmer({ className, ...props }: SkeletonProps) {
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-md bg-muted",
+        className
+      )}
+      {...props}
+    >
+      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+    </div>
+  );
+}
+```
+
+### 6.2 Component-Specific Skeletons
+
+```typescript
+// components/skeletons/chat-skeleton.tsx
+export function ChatSkeleton() {
+  return (
+    <div className="space-y-4 p-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="flex gap-3">
+          {/* Avatar */}
+          <Skeleton className="h-10 w-10 rounded-full" />
+          
+          {/* Message content */}
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// File tree skeleton
+export function FileTreeSkeleton() {
+  return (
+    <div className="space-y-2 p-4">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="flex items-center gap-2">
+          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-4 w-full" style={{ width: `${Math.random() * 60 + 40}%` }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Provider card skeleton
+export function ProviderCardSkeleton() {
+  return (
+    <div className="rounded-lg border p-4 space-y-3">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-12 w-12 rounded-lg" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+      </div>
+      <Skeleton className="h-9 w-full" />
+    </div>
+  );
+}
+
+// Model dropdown skeleton
+export function ModelDropdownSkeleton() {
+  return (
+    <div className="space-y-2">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center gap-2 p-2">
+          <Skeleton className="h-4 w-4 rounded" />
+          <Skeleton className="h-4 flex-1" />
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### 6.3 Shimmer Animation
+
+```css
+/* globals.css */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+```
+
+## 7. Micro-interactions Library
+
+### 7.1 Button Interactions
+
+```typescript
+// components/ui/animated-button.tsx
+import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+
+interface AnimatedButtonProps {
+  children: React.ReactNode;
+  loading?: boolean;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  onClick?: () => void;
+}
+
+export function AnimatedButton({ 
+  children, 
+  loading, 
+  variant = 'primary',
+  onClick 
+}: AnimatedButtonProps) {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.15 }}
+      className={cn(
+        "relative px-4 py-2 rounded-lg font-medium transition-colors",
+        {
+          'bg-primary text-primary-foreground hover:bg-primary/90': variant === 'primary',
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80': variant === 'secondary',
+          'hover:bg-accent hover:text-accent-foreground': variant === 'ghost',
+        }
+      )}
+      onClick={onClick}
+      disabled={loading}
+    >
+      {loading && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 flex items-center justify-center bg-inherit rounded-lg"
+        >
+          <Loader2 className="h-4 w-4 animate-spin" />
+        </motion.div>
+      )}
+      <span className={cn(loading && "invisible")}>{children}</span>
+    </motion.button>
+  );
+}
+```
+
+### 7.2 Card Hover Effects
+
+```typescript
+// components/ui/animated-card.tsx
+import { motion } from 'framer-motion';
+
+export function HoverCard({ children, ...props }) {
+  return (
+    <motion.div
+      whileHover={{ 
+        y: -4,
+        boxShadow: "0 10px 25px rgba(0,0,0,0.15)"
+      }}
+      transition={{ 
+        type: "spring",
+        stiffness: 400,
+        damping: 30
+      }}
+      className="rounded-lg border bg-card p-6 cursor-pointer"
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Glow effect on hover
+export function GlowCard({ children, ...props }) {
+  return (
+    <motion.div
+      whileHover={{
+        boxShadow: "0 0 25px rgba(59, 130, 246, 0.5)"
+      }}
+      transition={{ duration: 0.3 }}
+      className="rounded-lg border bg-card p-6 cursor-pointer"
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+```
+
+### 7.3 Loading Animations
+
+```typescript
+// components/ui/loading-spinner.tsx
+import { motion } from 'framer-motion';
+
+export function PulseLoader() {
+  return (
+    <div className="flex gap-2">
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="h-2 w-2 rounded-full bg-primary"
+          animate={{
+            scale: [1, 1.5, 1],
+            opacity: [0.5, 1, 0.5]
+          }}
+          transition={{
+            duration: 1,
+            repeat: Infinity,
+            delay: i * 0.2
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function SpinLoader() {
+  return (
+    <motion.div
+      className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent"
+      animate={{ rotate: 360 }}
+      transition={{
+        duration: 1,
+        repeat: Infinity,
+        ease: "linear"
+      }}
+    />
+  );
+}
+```
+
+### 7.4 Success/Error Animations
+
+```typescript
+// components/ui/status-icons.tsx
+import { motion } from 'framer-motion';
+import { Check, X } from 'lucide-react';
+
+export function SuccessCheckmark() {
+  return (
+    <motion.div
+      initial={{ scale: 0, rotate: -180 }}
+      animate={{ scale: 1, rotate: 0 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 200,
+        damping: 15
+      }}
+      className="flex items-center justify-center h-12 w-12 rounded-full bg-success"
+    >
+      <Check className="h-6 w-6 text-white" />
+    </motion.div>
+  );
+}
+
+export function ErrorCross() {
+  return (
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 300,
+        damping: 20
+      }}
+      className="flex items-center justify-center h-12 w-12 rounded-full bg-destructive"
+    >
+      <X className="h-6 w-6 text-white" />
+    </motion.div>
+  );
+}
+```
+
+## 8. Complete Design System
+
+### 8.1 Spacing Scale Reference
+
+| Token | Value | Pixels | Usage |
+|-------|-------|--------|-------|
+| `space-0` | 0 | 0px | No spacing |
+| `space-1` | 0.25rem | 4px | Tight spacing, icon gaps |
+| `space-2` | 0.5rem | 8px | Small gaps between elements |
+| `space-3` | 0.75rem | 12px | Default gap for inline elements |
+| `space-4` | 1rem | 16px | Standard spacing unit |
+| `space-6` | 1.5rem | 24px | Section padding |
+| `space-8` | 2rem | 32px | Large section spacing |
+| `space-12` | 3rem | 48px | Major section breaks |
+| `space-16` | 4rem | 64px | Page section spacing |
+
+### 8.2 Shadow Elevation System
+
+```typescript
+// Usage examples
+<div className="shadow-sm">    // Subtle elevation
+<div className="shadow">       // Default card elevation
+<div className="shadow-md">    // Dropdown menus
+<div className="shadow-lg">    // Modal dialogs
+<div className="shadow-xl">    // Floating action buttons
+<div className="shadow-2xl">   // Full-page overlays
+```
+
+### 8.3 Border Radius Guidelines
+
+| Size | Value | Usage |
+|------|-------|-------|
+| `rounded-sm` | 2px | Badges, tags |
+| `rounded` | 4px | Buttons, inputs |
+| `rounded-md` | 6px | Cards (default) |
+| `rounded-lg` | 8px | Large cards, modals |
+| `rounded-xl` | 12px | Hero sections |
+| `rounded-2xl` | 16px | Feature cards |
+| `rounded-full` | 9999px | Avatars, pills |
+
+### 8.4 Animation Timing Reference
+
+```typescript
+// Duration
+export const duration = {
+  instant: 0,
+  fast: 150,      // Feedback
+  normal: 300,    // Default
+  slow: 500,      // Emphasis
+  slower: 700     // Page transitions
+};
+
+// Easing
+export const easing = {
+  linear: [0, 0, 1, 1],
+  easeIn: [0.4, 0, 1, 1],
+  easeOut: [0, 0, 0.2, 1],         // Most common
+  easeInOut: [0.4, 0, 0.2, 1],
+  spring: { type: "spring", stiffness: 400, damping: 30 }
+};
+```
+
+## 9. UI Polish Implementation Guide
+
+### 9.1 Hover States
+
+```typescript
+// Standard hover pattern
+<div className="
+  transition-colors duration-200
+  hover:bg-accent hover:text-accent-foreground
+  cursor-pointer
+">
+
+// With transform
+<div className="
+  transition-all duration-200
+  hover:-translate-y-1 hover:shadow-lg
+  cursor-pointer
+">
+
+// Button hover with scale
+<button className="
+  transition-transform duration-150
+  hover:scale-105 active:scale-95
+">
+```
+
+### 9.2 Focus States
+
+```typescript
+// Keyboard focus indicators
+<input className="
+  focus:outline-none
+  focus:ring-2 focus:ring-primary focus:ring-offset-2
+  transition-shadow duration-200
+" />
+
+// Button focus
+<button className="
+  focus-visible:outline-none
+  focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+">
+```
+
+### 9.3 Active States
+
+```typescript
+// Button press feedback
+<button className="
+  active:scale-95 active:brightness-95
+  transition-all duration-100
+">
+
+// Link press
+<a className="
+  active:text-primary/80
+  transition-colors duration-100
+">
+```
+
+### 9.4 Ripple Effect
+
+```typescript
+// components/ui/ripple-button.tsx
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+
+export function RippleButton({ children, onClick }) {
+  const [ripples, setRipples] = useState<Array<{ x: number; y: number; id: number }>>([]);
+
+  const addRipple = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setRipples([...ripples, { x, y, id: Date.now() }]);
+    
+    setTimeout(() => {
+      setRipples(ripples => ripples.slice(1));
+    }, 600);
+  };
+
+  return (
+    <button
+      className="relative overflow-hidden px-4 py-2 rounded-lg bg-primary text-primary-foreground"
+      onClick={(e) => {
+        addRipple(e);
+        onClick?.();
+      }}
+    >
+      {ripples.map(ripple => (
+        <motion.span
+          key={ripple.id}
+          className="absolute rounded-full bg-white"
+          initial={{
+            width: 0,
+            height: 0,
+            x: ripple.x,
+            y: ripple.y,
+            opacity: 0.5
+          }}
+          animate={{
+            width: 200,
+            height: 200,
+            x: ripple.x - 100,
+            y: ripple.y - 100,
+            opacity: 0
+          }}
+          transition={{ duration: 0.6 }}
+        />
+      ))}
+      {children}
+    </button>
+  );
+}
+```
+
+## 10. Vaul Drawer Implementation
+
+### 10.1 Basic Drawer
+
+```typescript
+// components/ui/drawer.tsx
+import { Drawer } from 'vaul';
+
+export function BasicDrawer({ children, trigger }) {
+  return (
+    <Drawer.Root>
+      <Drawer.Trigger asChild>
+        {trigger}
+      </Drawer.Trigger>
+      
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] h-[96%] mt-24 fixed bottom-0 left-0 right-0">
+          <div className="p-4 bg-background rounded-t-[10px] flex-1 overflow-auto">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
+            {children}
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}
+```
+
+### 10.2 Drawer with Snap Points
+
+```typescript
+export function SnapDrawer({ children }) {
+  return (
+    <Drawer.Root snapPoints={[0.2, 0.5, 0.9]} fadeFromIndex={0}>
+      <Drawer.Trigger asChild>
+        <button>Open Drawer</button>
+      </Drawer.Trigger>
+      
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+        <Drawer.Content className="bg-background flex flex-col fixed bottom-0 left-0 right-0 rounded-t-[10px]">
+          <div className="p-4">
+            <div className="mx-auto w-12 h-1.5 rounded-full bg-muted mb-8" />
+            {children}
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}
+```
+
+## 11. Enhanced Toast Patterns
+
+### 11.1 Custom Toast Variants
+
+```typescript
+// lib/toast-variants.ts
+import { toast } from 'sonner';
+import { CheckCircle, XCircle, Info, AlertTriangle } from 'lucide-react';
+
+export const customToast = {
+  success: (message: string, description?: string) => {
+    toast.custom((t) => (
+      <div className="bg-background border rounded-lg shadow-lg p-4 flex gap-3">
+        <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
+        <div className="flex-1">
+          <p className="font-semibold">{message}</p>
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        </div>
+      </div>
+    ));
+  },
+
+  error: (message: string, description?: string) => {
+    toast.custom((t) => (
+      <div className="bg-background border border-destructive rounded-lg shadow-lg p-4 flex gap-3">
+        <XCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+        <div className="flex-1">
+          <p className="font-semibold text-destructive">{message}</p>
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        </div>
+      </div>
+    ));
+  },
+
+  info: (message: string) => {
+    toast.custom((t) => (
+      <div className="bg-primary/10 border border-primary rounded-lg shadow-lg p-4 flex gap-3">
+        <Info className="h-5 w-5 text-primary flex-shrink-0" />
+        <p className="text-sm">{message}</p>
+      </div>
+    ));
+  },
+
+  warning: (message: string) => {
+    toast.custom((t) => (
+      <div className="bg-warning/10 border border-warning rounded-lg shadow-lg p-4 flex gap-3">
+        <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0" />
+        <p className="text-sm">{message}</p>
+      </div>
+    ));
+  }
+};
+```
+
+### 11.2 Toast with Actions
+
+```typescript
+export function actionToast() {
+  toast('File modified', {
+    description: 'src/main.ts has unsaved changes',
+    action: {
+      label: 'Save',
+      onClick: () => saveFile()
+    },
+    cancel: {
+      label: 'Discard',
+      onClick: () => discardChanges()
+    }
+  });
+}
+```
+
+## 12. Recommended Tools & Implementation
 
 ### Core UI Stack
 
 | Library      | Version | Purpose           |
 | ------------ | ------- | ----------------- |
 | React        | 19.x    | UI framework      |
-| TypeScript   | 5.5+    | Type safety       |
+| TypeScript   | 5.7+    | Type safety       |
 | Tailwind CSS | 4.0     | Styling           |
 | shadcn/ui    | latest  | Component library |
 
