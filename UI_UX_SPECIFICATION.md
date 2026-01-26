@@ -1144,6 +1144,549 @@ export function actionToast() {
 | **Sonner**        | Toast notifications | User feedback            |
 | **Vaul**          | Drawer component    | Mobile-like panels       |
 | **Framer Motion** | Animations          | Micro-interactions       |
+| **tsparticles**   | Particle effects    | Background animations    |
+| **react-syntax-highlighter** | Code display | Animated code blocks |
+
+## 12. Glassmorphism & Modern Blur Effects
+
+### 12.1 Glass Card Component
+
+```typescript
+// components/ui/glass-card.tsx
+import { motion } from 'framer-motion';
+import { ReactNode } from 'react';
+
+interface GlassCardProps {
+  children: ReactNode;
+  className?: string;
+  intensity?: 'light' | 'medium' | 'strong';
+}
+
+export function GlassCard({ children, className = '', intensity = 'medium' }: GlassCardProps) {
+  const blurIntensity = {
+    light: 'backdrop-blur-sm',
+    medium: 'backdrop-blur-md',
+    strong: 'backdrop-blur-xl'
+  };
+  
+  return (
+    <motion.div
+      className={`
+        ${blurIntensity[intensity]}
+        bg-white/10 dark:bg-black/10
+        border border-white/20 dark:border-white/10
+        rounded-2xl shadow-2xl
+        hover:bg-white/20 dark:hover:bg-black/20
+        transition-all duration-300
+        ${className}
+      `}
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.2 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+```
+
+### 12.2 Glassmorphism Patterns
+
+```typescript
+// components/ui/glass-patterns.tsx
+
+// Frosted glass effect
+export function FrostedGlass({ children }) {
+  return (
+    <div className="
+      backdrop-blur-2xl
+      bg-gradient-to-br from-white/5 to-white/10
+      border border-white/20
+      shadow-[0_8px_32px_rgba(0,0,0,0.1)]
+      rounded-3xl
+      relative overflow-hidden
+    ">
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5" />
+      
+      <div className="relative z-10 p-6">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Ultra glass with border shine
+export function UltraGlass({ children }) {
+  return (
+    <div className="relative group">
+      {/* Animated border */}
+      <div className="
+        absolute -inset-0.5 
+        bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 
+        rounded-2xl blur opacity-30 
+        group-hover:opacity-60 
+        transition duration-1000 
+        group-hover:duration-200
+      " />
+      
+      {/* Glass content */}
+      <div className="
+        relative backdrop-blur-xl
+        bg-black/40 
+        rounded-2xl 
+        border border-white/10
+        p-6
+      ">
+        {children}
+      </div>
+    </div>
+  );
+}
+```
+
+## 13. 3D Transformations & Card Effects
+
+### 13.1 3D Card with Tilt
+
+```typescript
+// components/ui/card-3d.tsx
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+
+export function Card3D({ children }) {
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  
+  return (
+    <motion.div
+      className="relative w-full h-full cursor-pointer"
+      style={{
+        transformStyle: "preserve-3d",
+        perspective: 1000
+      }}
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        setRotateX((y - centerY) / 10);
+        setRotateY(-(x - centerX) / 10);
+      }}
+      onMouseLeave={() => {
+        setRotateX(0);
+        setRotateY(0);
+      }}
+      animate={{
+        rotateX,
+        rotateY
+      }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+```
+
+### 13.2 3D Provider Card
+
+```typescript
+// components/providers/provider-card-3d.tsx
+export function ProviderCard3D({ provider }) {
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  
+  return (
+    <motion.div
+      className="relative w-80 h-48 cursor-pointer"
+      style={{
+        transformStyle: "preserve-3d",
+        perspective: 1000
+      }}
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        setRotateX((y - centerY) / 10);
+        setRotateY(-(x - centerX) / 10);
+      }}
+      onMouseLeave={() => {
+        setRotateX(0);
+        setRotateY(0);
+      }}
+      animate={{ rotateX, rotateY }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+    >
+      {/* Holographic background */}
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 backdrop-blur-xl" />
+      
+      {/* Dynamic shine effect */}
+      <motion.div
+        className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(circle at ${rotateY * 10 + 50}% ${rotateX * 10 + 50}%, rgba(255,255,255,0.2), transparent 50%)`
+        }}
+      />
+      
+      <div className="relative p-6 h-full flex flex-col justify-between">
+        <div className="flex items-center gap-4">
+          <motion.div
+            className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            style={{ transformStyle: "preserve-3d", transform: "translateZ(20px)" }}
+          >
+            {provider.icon}
+          </motion.div>
+          
+          <div>
+            <h3 className="text-xl font-bold">{provider.name}</h3>
+            <p className="text-sm text-muted-foreground">{provider.model || "No model selected"}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <StatusBadge status={provider.status} />
+          <TypeBadge type={provider.type} />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+```
+
+## 14. Advanced Gradient System
+
+### 14.1 Animated Gradients
+
+```typescript
+// lib/gradients.ts
+export const gradients = {
+  // Static gradients
+  aurora: "bg-gradient-to-r from-purple-500 via-pink-500 to-red-500",
+  ocean: "bg-gradient-to-r from-blue-400 via-cyan-500 to-teal-500",
+  sunset: "bg-gradient-to-r from-orange-400 via-red-500 to-pink-600",
+  forest: "bg-gradient-to-r from-green-400 via-emerald-500 to-teal-600",
+  cosmic: "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500",
+  midnight: "bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900",
+  
+  // Animated gradients
+  animatedAurora: `
+    bg-gradient-to-r from-purple-500 via-pink-500 to-red-500
+    bg-[length:200%_100%]
+    animate-gradient
+  `,
+  animatedOcean: `
+    bg-gradient-to-r from-blue-400 via-cyan-500 to-teal-500
+    bg-[length:200%_100%]
+    animate-gradient
+  `
+};
+```
+
+```css
+/* globals.css */
+@keyframes gradient {
+  0%, 100% { 
+    background-position: 0% 50%; 
+  }
+  50% { 
+    background-position: 100% 50%; 
+  }
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+}
+```
+
+### 14.2 Gradient Text
+
+```typescript
+// components/ui/gradient-text.tsx
+export function GradientText({ children, gradient = "aurora" }) {
+  return (
+    <span className={`
+      ${gradients[gradient]}
+      bg-clip-text text-transparent
+      font-bold
+    `}>
+      {children}
+    </span>
+  );
+}
+```
+
+## 15. Neon & Glow Effects
+
+### 15.1 Neon Button
+
+```typescript
+// components/ui/neon-button.tsx
+export function NeonButton({ children, color = 'blue', ...props }) {
+  const colors = {
+    blue: {
+      gradient: 'from-cyan-500 to-blue-500',
+      shadow: 'shadow-[0_0_20px_rgba(34,211,238,0.6)] hover:shadow-[0_0_40px_rgba(34,211,238,0.8)]'
+    },
+    purple: {
+      gradient: 'from-purple-500 to-pink-500',
+      shadow: 'shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_40px_rgba(168,85,247,0.8)]'
+    },
+    green: {
+      gradient: 'from-green-500 to-emerald-500',
+      shadow: 'shadow-[0_0_20px_rgba(34,197,94,0.6)] hover:shadow-[0_0_40px_rgba(34,197,94,0.8)]'
+    }
+  };
+  
+  return (
+    <motion.button
+      className={`
+        relative px-8 py-3 rounded-lg
+        bg-gradient-to-r ${colors[color].gradient}
+        ${colors[color].shadow}
+        transition-all duration-300
+        text-white font-bold
+      `}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      {...props}
+    >
+      {children}
+    </motion.button>
+  );
+}
+```
+
+### 15.2 Glow Card
+
+```typescript
+// components/ui/glow-card.tsx
+export function GlowCard({ children, glowColor = 'blue' }) {
+  const glowColors = {
+    blue: 'hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]',
+    purple: 'hover:shadow-[0_0_30px_rgba(168,85,247,0.5)]',
+    green: 'hover:shadow-[0_0_30px_rgba(34,197,94,0.5)]',
+    pink: 'hover:shadow-[0_0_30px_rgba(236,72,153,0.5)]'
+  };
+  
+  return (
+    <motion.div
+      className={`
+        rounded-lg border bg-card p-6 cursor-pointer
+        transition-all duration-300
+        ${glowColors[glowColor]}
+      `}
+      whileHover={{ y: -4 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+```
+
+## 16. Revolutionary Chat Interface
+
+### 16.1 AI Avatar with Pulse
+
+```typescript
+// components/chat/ai-avatar.tsx
+export function AIAvatar({ thinking = false }) {
+  return (
+    <motion.div
+      className="relative"
+      animate={thinking ? {
+        scale: [1, 1.1, 1],
+        boxShadow: [
+          "0 0 0 0px rgba(59, 130, 246, 0.4)",
+          "0 0 0 10px rgba(59, 130, 246, 0)",
+          "0 0 0 0px rgba(59, 130, 246, 0)"
+        ]
+      } : {}}
+      transition={{ duration: 1.5, repeat: Infinity }}
+    >
+      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center shadow-lg">
+        <Sparkles className="w-6 h-6 text-white" />
+      </div>
+      
+      {thinking && (
+        <motion.div
+          className="absolute inset-0 rounded-full border-2 border-blue-500"
+          animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        />
+      )}
+    </motion.div>
+  );
+}
+```
+
+### 16.2 Morphing Message Bubbles
+
+```typescript
+// components/chat/morphing-bubble.tsx
+export function MorphingBubble({ children, isUser = false }) {
+  return (
+    <motion.div
+      initial={{ scale: 0, borderRadius: "50%" }}
+      animate={{ scale: 1, borderRadius: "1rem" }}
+      transition={{ 
+        type: "spring",
+        stiffness: 260,
+        damping: 20 
+      }}
+      className={`
+        p-4 backdrop-blur-sm
+        ${isUser 
+          ? 'bg-gradient-to-br from-blue-500/90 to-purple-500/90 text-white ml-auto' 
+          : 'bg-gradient-to-br from-blue-500/10 to-purple-500/10'
+        }
+      `}
+    >
+      {children}
+    </motion.div>
+  );
+}
+```
+
+### 16.3 Advanced Typing Indicator
+
+```typescript
+// components/chat/ai-typing-indicator.tsx
+export function AITypingIndicator() {
+  return (
+    <div className="flex gap-2 items-center p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-sm rounded-lg w-fit">
+      <motion.div
+        className="w-2 h-2 rounded-full bg-blue-500"
+        animate={{ opacity: [0.3, 1, 0.3] }}
+        transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
+      />
+      <motion.div
+        className="w-2 h-2 rounded-full bg-purple-500"
+        animate={{ opacity: [0.3, 1, 0.3] }}
+        transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+      />
+      <motion.div
+        className="w-2 h-2 rounded-full bg-pink-500"
+        animate={{ opacity: [0.3, 1, 0.3] }}
+        transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+      />
+      <span className="text-sm text-muted-foreground ml-2">AI is thinking...</span>
+    </div>
+  );
+}
+```
+
+## 17. Futuristic Navigation
+
+### 17.1 Floating Action Button (FAB)
+
+```typescript
+// components/layout/floating-action-button.tsx
+export function FloatingActionButton() {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  return (
+    <motion.div className="fixed bottom-6 right-6 z-50">
+      <motion.button
+        className="
+          w-16 h-16 rounded-full
+          bg-gradient-to-r from-blue-500 to-purple-500
+          shadow-[0_8px_30px_rgba(59,130,246,0.5)]
+          hover:shadow-[0_12px_40px_rgba(59,130,246,0.7)]
+          flex items-center justify-center
+          transition-all duration-300
+        "
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <motion.div
+          animate={{ rotate: isExpanded ? 45 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Plus className="w-8 h-8 text-white" />
+        </motion.div>
+      </motion.button>
+      
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="absolute bottom-20 right-0 space-y-3"
+          >
+            <FABAction icon={<FileCode />} label="New File" onClick={() => {}} />
+            <FABAction icon={<MessageSquare />} label="New Chat" onClick={() => {}} />
+            <FABAction icon={<Settings />} label="Settings" onClick={() => {}} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+function FABAction({ icon, label, onClick }) {
+  return (
+    <motion.button
+      initial={{ x: 100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: 100, opacity: 0 }}
+      whileHover={{ scale: 1.1, x: -5 }}
+      className="flex items-center gap-3 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 shadow-lg"
+      onClick={onClick}
+    >
+      <span className="text-sm font-medium">{label}</span>
+      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+        {icon}
+      </div>
+    </motion.button>
+  );
+}
+```
+
+### 17.2 Magnetic Sidebar
+
+```typescript
+// components/layout/magnetic-sidebar.tsx
+export function MagneticSidebar() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  return (
+    <motion.div
+      className="fixed left-0 h-screen w-64 backdrop-blur-xl bg-black/20 border-r border-white/10"
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setMousePosition({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        });
+      }}
+      onMouseLeave={() => setMousePosition({ x: 0, y: 0 })}
+    >
+      {/* Magnetic glow effect */}
+      <motion.div
+        className="absolute w-32 h-32 rounded-full bg-blue-500/20 blur-3xl pointer-events-none"
+        animate={{
+          x: mousePosition.x - 64,
+          y: mousePosition.y - 64
+        }}
+        transition={{ type: "spring", damping: 15, stiffness: 150 }}
+      />
+      
+      {/* Sidebar content */}
+      <div className="relative z-10 p-4">
+        {/* Navigation items */}
+      </div>
+    </motion.div>
+  );
+}
+```
 
 ### Code & Editor
 
@@ -1151,6 +1694,616 @@ export function actionToast() {
 | ----------------- | -------------------------- |
 | **Monaco Editor** | Diff viewer, code display  |
 | **Shiki**         | Syntax highlighting themes |
+| **react-syntax-highlighter** | Animated code blocks |
+
+## 18. Code Editor Enhancements
+
+### 18.1 Animated Code Block
+
+```typescript
+// components/code/animated-code-block.tsx
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+export function AnimatedCodeBlock({ code, language }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative group"
+    >
+      {/* Gradient border glow */}
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-30 group-hover:opacity-60 transition duration-1000" />
+      
+      <div className="relative bg-[#1e1e1e] rounded-lg overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-2 bg-[#252526] border-b border-white/10">
+          <span className="text-sm text-gray-400">{language}</span>
+          <CopyButton code={code} />
+        </div>
+        
+        {/* Code */}
+        <SyntaxHighlighter
+          language={language}
+          style={atomDark}
+          customStyle={{
+            margin: 0,
+            padding: '1rem',
+            background: 'transparent'
+          }}
+          showLineNumbers
+        >
+          {code}
+        </SyntaxHighlighter>
+      </div>
+    </motion.div>
+  );
+}
+```
+
+### 18.2 Interactive Diff Viewer with Slider
+
+```typescript
+// components/diff/interactive-diff-viewer.tsx
+export function InteractiveDiffViewer({ before, after }) {
+  const [sliderPosition, setSliderPosition] = useState(50);
+  
+  return (
+    <div className="relative h-96 rounded-lg overflow-hidden border">
+      {/* Before (left side) */}
+      <div 
+        className="absolute inset-0 bg-red-500/10"
+        style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+      >
+        <MonacoEditor
+          value={before}
+          language="typescript"
+          theme="vs-dark"
+          options={{ readOnly: true, minimap: { enabled: false } }}
+        />
+      </div>
+      
+      {/* After (right side) */}
+      <div 
+        className="absolute inset-0 bg-green-500/10"
+        style={{ clipPath: `inset(0 0 0 ${sliderPosition}%)` }}
+      >
+        <MonacoEditor
+          value={after}
+          language="typescript"
+          theme="vs-dark"
+          options={{ readOnly: true, minimap: { enabled: false } }}
+        />
+      </div>
+      
+      {/* Slider control */}
+      <div className="absolute inset-y-0 left-0 right-0 flex items-center pointer-events-none">
+        <div 
+          className="relative w-full h-full"
+          style={{ left: `${sliderPosition}%` }}
+        >
+          <div className="absolute inset-y-0 w-1 bg-white shadow-lg pointer-events-auto cursor-ew-resize" />
+        </div>
+      </div>
+      
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value={sliderPosition}
+        onChange={(e) => setSliderPosition(Number(e.target.value))}
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 w-64 z-20"
+      />
+    </div>
+  );
+}
+```
+
+## 19. Cinematic Loading States
+
+### 19.1 AI Brain Loader
+
+```typescript
+// components/loading/ai-brain-loader.tsx
+export function AIBrainLoader() {
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <motion.div
+        className="relative w-32 h-32"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+      >
+        {/* Outer ring */}
+        <motion.div
+          className="absolute inset-0 border-4 border-blue-500/30 rounded-full"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+        
+        {/* Middle ring */}
+        <motion.div
+          className="absolute inset-4 border-4 border-purple-500/30 rounded-full"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
+        />
+        
+        {/* Inner core with glow */}
+        <motion.div
+          className="absolute inset-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center"
+          animate={{ 
+            boxShadow: [
+              "0 0 20px rgba(59,130,246,0.5)",
+              "0 0 40px rgba(147,51,234,0.8)",
+              "0 0 20px rgba(59,130,246,0.5)"
+            ]
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <Brain className="w-8 h-8 text-white" />
+        </motion.div>
+      </motion.div>
+      
+      <motion.p
+        className="text-sm text-muted-foreground"
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      >
+        AI is processing...
+      </motion.p>
+    </div>
+  );
+}
+```
+
+### 19.2 Gradient Progress Bar
+
+```typescript
+// components/loading/gradient-progress.tsx
+export function GradientProgress({ progress }: { progress: number }) {
+  return (
+    <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+      <motion.div
+        className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 relative"
+        initial={{ width: 0 }}
+        animate={{ width: `${progress}%` }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        {/* Shimmer effect */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+          animate={{ x: ["-100%", "100%"] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        />
+      </motion.div>
+    </div>
+  );
+}
+```
+
+### 19.3 Circular Progress with Glow
+
+```typescript
+// components/loading/circular-progress.tsx
+export function CircularProgress({ progress, size = 120 }) {
+  const circumference = 2 * Math.PI * 40;
+  const offset = circumference - (progress / 100) * circumference;
+  
+  return (
+    <svg className="transform -rotate-90" width={size} height={size} viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3b82f6" />
+          <stop offset="50%" stopColor="#8b5cf6" />
+          <stop offset="100%" stopColor="#ec4899" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      {/* Background circle */}
+      <circle
+        cx="50"
+        cy="50"
+        r="40"
+        fill="none"
+        stroke="#1f2937"
+        strokeWidth="8"
+      />
+      
+      {/* Progress circle */}
+      <motion.circle
+        cx="50"
+        cy="50"
+        r="40"
+        fill="none"
+        stroke="url(#progressGradient)"
+        strokeWidth="8"
+        strokeLinecap="round"
+        filter="url(#glow)"
+        initial={{ strokeDashoffset: circumference }}
+        animate={{ strokeDashoffset: offset }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        style={{
+          strokeDasharray: circumference
+        }}
+      />
+      
+      {/* Center text */}
+      <text
+        x="50"
+        y="50"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        className="text-2xl font-bold fill-white"
+      >
+        {progress}%
+      </text>
+    </svg>
+  );
+}
+```
+
+## 20. Advanced Notification Center
+
+### 20.1 Notification Center Component
+
+```typescript
+// components/notifications/notification-center.tsx
+export function NotificationCenter() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, type: 'success', title: 'File saved', message: 'main.ts updated successfully', time: '2m ago' },
+    { id: 2, type: 'info', title: 'Model switched', message: 'Now using Claude 3.5 Sonnet', time: '5m ago' },
+    { id: 3, type: 'warning', title: 'API rate limit', message: 'Approaching rate limit (80%)', time: '10m ago' }
+  ]);
+  
+  return (
+    <div className="relative">
+      <motion.button
+        className="relative p-2 rounded-lg hover:bg-accent"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <Bell className="w-6 h-6" />
+        
+        {/* Badge with pulse animation */}
+        {notifications.length > 0 && (
+          <>
+            <motion.span
+              className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+              {notifications.length}
+            </span>
+          </>
+        )}
+      </motion.button>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            className="
+              absolute top-12 right-0 w-96
+              backdrop-blur-xl bg-background/95
+              border border-white/10
+              rounded-2xl shadow-2xl
+              overflow-hidden
+              z-50
+            "
+          >
+            {/* Header */}
+            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+              <h3 className="font-semibold">Notifications</h3>
+              <button className="text-sm text-primary hover:underline">
+                Mark all as read
+              </button>
+            </div>
+            
+            {/* Notification list */}
+            <div className="max-h-96 overflow-y-auto">
+              {notifications.map((notification) => (
+                <NotificationItem key={notification.id} notification={notification} />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function NotificationItem({ notification }) {
+  const icons = {
+    success: <CheckCircle className="w-5 h-5 text-success" />,
+    error: <XCircle className="w-5 h-5 text-destructive" />,
+    info: <Info className="w-5 h-5 text-primary" />,
+    warning: <AlertTriangle className="w-5 h-5 text-warning" />
+  };
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="p-4 border-b border-white/5 hover:bg-accent/50 cursor-pointer transition-colors"
+    >
+      <div className="flex gap-3">
+        <div className="flex-shrink-0 mt-0.5">
+          {icons[notification.type]}
+        </div>
+        <div className="flex-1">
+          <h4 className="font-medium text-sm">{notification.title}</h4>
+          <p className="text-sm text-muted-foreground mt-0.5">{notification.message}</p>
+          <span className="text-xs text-muted-foreground mt-1 block">{notification.time}</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+```
+
+## 21. Premium Dark Mode Toggle
+
+### 21.1 Smooth Theme Toggle
+
+```typescript
+// components/theme/theme-toggle.tsx
+export function ThemeToggle() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.classList.toggle('dark');
+  };
+  
+  return (
+    <motion.button
+      className="relative w-20 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-1"
+      onClick={toggleTheme}
+      whileTap={{ scale: 0.95 }}
+    >
+      <motion.div
+        className="w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center"
+        animate={{ x: theme === 'light' ? 0 : 40 }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      >
+        <AnimatePresence mode="wait">
+          {theme === 'light' ? (
+            <motion.div
+              key="sun"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 180 }}
+            >
+              <Sun className="w-5 h-5 text-yellow-500" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="moon"
+              initial={{ scale: 0, rotate: 180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: -180 }}
+            >
+              <Moon className="w-5 h-5 text-blue-500" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.button>
+  );
+}
+```
+
+## 22. Unique Features
+
+### 22.1 AI Mood Indicator
+
+```typescript
+// components/ai/mood-indicator.tsx
+type AIMood = 'thinking' | 'confident' | 'unsure' | 'excited';
+
+export function AIMoodIndicator({ mood }: { mood: AIMood }) {
+  const moodConfig = {
+    thinking: {
+      gradient: "from-blue-500 to-cyan-500",
+      label: "Analyzing...",
+      icon: <Brain className="w-4 h-4" />
+    },
+    confident: {
+      gradient: "from-green-500 to-emerald-500",
+      label: "Confident",
+      icon: <CheckCircle className="w-4 h-4" />
+    },
+    unsure: {
+      gradient: "from-yellow-500 to-orange-500",
+      label: "Unsure",
+      icon: <AlertTriangle className="w-4 h-4" />
+    },
+    excited: {
+      gradient: "from-pink-500 to-purple-500",
+      label: "Excited!",
+      icon: <Sparkles className="w-4 h-4" />
+    }
+  };
+  
+  const config = moodConfig[mood];
+  
+  return (
+    <motion.div
+      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/50 backdrop-blur-sm border"
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+    >
+      <motion.div
+        className={`w-3 h-3 rounded-full bg-gradient-to-r ${config.gradient}`}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.7, 1, 0.7]
+        }}
+        transition={{ duration: 2, repeat: Infinity }}
+      />
+      <span className="text-xs font-medium">{config.label}</span>
+      {config.icon}
+    </motion.div>
+  );
+}
+```
+
+### 22.2 Code Quality Ring
+
+```typescript
+// components/code/quality-ring.tsx
+export function CodeQualityRing({ quality }: { quality: number }) {
+  const circumference = 2 * Math.PI * 40;
+  
+  const getColor = (q: number) => {
+    if (q >= 80) return { from: '#10b981', to: '#34d399' }; // Green
+    if (q >= 60) return { from: '#3b82f6', to: '#60a5fa' }; // Blue
+    if (q >= 40) return { from: '#f59e0b', to: '#fbbf24' }; // Orange
+    return { from: '#ef4444', to: '#f87171' }; // Red
+  };
+  
+  const colors = getColor(quality);
+  
+  return (
+    <svg className="w-32 h-32" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="qualityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={colors.from} />
+          <stop offset="100%" stopColor={colors.to} />
+        </linearGradient>
+      </defs>
+      
+      {/* Background ring */}
+      <circle
+        cx="50"
+        cy="50"
+        r="40"
+        fill="none"
+        stroke="#1f2937"
+        strokeWidth="8"
+      />
+      
+      {/* Progress ring */}
+      <motion.circle
+        cx="50"
+        cy="50"
+        r="40"
+        fill="none"
+        stroke="url(#qualityGradient)"
+        strokeWidth="8"
+        strokeLinecap="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: quality / 100 }}
+        transition={{ duration: 2, ease: "easeOut" }}
+        style={{
+          strokeDasharray: circumference,
+          transformOrigin: "50% 50%",
+          transform: "rotate(-90deg)"
+        }}
+      />
+      
+      {/* Quality score */}
+      <text
+        x="50"
+        y="50"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        className="text-2xl font-bold fill-white"
+      >
+        {quality}
+      </text>
+    </svg>
+  );
+}
+```
+
+### 22.3 Particle Background
+
+```typescript
+// components/effects/particle-background.tsx
+import Particles from "react-tsparticles";
+import { loadFull } from "tsparticles";
+
+export function ParticleBackground() {
+  const particlesInit = async (engine) => {
+    await loadFull(engine);
+  };
+  
+  return (
+    <Particles
+      id="tsparticles"
+      init={particlesInit}
+      options={{
+        background: {
+          color: { value: "transparent" }
+        },
+        fpsLimit: 120,
+        particles: {
+          number: { value: 50, density: { enable: true, value_area: 800 } },
+          color: { value: "#3b82f6" },
+          shape: { type: "circle" },
+          opacity: {
+            value: 0.3,
+            random: true,
+            anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
+          },
+          size: {
+            value: 3,
+            random: true,
+            anim: { enable: true, speed: 2, size_min: 0.1, sync: false }
+          },
+          line_linked: {
+            enable: true,
+            distance: 150,
+            color: "#3b82f6",
+            opacity: 0.2,
+            width: 1
+          },
+          move: {
+            enable: true,
+            speed: 1,
+            direction: "none",
+            random: false,
+            straight: false,
+            out_mode: "out",
+            bounce: false
+          }
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: {
+            onhover: { enable: true, mode: "repulse" },
+            onclick: { enable: true, mode: "push" },
+            resize: true
+          },
+          modes: {
+            grab: { distance: 400, line_linked: { opacity: 1 } },
+            bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 },
+            repulse: { distance: 200, duration: 0.4 },
+            push: { particles_nb: 4 },
+            remove: { particles_nb: 2 }
+          }
+        },
+        retina_detect: true
+      }}
+      className="absolute inset-0 pointer-events-none"
+    />
+  );
+}
+```
 
 ### State & Data
 

@@ -132,6 +132,7 @@ Any modification to this file MUST follow these rules:
 | **UI Components**     | [shadcn/ui v2](https://ui.shadcn.com/)                      | Accessible, customizable components             |
 | **Animations**        | Framer Motion v11                                           | Professional, smooth animations                 |
 | **UI Polish**         | Sonner (toasts) + Vaul (drawers) + cmdk (command palette)   | Beautiful, accessible UI patterns               |
+| **Advanced UI**       | react-tsparticles + react-syntax-highlighter                | Particle effects + animated code blocks         |
 | **Icon System**       | [Lucide React v0.460](https://lucide.dev/)                  | Consistent iconography and provider logos       |
 | **Dev Tools**         | Vite 6 + Biome 2.0 + Vitest 3 + Playwright 2                | Fast builds, unified tooling, comprehensive testing |
 | **Packaging**         | electron-builder v25                                        | Production-ready installers and auto-updates    |
@@ -1001,6 +1002,370 @@ export const zIndex = {
 
 // Usage in components
 // className="z-[1400]" or style={{ zIndex: zIndex.modal }}
+```
+
+### 3.11 Advanced Visual Architecture
+
+#### Glassmorphism & 3D Rendering Setup
+
+```typescript
+// lib/visual-engine/glass-config.ts
+export const glassEffects = {
+  light: {
+    blur: 'backdrop-blur-sm',
+    background: 'bg-white/10',
+    border: 'border-white/20',
+    shadow: 'shadow-lg'
+  },
+  medium: {
+    blur: 'backdrop-blur-md',
+    background: 'bg-white/20',
+    border: 'border-white/30',
+    shadow: 'shadow-xl'
+  },
+  strong: {
+    blur: 'backdrop-blur-xl',
+    background: 'bg-white/30',
+    border: 'border-white/40',
+    shadow: 'shadow-2xl'
+  }
+};
+
+// 3D transform configuration
+export const transform3D = {
+  perspective: 1000,
+  transformStyle: 'preserve-3d',
+  backfaceVisibility: 'hidden'
+};
+```
+
+#### Particle System Architecture
+
+```typescript
+// lib/visual-engine/particle-system.ts
+interface ParticleConfig {
+  count: number;
+  speed: number;
+  size: { min: number; max: number };
+  color: string;
+  opacity: { min: number; max: number };
+  connections: boolean;
+  interactive: boolean;
+}
+
+export const particlePresets: Record<string, ParticleConfig> = {
+  subtle: {
+    count: 30,
+    speed: 0.5,
+    size: { min: 1, max: 3 },
+    color: '#3b82f6',
+    opacity: { min: 0.1, max: 0.3 },
+    connections: true,
+    interactive: false
+  },
+  dynamic: {
+    count: 50,
+    speed: 1,
+    size: { min: 2, max: 4 },
+    color: '#8b5cf6',
+    opacity: { min: 0.2, max: 0.5 },
+    connections: true,
+    interactive: true
+  },
+  intense: {
+    count: 100,
+    speed: 2,
+    size: { min: 1, max: 5 },
+    color: '#ec4899',
+    opacity: { min: 0.3, max: 0.7 },
+    connections: true,
+    interactive: true
+  }
+};
+```
+
+#### Gradient System Architecture
+
+```typescript
+// lib/visual-engine/gradient-system.ts
+export const gradientAnimations = {
+  // Keyframe animations for smooth gradient transitions
+  shift: `
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+  `,
+  
+  rotate: `
+    @keyframes gradient-rotate {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+  `,
+  
+  pulse: `
+    @keyframes gradient-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+  `
+};
+
+// Dynamic gradient generator
+export function generateGradient(colors: string[], angle: number = 45): string {
+  return `linear-gradient(${angle}deg, ${colors.join(', ')})`;
+}
+```
+
+### 3.12 Performance Optimization for Advanced UI
+
+#### GPU Acceleration Strategy
+
+```typescript
+// lib/performance/gpu-acceleration.ts
+
+// Properties that trigger GPU acceleration
+export const gpuAcceleratedProps = [
+  'transform',
+  'opacity',
+  'filter',
+  'backdrop-filter'
+];
+
+// Properties to avoid (CPU-bound)
+export const avoidProps = [
+  'width',
+  'height',
+  'top',
+  'left',
+  'margin',
+  'padding'
+];
+
+// Force GPU layer promotion
+export const gpuLayer = {
+  willChange: 'transform',
+  transform: 'translateZ(0)',
+  backfaceVisibility: 'hidden',
+  perspective: 1000
+};
+```
+
+#### Layer Management
+
+```typescript
+// lib/performance/layer-management.ts
+
+// Compositing layers for complex animations
+export const compositeLayers = {
+  // Fixed position elements
+  header: {
+    position: 'fixed',
+    willChange: 'transform',
+    zIndex: 100
+  },
+  
+  // Animated overlays
+  modal: {
+    position: 'fixed',
+    willChange: 'opacity, transform',
+    zIndex: 1000
+  },
+  
+  // Particle backgrounds
+  particles: {
+    position: 'absolute',
+    willChange: 'transform',
+    zIndex: -1,
+    pointerEvents: 'none'
+  }
+};
+```
+
+#### Performance Monitoring
+
+```typescript
+// lib/performance/metrics.ts
+
+export class PerformanceMonitor {
+  private fps: number[] = [];
+  private frameCount = 0;
+  private lastTime = performance.now();
+  
+  startMonitoring() {
+    const measureFrame = () => {
+      const currentTime = performance.now();
+      const delta = currentTime - this.lastTime;
+      
+      if (delta > 0) {
+        const currentFPS = 1000 / delta;
+        this.fps.push(currentFPS);
+        
+        // Keep only last 60 frames
+        if (this.fps.length > 60) {
+          this.fps.shift();
+        }
+      }
+      
+      this.lastTime = currentTime;
+      this.frameCount++;
+      
+      requestAnimationFrame(measureFrame);
+    };
+    
+    measureFrame();
+  }
+  
+  getAverageFPS(): number {
+    return this.fps.reduce((a, b) => a + b, 0) / this.fps.length;
+  }
+  
+  isPerformanceGood(): boolean {
+    return this.getAverageFPS() >= 55; // Near 60 FPS
+  }
+}
+
+// Usage
+const perfMonitor = new PerformanceMonitor();
+perfMonitor.startMonitoring();
+
+// Check performance every 5 seconds
+setInterval(() => {
+  if (!perfMonitor.isPerformanceGood()) {
+    console.warn('Performance degradation detected');
+    // Reduce particle count or disable heavy effects
+  }
+}, 5000);
+```
+
+#### Optimization Techniques
+
+```typescript
+// lib/performance/optimization.ts
+
+// Debounce expensive operations
+export function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
+// Throttle animation callbacks
+export function throttle<T extends (...args: any[]) => any>(
+  func: T,
+  limit: number
+): (...args: Parameters<T>) => void {
+  let inThrottle: boolean;
+  return (...args: Parameters<T>) => {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+// Intersection Observer for lazy animations
+export function createAnimationObserver(
+  callback: (entries: IntersectionObserverEntry[]) => void
+) {
+  return new IntersectionObserver(callback, {
+    threshold: 0.1,
+    rootMargin: '50px'
+  });
+}
+
+// Usage: Only animate when element is visible
+const observer = createAnimationObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      // Start animation
+      entry.target.classList.add('animate');
+    } else {
+      // Stop animation to save resources
+      entry.target.classList.remove('animate');
+    }
+  });
+});
+```
+
+#### Memory Management
+
+```typescript
+// lib/performance/memory-management.ts
+
+export class MemoryManager {
+  private cache = new Map<string, any>();
+  private maxSize = 100;
+  
+  set(key: string, value: any): void {
+    if (this.cache.size >= this.maxSize) {
+      // Remove oldest entry (LRU)
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    this.cache.set(key, value);
+  }
+  
+  get(key: string): any {
+    return this.cache.get(key);
+  }
+  
+  clear(): void {
+    this.cache.clear();
+  }
+  
+  // Clean up animation frames
+  cleanupAnimations(): void {
+    // Cancel all pending animation frames
+    const highestId = requestAnimationFrame(() => {});
+    for (let i = 0; i < highestId; i++) {
+      cancelAnimationFrame(i);
+    }
+  }
+}
+```
+
+#### Critical Rendering Path Optimization
+
+```typescript
+// vite.config.ts - Production optimizations
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks
+          'react-vendor': ['react', 'react-dom'],
+          'motion-vendor': ['framer-motion'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          'particles': ['react-tsparticles', 'tsparticles']
+        }
+      }
+    },
+    // Minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
+    // CSS optimization
+    cssCodeSplit: true,
+    cssMinify: true
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['framer-motion', 'react-tsparticles']
+  }
+});
 ```
 
 ### 4. Complete Feature Set
