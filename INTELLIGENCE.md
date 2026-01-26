@@ -1281,22 +1281,444 @@ export function predictNextAction(
 
 ## **LEVEL 3: Multi-Model Intelligence** 🧠🧠🧠
 
-### **3.1 Specialized AI for Different Tasks**
+### **3.1 Intelligent Task Routing**
 
-AIDE routes tasks to specialized AI models for optimal results.
+AIDE routes tasks to specialized prompts (not specialized models) for optimal results with ANY AI provider.
 
-#### **Model Specializations:**
+#### **Routing Strategy Overview:**
 
-NOTE: modelId values are logical roles, not provider model names.
-Provider adapters resolve these roles to concrete models at runtime.
+```
+┌─────────────────────────────────────────────────────────┐
+│                    USER REQUEST                         │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│  STEP 1: Intent Classification (Keyword-Based)          │
+│  - Analyzes user request for keywords                   │
+│  - Matches to task category                             │
+│  - NO AI call needed (instant)                          │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│  STEP 2: Specialized Prompt Selection                   │
+│  - Selects pre-crafted expert prompt                    │
+│  - Adds relevant context                                │
+│  - Works with ANY provider                              │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│  STEP 3: Send to User's Selected Model                  │
+│  - Uses whatever provider/model user configured         │
+│  - Specialized prompt guides the AI's response          │
+│  - Returns expert-level answer                          │
+└─────────────────────────────────────────────────────────┘
+```
 
-| Model | Specialty | Best For |
-|-------|-----------|----------|
-| **code-generation-specialist** | Code Generation | Writing functions, implementing features |
-| **code-review-specialist** | Code Review | Reviewing code, suggesting improvements |
-| **architecture-specialist** | Architecture | System design, refactoring plans |
-| **debugging-specialist** | Debugging | Finding bugs, fixing errors |
-| **documentation-specialist** | Documentation | Writing docs, explaining APIs |
+#### **Task Classification Decision Tree:**
+
+```typescript
+// lib/intelligence/routing-tree.ts
+
+interface TaskClassification {
+  category: string;
+  confidence: number; // 0-100
+  keywords: string[];
+  specialty: string;
+}
+
+export function classifyTask(userRequest: string): TaskClassification {
+  const lower = userRequest.toLowerCase();
+  
+  // Priority 1: Code Generation (most common)
+  if (matchesKeywords(lower, ['write', 'create', 'implement', 'add', 'build', 'generate'])) {
+    return {
+      category: 'code-generation',
+      confidence: 90,
+      keywords: ['write', 'create', 'implement'],
+      specialty: 'code_generation'
+    };
+  }
+  
+  // Priority 2: Bug Fixing (urgent)
+  if (matchesKeywords(lower, ['bug', 'error', 'fix', 'broken', 'crash', 'issue', 'not working'])) {
+    return {
+      category: 'debugging',
+      confidence: 95,
+      keywords: ['bug', 'error', 'fix'],
+      specialty: 'debugging'
+    };
+  }
+  
+  // Priority 3: Code Review
+  if (matchesKeywords(lower, ['review', 'check', 'improve', 'optimize', 'refactor', 'better'])) {
+    return {
+      category: 'code-review',
+      confidence: 85,
+      keywords: ['review', 'improve'],
+      specialty: 'code_review'
+    };
+  }
+  
+  // Priority 4: Architecture/Design
+  if (matchesKeywords(lower, ['design', 'architect', 'structure', 'organize', 'plan', 'pattern'])) {
+    return {
+      category: 'architecture',
+      confidence: 90,
+      keywords: ['design', 'architect'],
+      specialty: 'architecture'
+    };
+  }
+  
+  // Priority 5: Testing
+  if (matchesKeywords(lower, ['test', 'unit test', 'coverage', 'spec', 'testing'])) {
+    return {
+      category: 'testing',
+      confidence: 95,
+      keywords: ['test', 'unit test'],
+      specialty: 'testing'
+    };
+  }
+  
+  // Priority 6: Documentation
+  if (matchesKeywords(lower, ['document', 'explain', 'comment', 'readme', 'docs', 'what does'])) {
+    return {
+      category: 'documentation',
+      confidence: 85,
+      keywords: ['document', 'explain'],
+      specialty: 'documentation'
+    };
+  }
+  
+  // Priority 7: Security Analysis
+  if (matchesKeywords(lower, ['security', 'vulnerability', 'secure', 'attack', 'exploit', 'safe'])) {
+    return {
+      category: 'security',
+      confidence: 90,
+      keywords: ['security', 'vulnerability'],
+      specialty: 'security'
+    };
+  }
+  
+  // Priority 8: Performance Optimization
+  if (matchesKeywords(lower, ['performance', 'slow', 'optimize', 'faster', 'speed', 'latency'])) {
+    return {
+      category: 'performance',
+      confidence: 85,
+      keywords: ['performance', 'optimize'],
+      specialty: 'performance'
+    };
+  }
+  
+  // Default: General assistance
+  return {
+    category: 'general',
+    confidence: 50,
+    keywords: [],
+    specialty: 'general'
+  };
+}
+
+function matchesKeywords(text: string, keywords: string[]): boolean {
+  return keywords.some(keyword => text.includes(keyword));
+}
+```
+
+#### **Specialized Prompt Templates:**
+
+```typescript
+// lib/intelligence/prompt-templates.ts
+
+interface PromptTemplate {
+  specialty: string;
+  systemMessage: string;
+  userPromptTemplate: string;
+  examples: string[];
+}
+
+export const PROMPT_TEMPLATES: Record<string, PromptTemplate> = {
+  'code-generation': {
+    specialty: 'Code Generation',
+    systemMessage: `You are an expert software developer specializing in writing clean, maintainable code. 
+    
+Your responsibilities:
+- Write production-ready code with proper error handling
+- Follow the project's existing style and conventions
+- Add helpful comments for complex logic
+- Consider edge cases and input validation
+- Use modern best practices and design patterns`,
+    userPromptTemplate: `
+Project Context:
+- Language: {language}
+- Framework: {framework}
+- File: {currentFile}
+
+Task: {userRequest}
+
+Please provide complete, production-ready code.`,
+    examples: [
+      'Write a function to validate email addresses',
+      'Create a React component for user authentication',
+      'Implement a binary search algorithm'
+    ]
+  },
+  
+  'debugging': {
+    specialty: 'Debugging & Bug Fixing',
+    systemMessage: `You are an expert debugger with deep knowledge of common bugs and how to fix them.
+
+Your responsibilities:
+- Identify the root cause of bugs
+- Provide clear explanations of what's wrong
+- Suggest multiple fix options (quick fix vs proper fix)
+- Prevent similar bugs in the future
+- Consider performance and security implications`,
+    userPromptTemplate: `
+Project Context:
+- Language: {language}
+- Framework: {framework}
+- Error/Issue: {userRequest}
+
+Current Code:
+{relevantCode}
+
+Please diagnose the issue and provide a fix.`,
+    examples: [
+      'Why is this function returning undefined?',
+      'Fix the memory leak in this component',
+      'This code crashes with large inputs'
+    ]
+  },
+  
+  'code-review': {
+    specialty: 'Code Review & Improvement',
+    systemMessage: `You are a senior code reviewer focused on code quality, maintainability, and best practices.
+
+Your responsibilities:
+- Identify code smells and anti-patterns
+- Suggest refactoring opportunities
+- Check for performance issues
+- Verify error handling and edge cases
+- Recommend testing improvements
+- Be constructive and educational`,
+    userPromptTemplate: `
+Project Context:
+- Language: {language}
+- Framework: {framework}
+
+Code to Review:
+{codeToReview}
+
+Task: {userRequest}
+
+Provide actionable feedback with specific examples.`,
+    examples: [
+      'Review this code for improvements',
+      'Is this function well-written?',
+      'How can I make this code better?'
+    ]
+  },
+  
+  'architecture': {
+    specialty: 'Software Architecture & Design',
+    systemMessage: `You are a software architect specializing in system design and architectural patterns.
+
+Your responsibilities:
+- Design scalable, maintainable systems
+- Choose appropriate design patterns
+- Plan component structure and data flow
+- Consider future extensibility
+- Balance complexity vs simplicity
+- Think about testing and deployment`,
+    userPromptTemplate: `
+Project Context:
+- Language: {language}
+- Framework: {framework}
+- Current Architecture: {projectStructure}
+
+Design Task: {userRequest}
+
+Provide a clear architectural plan with rationale.`,
+    examples: [
+      'Design a scalable user authentication system',
+      'How should I structure this application?',
+      'What architecture pattern fits this project?'
+    ]
+  },
+  
+  'testing': {
+    specialty: 'Testing & QA',
+    systemMessage: `You are a QA engineer and testing expert.
+
+Your responsibilities:
+- Write comprehensive test cases
+- Cover happy paths, edge cases, and error scenarios
+- Choose appropriate testing strategies (unit, integration, e2e)
+- Ensure tests are maintainable and fast
+- Provide clear test descriptions
+- Consider test coverage and quality`,
+    userPromptTemplate: `
+Project Context:
+- Language: {language}
+- Framework: {framework}
+- Testing Framework: {testingFramework}
+
+Code to Test:
+{codeToTest}
+
+Task: {userRequest}
+
+Write comprehensive tests with clear descriptions.`,
+    examples: [
+      'Write unit tests for this function',
+      'Create integration tests for the API',
+      'What edge cases should I test?'
+    ]
+  },
+  
+  'documentation': {
+    specialty: 'Documentation & Explanation',
+    systemMessage: `You are a technical writer and educator specializing in clear, helpful documentation.
+
+Your responsibilities:
+- Explain code clearly for the target audience
+- Write helpful comments and docstrings
+- Create comprehensive README files
+- Document APIs with examples
+- Use proper markdown formatting
+- Be concise but thorough`,
+    userPromptTemplate: `
+Project Context:
+- Language: {language}
+- Framework: {framework}
+- Audience: {audience}
+
+Content to Document:
+{content}
+
+Task: {userRequest}
+
+Provide clear, well-formatted documentation.`,
+    examples: [
+      'Explain what this function does',
+      'Write API documentation for this endpoint',
+      'Create a README for this project'
+    ]
+  },
+  
+  'security': {
+    specialty: 'Security Analysis',
+    systemMessage: `You are a security expert specializing in finding and fixing vulnerabilities.
+
+Your responsibilities:
+- Identify security vulnerabilities (SQL injection, XSS, CSRF, etc.)
+- Assess severity levels (Critical/High/Medium/Low)
+- Provide secure code examples
+- Suggest defense-in-depth strategies
+- Consider common attack vectors
+- Recommend security best practices`,
+    userPromptTemplate: `
+Project Context:
+- Language: {language}
+- Framework: {framework}
+
+Code to Analyze:
+{codeToAnalyze}
+
+Task: {userRequest}
+
+Identify security issues with severity levels and fixes.`,
+    examples: [
+      'Is this code secure?',
+      'Find vulnerabilities in this function',
+      'How can I prevent SQL injection here?'
+    ]
+  },
+  
+  'performance': {
+    specialty: 'Performance Optimization',
+    systemMessage: `You are a performance optimization expert.
+
+Your responsibilities:
+- Identify performance bottlenecks
+- Analyze time and space complexity
+- Suggest algorithmic improvements
+- Recommend caching strategies
+- Consider database query optimization
+- Balance performance vs readability`,
+    userPromptTemplate: `
+Project Context:
+- Language: {language}
+- Framework: {framework}
+
+Code to Optimize:
+{codeToOptimize}
+
+Performance Issue: {userRequest}
+
+Provide optimization strategies with trade-offs explained.`,
+    examples: [
+      'Why is this function slow?',
+      'Optimize this database query',
+      'Reduce memory usage in this code'
+    ]
+  }
+};
+```
+
+#### **Routing Execution:**
+
+```typescript
+// Complete routing example
+export async function routeAndExecute(
+  userRequest: string,
+  context: RealisticProjectContext,
+  aiProvider: MultiAIOrchestrator
+): Promise<string> {
+  // Step 1: Classify task (instant, no AI call)
+  const classification = classifyTask(userRequest);
+  
+  console.log(`📍 Classified as: ${classification.category} (${classification.confidence}% confidence)`);
+  
+  // Step 2: Get specialized prompt template
+  const template = PROMPT_TEMPLATES[classification.category] || PROMPT_TEMPLATES['general'];
+  
+  // Step 3: Build specialized prompt
+  const systemMessage = template.systemMessage;
+  const userPrompt = template.userPromptTemplate
+    .replace('{language}', context.language.primary)
+    .replace('{framework}', context.framework.name || 'None')
+    .replace('{currentFile}', context.currentFile.path || 'None')
+    .replace('{userRequest}', userRequest);
+  
+  // Step 4: Send to AI (uses whatever model user configured)
+  const response = await aiProvider.chat([
+    { role: 'system', content: systemMessage },
+    { role: 'user', content: userPrompt }
+  ]);
+  
+  return response;
+}
+```
+
+#### **Routing Performance:**
+
+| Step | Operation | Time | AI Call? |
+|------|-----------|------|----------|
+| 1 | Intent classification | < 1ms | ❌ No (keyword matching) |
+| 2 | Prompt template selection | < 1ms | ❌ No (dictionary lookup) |
+| 3 | Prompt construction | < 5ms | ❌ No (string replacement) |
+| 4 | AI execution | 2-10s | ✅ Yes (single call) |
+
+**Total Overhead: ~6ms (negligible)**
+
+#### **Why This Approach Works:**
+
+✅ **Provider Agnostic:** Works with GPT-4, Claude, Groq, Ollama, etc.  
+✅ **No Special Models Needed:** Uses prompts, not specialized models  
+✅ **Fast:** Classification is instant (keyword matching)  
+✅ **Accurate:** Keywords reliably identify task type  
+✅ **Maintainable:** Easy to add new categories  
+✅ **Cost Effective:** Only 1 AI call (routing is free)  
 
 #### **Implementation:**
 
@@ -1440,23 +1862,253 @@ const SPECIALIZED_MODELS: ModelSpecialization[] = [
 
 ### **3.2 Multi-Agent Collaboration**
 
-Multiple AI agents work together on complex tasks.
+Multiple AI agents work together on complex tasks. Each agent has a specialized role and communicates through structured outputs.
 
-#### **Agent Roles:**
+#### **Agent Role Definitions:**
 
-| Agent | Requirements | Responsibility |
-|-------|--------------|----------------|
-| **Architect** | Requires: reasoning + long-context | Designs system architecture |
-| **Developer** | Requires: code-generation | Writes implementation code |
-| **Tester** | Requires: test-generation | Creates comprehensive tests |
-| **Reviewer** | Requires: critique + diff | Reviews code quality |
-| **Security** | Requires: vulnerability-analysis | Analyzes security vulnerabilities |
+```typescript
+// lib/intelligence/agent-definitions.ts
 
-#### **Workflow:**
+interface AgentRole {
+  name: string;
+  responsibility: string;
+  systemPrompt: string;
+  inputFormat: string;
+  outputFormat: string;
+  timeout: number; // milliseconds
+  canRunInParallel: boolean;
+  requiredCapabilities: string[];
+}
+
+export const AGENT_DEFINITIONS: AgentRole[] = [
+  {
+    name: 'Architect',
+    responsibility: 'Design system architecture and create implementation plan',
+    systemPrompt: 'You are a software architect. Design a solution for the given task. Focus on architecture patterns, component structure, and data flow.',
+    inputFormat: 'User task + project context (language, framework, current structure)',
+    outputFormat: 'Structured design document with: architecture pattern, components, data flow, implementation steps',
+    timeout: 30000, // 30 seconds
+    canRunInParallel: false, // Must run first
+    requiredCapabilities: ['chat', 'long-context']
+  },
+  {
+    name: 'Developer',
+    responsibility: 'Implement code based on architecture design',
+    systemPrompt: 'You are a senior developer. Implement the given design with clean, maintainable code following best practices.',
+    inputFormat: 'Architecture design from Architect agent',
+    outputFormat: 'Implementation code with comments and error handling',
+    timeout: 45000, // 45 seconds
+    canRunInParallel: false, // Depends on Architect
+    requiredCapabilities: ['chat', 'code-generation']
+  },
+  {
+    name: 'Security',
+    responsibility: 'Analyze code and design for security vulnerabilities',
+    systemPrompt: 'You are a security expert. Audit the given design/code for security issues: SQL injection, XSS, authentication flaws, data exposure.',
+    inputFormat: 'Architecture design OR implementation code',
+    outputFormat: 'Security report with severity levels (critical/high/medium/low) and remediation steps',
+    timeout: 30000,
+    canRunInParallel: true, // Can run while Developer works
+    requiredCapabilities: ['chat']
+  },
+  {
+    name: 'Tester',
+    responsibility: 'Write comprehensive tests for implementation',
+    systemPrompt: 'You are a QA engineer. Write comprehensive tests covering happy paths, edge cases, and error scenarios.',
+    inputFormat: 'Implementation code from Developer agent',
+    outputFormat: 'Test suite with unit tests, integration tests, and test descriptions',
+    timeout: 40000,
+    canRunInParallel: false, // Depends on Developer
+    requiredCapabilities: ['chat', 'code-generation']
+  },
+  {
+    name: 'Reviewer',
+    responsibility: 'Review all outputs and identify conflicts or issues',
+    systemPrompt: 'You are a code reviewer. Review the code, tests, and security analysis. Identify conflicts, missing requirements, or quality issues.',
+    inputFormat: 'All previous agent outputs (design, code, tests, security report)',
+    outputFormat: 'Review summary with: approval/changes needed, identified conflicts, improvement suggestions',
+    timeout: 35000,
+    canRunInParallel: false, // Must run last
+    requiredCapabilities: ['chat', 'long-context']
+  }
+];
+```
+
+#### **Agent Coordination Protocol:**
 
 ```
-User Request → Architect designs → Developer implements → Tester writes tests
-              → Security audits → Reviewer checks → Developer refines → Done
+┌─────────────────────────────────────────────────────────┐
+│                    USER REQUEST                         │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│  STEP 1: Architect Agent (Sequential)                   │
+│  Input: User task + project context                     │
+│  Output: Architecture design document                    │
+│  Timeout: 30s                                           │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+                    [Success?]
+                     ↙     ↘
+                   YES      NO → Fallback to single AI
+                    ↓
+┌─────────────────────────────────────────────────────────┐
+│  STEP 2: Developer + Security (Parallel)                │
+│                                                          │
+│  ┌──────────────────────┐  ┌────────────────────────┐  │
+│  │ Developer Agent      │  │ Security Agent         │  │
+│  │ Input: Design        │  │ Input: Design          │  │
+│  │ Output: Code         │  │ Output: Security Report│  │
+│  │ Timeout: 45s         │  │ Timeout: 30s           │  │
+│  └──────────────────────┘  └────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+                  [Both Success?]
+                     ↙     ↘
+                   YES      NO → Return partial results
+                    ↓
+┌─────────────────────────────────────────────────────────┐
+│  STEP 3: Tester Agent (Sequential)                      │
+│  Input: Implementation code from Developer              │
+│  Output: Test suite                                     │
+│  Timeout: 40s                                           │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│  STEP 4: Reviewer Agent (Sequential)                    │
+│  Input: Design + Code + Tests + Security Report         │
+│  Output: Final review + conflict detection              │
+│  Timeout: 35s                                           │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+                  [Conflicts Found?]
+                     ↙     ↘
+                   YES      NO
+                    ↓        ↓
+           ┌─────────────┐  Return
+           │  Resolve    │  Final
+           │  Conflicts  │  Result
+           └─────────────┘
+```
+
+#### **Workflow Execution Strategy:**
+
+| Phase | Agents | Execution | Timeout | Failure Handling |
+|-------|--------|-----------|---------|------------------|
+| **Phase 1** | Architect | Sequential | 30s | Fallback to single AI |
+| **Phase 2** | Developer + Security | Parallel | 45s / 30s | Continue with partial results |
+| **Phase 3** | Tester | Sequential | 40s | Skip if Developer failed |
+| **Phase 4** | Reviewer | Sequential | 35s | Return without review if previous failed |
+
+**Total Maximum Time:** 30s + max(45s, 30s) + 40s + 35s = **150 seconds (2.5 minutes)**
+
+#### **Cost Estimation (Before Execution):**
+
+```typescript
+// lib/intelligence/cost-estimator.ts
+
+interface CostEstimate {
+  estimatedCalls: number;
+  estimatedTokens: number;
+  estimatedCostUSD: number;
+  duration: string;
+}
+
+export function estimateMultiAgentCost(
+  task: string,
+  provider: AIProviderConfig
+): CostEstimate {
+  const taskLength = task.length;
+  const tokensPerAgent = Math.ceil(taskLength * 1.5); // Rough estimate
+  
+  // Assume all agents run successfully
+  const agents = ['Architect', 'Developer', 'Security', 'Tester', 'Reviewer'];
+  const totalCalls = agents.length;
+  const totalTokens = tokensPerAgent * totalCalls;
+  
+  // Cost per 1M tokens (example rates)
+  const costPerMillionTokens = {
+    'gpt-4': 30,
+    'gpt-3.5-turbo': 1,
+    'claude-3-5-sonnet': 15,
+    'groq': 0, // Free tier
+  };
+  
+  const modelCost = costPerMillionTokens[provider.selectedModel] || 10;
+  const estimatedCost = (totalTokens / 1_000_000) * modelCost;
+  
+  return {
+    estimatedCalls: totalCalls,
+    estimatedTokens: totalTokens,
+    estimatedCostUSD: estimatedCost,
+    duration: '2-3 minutes'
+  };
+}
+
+// Show cost warning before multi-agent execution
+export async function promptUserForMultiAgent(
+  task: string,
+  provider: AIProviderConfig
+): Promise<boolean> {
+  const estimate = estimateMultiAgentCost(task, provider);
+  
+  return await showConfirmDialog({
+    title: '🤖 Multi-Agent Collaboration',
+    message: `
+      This will use ${estimate.estimatedCalls} AI agents working together.
+      
+      Estimated:
+      - API Calls: ${estimate.estimatedCalls}
+      - Tokens: ${estimate.estimatedTokens.toLocaleString()}
+      - Cost: $${estimate.estimatedCostUSD.toFixed(4)}
+      - Duration: ${estimate.duration}
+      
+      Continue?
+    `,
+    confirmLabel: 'Yes, Run Multi-Agent',
+    cancelLabel: 'No, Use Single AI'
+  });
+}
+```
+
+#### **Communication Format Between Agents:**
+
+```typescript
+// Structured output format for agent communication
+interface AgentOutput {
+  agentName: string;
+  status: 'success' | 'partial' | 'failed';
+  output: string;
+  metadata: {
+    tokensUsed: number;
+    duration: number;
+    confidence: number; // 0-100
+  };
+  warnings: string[];
+  errors: string[];
+}
+
+// Example flow:
+const architectOutput: AgentOutput = {
+  agentName: 'Architect',
+  status: 'success',
+  output: `
+    Architecture Design:
+    - Pattern: MVC
+    - Components: Controller, Service, Repository
+    - Data Flow: HTTP → Controller → Service → Repository → Database
+  `,
+  metadata: {
+    tokensUsed: 1500,
+    duration: 28000,
+    confidence: 85
+  },
+  warnings: [],
+  errors: []
+};
+
+// This structured output is passed to Developer agent
+const developerInput = architectOutput.output;
 ```
 
 #### **Implementation:**
