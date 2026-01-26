@@ -155,7 +155,7 @@ graph TB
 ### 3.3 Key Security Model
 
 1.  **File System Sandboxing:** The app's `tauri.conf.json` will define a strict allow-list for file system access, scoped initially to the user-selected workspace directory.
-2.  **Credential Storage:** API keys will be encrypted and stored using the OS-native keychain (Windows Credential Manager, macOS Keychain, Linux libsecret) via Tauri's `tauri-plugin-store` or similar.
+2.  **Credential Storage:** API keys will be encrypted and stored using Windows Credential Manager via Tauri's `tauri-plugin-store` or similar.
 3.  **No Telemetry:** The application will not phone home. All communication is strictly between the app and the user's configured AI provider endpoint.
 
 - **Telemetry Definition:** Any data sent to non-user-configured endpoints, including behavioral data, usage statistics, error reports, or content analysis sent to third parties.
@@ -607,12 +607,6 @@ pub async fn run_cli_agent(
 
 #[command]
 pub async fn check_cli_availability(command: String) -> Result<bool, String> {
-    let result = Command::new("which") // Unix
-        .arg(&command)
-        .output();
-
-    // Fallback for Windows
-    #[cfg(target_os = "windows")]
     let result = Command::new("where")
         .arg(&command)
         .output();

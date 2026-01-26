@@ -20,7 +20,7 @@
 | 3   | **Priority order matters**                   | `openai_compatible` providers first (cost-efficient), `openai` direct last (expensive fallback).                             |
 | 4   | **Fallback models are last resort**          | The `fallbackModels` field is ONLY used when a provider's `/models` endpoint is unavailable or fails.                       |
 | 5   | **CLI agents ≠ HTTP providers**              | CLI agents (Aider, Copilot CLI) run local commands. HTTP providers call remote APIs. Different validation logic applies.     |
-| 6   | **API keys are NEVER stored in plaintext**   | All API keys must be encrypted using OS-native keychain (Windows Credential Manager, macOS Keychain, Linux libsecret).       |
+| 6   | **API keys are NEVER stored in plaintext**   | All API keys must be encrypted using Windows Credential Manager.       |
 | 7   | **Provider templates define endpoints only** | The JSON templates in this doc define API endpoints and auth methods, NOT available models.                                  |
 | 8   | **No Telemetry (Exception)**                 | OpenRouter requires `extraHeaders` for rankings. This is the only allowed exception to the "No Telemetry" rule.              |
 

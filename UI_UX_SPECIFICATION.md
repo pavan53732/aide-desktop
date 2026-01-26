@@ -168,13 +168,13 @@ This modal appears when the AI proposes a file edit.
 
 - Mimics VS Code's explorer. Uses a recursive tree component.
 - Highlights the file currently being discussed in the chat with a subtle primary background.
-- Right-click context menu: `Open in Chat`, `Reveal in Finder/Explorer`.
+- Right-click context menu: `Open in Chat`, `Reveal in Explorer`.
 
 ### 4.5 Command Palette
 
 The command palette provides keyboard-first navigation for power users.
 
-**Trigger:** `Cmd+K` (macOS) / `Ctrl+K` (Windows/Linux)
+**Trigger:** `Ctrl+K`
 
 #### Structure:
 
@@ -187,9 +187,9 @@ The command palette provides keyboard-first navigation for power users.
 │   ↩ Open Settings                          │
 ├─────────────────────────────────────────────────────────────┤
 │ Actions                                     │
-│   📄 Open Workspace...              Cmd+O   │
-│   💬 New Conversation              Cmd+N   │
-│   ⚙️ Open Settings                 Cmd+,   │
+│   📄 Open Workspace...              Ctrl+O  │
+│   💬 New Conversation              Ctrl+N  │
+│   ⚙️ Open Settings                 Ctrl+,  │
 ├─────────────────────────────────────────────────────────────┤
 │ Providers                                   │
 │   ▣ Switch to {provider.name} ({selectedModel ?? "No model"}) │
@@ -224,11 +224,11 @@ export function CommandPalette() {
         <Command.Group heading="Actions">
           <Command.Item onSelect={() => openWorkspace()}>
             <FolderIcon /> Open Workspace...
-            <kbd>⌘O</kbd>
+            <kbd>Ctrl+O</kbd>
           </Command.Item>
           <Command.Item onSelect={() => newConversation()}>
             <MessageIcon /> New Conversation
-            <kbd>⌘N</kbd>
+            <kbd>Ctrl+N</kbd>
           </Command.Item>
         </Command.Group>
 
@@ -472,16 +472,16 @@ _Advanced features like 3D visualization and real-time collaboration are planned
 
 ### 5.5 Keyboard Shortcuts
 
-| Shortcut               | Action               | Context         |
-| ---------------------- | -------------------- | --------------- |
-| `Cmd/Ctrl + K`         | Open command palette | Global          |
-| `Cmd/Ctrl + O`         | Open workspace       | Global          |
-| `Cmd/Ctrl + N`         | New conversation     | Global          |
-| `Cmd/Ctrl + ,`         | Open settings        | Global          |
-| `Cmd/Ctrl + B`         | Toggle sidebar       | Global          |
-| `Cmd/Ctrl + 1-9`       | Switch provider      | Global          |
-| `Cmd/Ctrl + Shift + A` | Accept diff          | Diff modal open |
-| `Cmd/Ctrl + Shift + R` | Reject diff          | Diff modal open |
+| Shortcut          | Action               | Context         |
+| ----------------- | -------------------- | --------------- |
+| `Ctrl + K`        | Open command palette | Global          |
+| `Ctrl + O`        | Open workspace       | Global          |
+| `Ctrl + N`        | New conversation     | Global          |
+| `Ctrl + ,`        | Open settings        | Global          |
+| `Ctrl + B`        | Toggle sidebar       | Global          |
+| `Ctrl + 1-9`      | Switch provider      | Global          |
+| `Ctrl + Shift + A`| Accept diff          | Diff modal open |
+| `Ctrl + Shift + R`| Reject diff          | Diff modal open |
 
 #### Implementation:
 

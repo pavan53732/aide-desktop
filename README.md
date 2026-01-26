@@ -11,7 +11,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Living_Specification-blue" alt="Status">
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
+  <img src="https://img.shields.io/badge/Platform-Windows-green" alt="Platform">
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
 </p>
 
@@ -235,7 +235,7 @@ AIDE uses **Tauri 2.5** for superior performance and developer experience:
 | **App Size** | 5-15 MB | 50-150 MB | 100-200 MB |
 | **Memory Usage** | 50-150 MB | 100-300 MB | 300-500 MB |
 | **Startup Time** | < 1 second | 2-3 seconds | 3-5 seconds |
-| **Cross-Platform** | ✅ Windows/Mac/Linux | ❌ Windows only | ✅ All platforms |
+| **Windows** | ✅ Windows 10/11 | ❌ Windows only | ✅ All platforms |
 | **Performance** | 🚀 Native (Rust) | ⚡ Good (C#) | 🐢 Slow (Chromium) |
 | **UI Framework** | React/Vue/Svelte | XAML | Web tech |
 | **Hot Reload** | ✅ Yes | ⚠️ Limited | ✅ Yes |
@@ -245,7 +245,7 @@ AIDE uses **Tauri 2.5** for superior performance and developer experience:
 - ✅ **Blazing Fast** - Rust backend rivals C++ performance
 - ✅ **Modern Stack** - React + TypeScript + Tailwind CSS
 - ✅ **Secure** - Rust prevents memory bugs and data races
-- ✅ **Cross-Platform** - One codebase for all operating systems
+- ✅ **Windows-native** - Optimized specifically for Windows 10/11
 - ✅ **Native Look** - Uses system WebView (Edge WebView2 on Windows)
 
 ### Real-World Deployment Scenarios
@@ -357,7 +357,7 @@ aide-desktop/
 | Principle                | Implementation                                                                                  |
 | ------------------------ | ----------------------------------------------------------------------------------------------- |
 | **File Sandboxing**      | All operations confined to user-selected workspace only                                         |
-| **Credential Safety**    | API keys encrypted in OS keychain (Windows Credential Manager, macOS Keychain, Linux libsecret) |
+| **Credential Safety**    | API keys encrypted in Windows Credential Manager                                                 |
 | **Explicit Consent**     | All file edits require manual approval via diff view - no auto-apply                            |
 | **No Telemetry**         | Zero data collection - app only communicates with user-configured AI providers\*                |
 | **No Hardcoded Secrets** | No API keys, endpoints, or model names hardcoded in source                                      |
