@@ -105,23 +105,24 @@ Rules:
 
 AIDE performs **microscopic multi-dimensional analysis** for near-perfect project understanding at the atomic level:
 
-#### **Layer 1: Molecular Code Analysis**
-- **Token-level understanding**: Every single token analyzed for meaning and relationships
-- **Character-level patterns**: Whitespace semantics, indentation psychology, bracket emotions
-- **Atomic dependencies**: Direct, indirect, hidden, ghost, and future dependencies
-- **Microscopic patterns**: Variable lifecycles from birth to death, function genealogy
+#### **Layer 1: File System Analysis (Lightweight)**
+- Language detection (by file extensions)
+- Framework detection (package.json, requirements.txt, etc.)
+- Build tools (webpack.config.js, vite.config.ts, pom.xml)
+- Project structure patterns (src/, lib/, tests/)
 
-#### **Layer 2: File System Analysis**
-- Language detection (by extensions + content)
-- Framework detection (package.json, composer.json, etc.)
-- Build tools (webpack, vite, maven, gradle)
-- Project structure patterns
+#### **Layer 2: Code Pattern Analysis (Static)**
+- Import/export statements
+- Function and class definitions
+- Direct dependencies only
+- Naming conventions (camelCase, snake_case, etc.)
 
-#### **Layer 3: Dimensional Code Analysis**
-- **Temporal dimension**: Code age, evolution patterns, coding velocity, seasonal habits
-- **Complexity dimension**: Cyclomatic, cognitive, maintainability, technical debt depth
-- **Social dimension**: Collaboration patterns, influence mapping, knowledge distribution
-- **Semantic dimension**: Business domain, intent analysis, purpose understanding
+#### **Layer 3: Metadata Analysis (Non-Invasive)**
+- File sizes and line counts
+- Last modified timestamps (not tracking every keystroke!)
+- Git history (if available)
+- Comment density
+=======
 
 #### **Layer 4: Dependency Analysis**
 - Direct dependencies
@@ -147,155 +148,77 @@ AIDE performs **microscopic multi-dimensional analysis** for near-perfect projec
 ```typescript
 // lib/intelligence/ultra-microscopic-analyzer.ts
 
-interface UltraProjectContext {
-  // Molecular Analysis
-  molecular: {
-    tokenAnalysis: TokenLevelAnalysis;
-    characterPatterns: CharacterLevelPatterns;
-    atomicDependencies: AtomicDependencyMap;
-    microscopicPatterns: MicroscopicPatterns;
+interface RealisticProjectContext {
+  // Basic project info
+  workspace: {
+    path: string;
+    totalFiles: number;
+    totalSizeKB: number;
   };
   
-  // Dimensional Analysis
-  dimensions: {
-    temporal: TemporalAnalysis;
-    complexity: ComplexityDimensions;
-    social: SocialCodeAnalysis;
-    semantic: SemanticDimensions;
-  };
-  
-  // Basic Info (Enhanced)
+  // Language detection (simple)
   language: {
-    primary: string;
-    secondary: string[];
-    confidence: number; // 0-1
-    dialectVariations: string[]; // TypeScript vs JavaScript variations
-    evolutionHistory: LanguageEvolution[];
+    primary: string; // e.g., "TypeScript"
+    secondary: string[]; // e.g., ["JavaScript", "CSS"]
   };
   
-  // Framework Detection (Enhanced)
+  // Framework detection (from package.json, etc.)
   framework: {
-    name: string;
-    version: string;
-    plugins: string[];
-    confidence: number;
-    migrationHistory: FrameworkMigration[];
-    customizations: Customization[];
+    name: string | null; // e.g., "React", "Vue", "Express"
+    version: string | null;
   };
   
-  // Architecture (Ultra-Deep)
-  architecture: {
-    pattern: "monolith" | "microservices" | "serverless" | "hybrid";
-    layers: string[];
-    modules: Module[];
-    confidence: number;
-    evolutionPath: ArchitecturalEvolution[];
-    designDecisions: DesignDecision[];
-  };
+  // Build tools
+  buildTools: string[]; // e.g., ["vite", "typescript", "tailwindcss"]
   
-  // Dependencies (Quantum-Level)
+  // Direct dependencies only (from package.json)
   dependencies: {
-    production: DependencyInfo[];
-    development: DependencyInfo[];
-    peer: DependencyInfo[];
-    hidden: HiddenDependency[];
-    ghost: GhostDependency[]; // Removed but still influential
-    future: PredictedDependency[];
-    vulnerabilities: SecurityVulnerability[];
-    outdated: OutdatedDependency[];
+    production: string[]; // Just names
+    development: string[];
   };
   
-  // Code Quality (Microscopic)
-  codeQuality: {
-    testCoverage: number;
-    complexity: {
-      average: number;
-      highest: { file: string; score: number }[];
-      distribution: ComplexityDistribution;
-      hotspots: ComplexityHotspot[];
-    };
-    maintainability: number;
-    techDebt: {
-      score: number;
-      issues: TechDebtIssue[];
-      accumulation: DebtAccumulation[];
-      payoffStrategies: PayoffStrategy[];
-    };
+  // Project structure
+  structure: {
+    hasSrcFolder: boolean;
+    hasTestsFolder: boolean;
+    hasDocsFolder: boolean;
+    hasConfigFiles: boolean;
   };
   
-  // Conventions (DNA-Level)
-  conventions: {
-    naming: NamingConventions;
-    formatting: FormattingStyle;
-    patterns: DesignPattern[];
-    personalityTraits: CodingPersonality;
-    evolutionHistory: ConventionEvolution[];
+  // Current context (what user is working on)
+  currentFile: {
+    path: string | null;
+    language: string | null;
+    lineCount: number;
+    lastModified: Date | null;
   };
   
-  // Business Domain (Ultra-Deep)
-  domain: {
-    type: "ecommerce" | "finance" | "healthcare" | "saas" | "game" | "unknown";
-    entities: BusinessEntity[];
-    workflows: Workflow[];
-    confidence: number;
-    domainEvolution: DomainEvolution[];
-    businessRules: BusinessRule[];
+  // Recent activity (limited history)
+  recentActivity: {
+    filesEdited: string[]; // Last 10 files
+    lastSearchQuery: string | null;
+    // NO keystroke tracking
+    // NO mouse movement tracking
+    // NO "emotions" or "psychology"
   };
   
-  // API Structure (Comprehensive)
-  apis: {
-    rest: RESTEndpoint[];
-    graphql: GraphQLSchema | null;
-    websocket: WebSocketEndpoint[];
-    rpc: RPCEndpoint[];
-    eventDriven: EventDrivenAPI[];
+  // Simple code metrics (optional)
+  metrics: {
+    averageFileSize: number;
+    commentDensity: number; // % of lines that are comments
+    totalFunctions: number;
   };
   
-  // Database (Multi-Dimensional)
-  databases: {
-    type: "sql" | "nosql" | "graph" | "mixed";
-    schemas: DatabaseSchema[];
-    migrations: Migration[];
-    relationships: DatabaseRelationship[];
-    performance: DatabasePerformance[];
-  };
-  
-  // Overall Confidence Score (Ultra-High)
-  overallConfidence: number; // 0-1 (aim for > 0.99)
+  // Storage limits
+  maxStorageMB: 100; // Don't track more than 100 MB
+  retentionDays: 30; // Auto-delete context older than 30 days
 }
 
-// Molecular-level analysis interfaces
-interface TokenLevelAnalysis {
-  tokenFrequency: Map<string, number>;
-  tokenContext: Map<string, TokenContext>;
-  tokenRelationships: TokenRelationship[];
-  tokenEvolution: TokenEvolution[];
-  tokenEmotions: TokenSentiment[];
-}
-
-interface CharacterLevelPatterns {
-  indentationPersonality: IndentationAnalysis;
-  whitespaceSemantics: WhitespacePattern[];
-  bracketEmotions: BracketPlacement[];
-  commentingHabits: CommentingPersonality;
-  typingRhythm: TypingPattern[];
-}
-
-interface AtomicDependencyMap {
-  direct: DirectDependency[];
-  indirect: IndirectDependency[];
-  hidden: HiddenDependency[];
-  ghost: GhostDependency[];
-  future: PredictedDependency[];
-  quantum: QuantumDependency[]; // Entangled dependencies
-}
-
-interface MicroscopicPatterns {
-  variableLifecycles: VariableLifecycle[];
-  functionGenealogy: FunctionGenealogy[];
-  classHierarchy: ClassHierarchy[];
-  moduleRelationships: ModuleRelationship[];
-  codeBlocks: CodeBlockAnalysis[];
+// Simplified interfaces
+interface DependencyInfo {
+  name: string;
+  version: string;
+  isDev: boolean;
 }
 
 // Placeholder types — must be defined in core/types.ts
@@ -1078,25 +1001,215 @@ export async function analyzeWorkspaceProactively(
 }
 ```
 
-#### **UI Integration:**
+#### **Smart Analysis Scheduling:**
 
 ```typescript
-// Background worker runs every minute
-setInterval(async () => {
-  const issues = await analyzeWorkspaceProactively(workspace);
+// lib/intelligence/smart-proactive-analyzer.ts
+
+class SmartProactiveAnalyzer {
+  private analysisQueue = new Set<string>();
+  private lastAnalysis = new Map<string, number>();
+  private isAnalyzing = false;
   
-  if (issues.length > 0) {
+  // Only analyze changed files
+  onFileChange(filePath: string): void {
+    const lastCheck = this.lastAnalysis.get(filePath) || 0;
+    const now = Date.now();
+    
+    // Throttle: Max once per 5 minutes per file
+    if (now - lastCheck < 5 * 60 * 1000) {
+      return;
+    }
+    
+    // Add to queue
+    this.analysisQueue.add(filePath);
+    this.lastAnalysis.set(filePath, now);
+    
+    // Debounce: Wait 5 seconds for more changes
+    this.debouncedProcess();
+  }
+  
+  private debouncedProcess = debounce(() => {
+    this.processBatch();
+  }, 5000);
+  
+  private async processBatch(): Promise<void> {
+    if (this.isAnalyzing) return;
+    
+    const files = Array.from(this.analysisQueue);
+    this.analysisQueue.clear();
+    
+    if (files.length === 0) return;
+    
+    this.isAnalyzing = true;
+    console.log(`🔍 Analyzing ${files.length} files...`);
+    
+    try {
+      // Analyze in parallel, max 3 at a time
+      const chunks = chunkArray(files, 3);
+      const allIssues: ProactiveIssue[] = [];
+      
+      for (const chunk of chunks) {
+        const results = await Promise.all(
+          chunk.map(f => this.analyzeFile(f))
+        );
+        allIssues.push(...results.flat());
+      }
+      
+      if (allIssues.length > 0) {
+        this.showIssues(allIssues);
+      }
+    } finally {
+      this.isAnalyzing = false;
+    }
+  }
+  
+  private async analyzeFile(filePath: string): Promise<ProactiveIssue[]> {
+    const issues: ProactiveIssue[] = [];
+    const content = await readFile(filePath);
+    
+    // Quick static analysis (no AI needed)
+    
+    // Security: eval() usage
+    if (content.includes('eval(')) {
+      issues.push({
+        type: 'security',
+        severity: 'critical',
+        file: filePath,
+        line: findLineNumber(content, 'eval('),
+        description: 'Using eval() is a security risk',
+        autoFix: false,
+        suggestedFix: 'Consider using JSON.parse() or a safer alternative'
+      });
+    }
+    
+    // Performance: Nested loops with array operations
+    const nestedLoops = detectNestedLoops(content);
+    if (nestedLoops.length > 0) {
+      issues.push({
+        type: 'performance',
+        severity: 'high',
+        file: filePath,
+        line: nestedLoops[0].line,
+        description: 'O(n²) complexity detected',
+        autoFix: true,
+        suggestedFix: 'Consider using Map/Set for O(n) lookup'
+      });
+    }
+    
+    // Code smell: Long functions
+    const longFunctions = detectLongFunctions(content);
+    longFunctions.forEach(func => {
+      if (func.lines > 50) {
+        issues.push({
+          type: 'smell',
+          severity: 'medium',
+          file: filePath,
+          line: func.startLine,
+          description: `Function ${func.name} is ${func.lines} lines long`,
+          autoFix: false,
+          suggestedFix: 'Consider breaking into smaller functions'
+        });
+      }
+    });
+    
+    return issues;
+  }
+  
+  // CRITICAL: Always show diff modal, NEVER auto-apply!
+  private showIssues(issues: ProactiveIssue[]): void {
     showNotification({
       title: "⚠️ AIDE Found Issues",
       message: `${issues.length} potential improvements detected`,
       actions: [
-        { label: "Review", onClick: () => openIssuesPanel(issues) },
-        { label: "Auto-Fix", onClick: () => autoFixIssues(issues) },
-        { label: "Ignore", onClick: () => dismissIssues(issues) }
+        { 
+          label: "Review", 
+          onClick: () => this.openIssuesPanel(issues) 
+        },
+        { 
+          label: "Dismiss", 
+          onClick: () => {} 
+        }
       ]
     });
   }
-}, 60000);
+  
+  private openIssuesPanel(issues: ProactiveIssue[]): void {
+    // Show issues in panel, user clicks to review each one
+    issues.forEach(issue => {
+      if (issue.autoFix && issue.suggestedFix) {
+        // ALWAYS show diff modal - comply with SPECIFICATIONS.md
+        this.showFixDiffModal(issue);
+      }
+    });
+  }
+  
+  // Comply with "Diff Modal is sacred" rule
+  private async showFixDiffModal(issue: ProactiveIssue): Promise<void> {
+    const originalContent = await readFile(issue.file);
+    const fixedContent = await applyFix(originalContent, issue);
+    
+    // MANDATORY: Show diff for user approval
+    showDiffModal({
+      title: `Fix ${issue.type}: ${issue.description}`,
+      file: issue.file,
+      original: originalContent,
+      proposed: fixedContent,
+      onAccept: async () => {
+        await writeFile(issue.file, fixedContent);
+        toast.success(`✅ Applied fix to ${issue.file}`);
+      },
+      onReject: () => {
+        toast.info('Fix dismissed');
+      }
+    });
+  }
+}
+
+// Helper functions
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
+function chunkArray<T>(array: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+}
+
+function detectNestedLoops(content: string): Array<{ line: number }> {
+  // Simple regex-based detection
+  const loops = content.match(/for\s*\(|while\s*\(/g) || [];
+  return loops.length > 1 ? [{ line: 0 }] : [];
+}
+
+function detectLongFunctions(content: string): Array<{ name: string; lines: number; startLine: number }> {
+  // Simple detection - count lines between function declarations
+  const functions: Array<{ name: string; lines: number; startLine: number }> = [];
+  const functionRegex = /function\s+(\w+)|const\s+(\w+)\s*=\s*\(/g;
+  let match;
+  
+  while ((match = functionRegex.exec(content)) !== null) {
+    const name = match[1] || match[2];
+    // Simplified - in production, properly parse function body
+    functions.push({
+      name,
+      lines: 60, // Placeholder
+      startLine: content.substring(0, match.index).split('\n').length
+    });
+  }
+  
+  return functions;
+}
 ```
 
 ---
@@ -1228,34 +1341,99 @@ export async function routeToSpecializedModel(
   userRequest: string,
   context: ProjectContext,
   aiProvider: MultiAIOrchestrator
-): Promise<{ model: string; prompt: string }> {
-  // Classify the user's intent
-  const intent = await classifyIntent(userRequest);
+): Promise<{ prompt: string; systemMessage: string }> {
+  // Classify the user's intent using simple keyword matching
+  const intent = classifyIntentSimple(userRequest);
   
-  // Find best specialized model
+  // Find best specialized role (not model - we use prompts instead)
   const specialist = SPECIALIZED_MODELS.find(m =>
     m.useCases.includes(intent)
   );
   
   if (!specialist) {
-    return { model: "default", prompt: userRequest };
+    return { 
+      prompt: userRequest,
+      systemMessage: "You are a helpful coding assistant."
+    };
   }
   
-  // Craft specialized prompt
+  // Craft specialized prompt (works with ANY provider)
+  const systemMessage = `You are a ${specialist.specialty} expert. Focus on ${specialist.specialty} aspects of the task.`;
+  
   const enhancedPrompt = `
-    You are a ${specialist.specialty} expert.
-    
     Project Context:
-    ${JSON.stringify(context, null, 2)}
+    - Language: ${context.language}
+    - Framework: ${context.framework || 'None'}
+    - Current File: ${context.currentFile || 'None'}
     
     Task: ${userRequest}
     
     Provide a ${specialist.specialty}-focused solution.
   `;
   
-  const resolved = aiProvider.resolveModelFor(specialist.modelId);
-  return { model: resolved, prompt: enhancedPrompt };
+  // Don't assume specialized models exist - use prompts instead
+  return { prompt: enhancedPrompt, systemMessage };
 }
+
+// Simple intent classification (no AI needed)
+function classifyIntentSimple(userRequest: string): string {
+  const lower = userRequest.toLowerCase();
+  
+  if (lower.includes('write') || lower.includes('create') || lower.includes('implement')) {
+    return 'write_function';
+  }
+  if (lower.includes('review') || lower.includes('check') || lower.includes('improve')) {
+    return 'review_code';
+  }
+  if (lower.includes('design') || lower.includes('architect') || lower.includes('structure')) {
+    return 'design_system';
+  }
+  if (lower.includes('bug') || lower.includes('error') || lower.includes('fix')) {
+    return 'find_bug';
+  }
+  if (lower.includes('document') || lower.includes('explain') || lower.includes('comment')) {
+    return 'write_docs';
+  }
+  if (lower.includes('test') || lower.includes('unit test') || lower.includes('coverage')) {
+    return 'write_tests';
+  }
+  
+  return 'general'; // Default
+}
+
+// Add test generation to specialized models
+const SPECIALIZED_MODELS: ModelSpecialization[] = [
+  {
+    modelId: "code-generation-specialist",
+    specialty: "code_generation",
+    useCases: ["write_function", "create_file", "implement_feature"]
+  },
+  {
+    modelId: "code-review-specialist",
+    specialty: "code_review",
+    useCases: ["review_code", "suggest_improvements", "explain_code"]
+  },
+  {
+    modelId: "architecture-specialist",
+    specialty: "architecture",
+    useCases: ["design_system", "plan_refactor", "suggest_patterns"]
+  },
+  {
+    modelId: "debugging-specialist",
+    specialty: "debugging",
+    useCases: ["find_bug", "fix_error", "analyze_crash"]
+  },
+  {
+    modelId: "documentation-specialist",
+    specialty: "documentation",
+    useCases: ["write_docs", "explain_api", "generate_readme"]
+  },
+  {
+    modelId: "testing-specialist",
+    specialty: "testing",
+    useCases: ["write_tests", "test_generation", "coverage_analysis"]
+  }
+];
 ```
 
 ---
@@ -1290,64 +1468,208 @@ export async function multiAgentTask(
   task: string,
   context: ProjectContext,
   aiProvider: MultiAIOrchestrator
+): Promise<AgentResult> {
+  try {
+    // Check provider capability
+    aiProvider.requireCapability("chat");
+    
+    // Step 1: Architect designs solution
+    console.log("🏗️ Architect designing solution...");
+    const designResult = await runAgentWithFallback(
+      () => aiProvider.chat([{
+        role: "system",
+        content: "You are a software architect. Design a solution for the given task."
+      }, {
+        role: "user", 
+        content: `Task: ${task}\nContext: ${JSON.stringify(context)}`
+      }]),
+      "Architect"
+    );
+    
+    if (!designResult.success) {
+      return { 
+        success: false, 
+        error: 'Architect failed', 
+        fallback: await fallbackToSingleAI(task, aiProvider) 
+      };
+    }
+    
+    // Step 2 & 3: Run Developer and Security in parallel
+    console.log("👨‍💻 Developer implementing & 🔒 Security analyzing...");
+    const [codeResult, securityResult] = await Promise.all([
+      runAgentWithFallback(
+        () => aiProvider.chat([{
+          role: "system",
+          content: "You are a senior developer. Implement the given design."
+        }, {
+          role: "user",
+          content: `Design: ${designResult.output}\n\nImplement this design.`
+        }]),
+        "Developer"
+      ),
+      runAgentWithFallback(
+        () => aiProvider.chat([{
+          role: "system",
+          content: "You are a security expert. Analyze the design for potential vulnerabilities."
+        }, {
+          role: "user",
+          content: `Design: ${designResult.output}\n\nFind security issues.`
+        }]),
+        "Security"
+      )
+    ]);
+    
+    if (!codeResult.success) {
+      return { success: false, error: 'Developer failed', fallback: designResult.output };
+    }
+    
+    // Step 4: Tester writes tests (depends on code)
+    console.log("🧪 Tester writing tests...");
+    const testResult = await runAgentWithFallback(
+      () => aiProvider.chat([{
+        role: "system", 
+        content: "You are a QA engineer. Write comprehensive tests for the given code."
+      }, {
+        role: "user",
+        content: `Code: ${codeResult.output}\n\nWrite tests.`
+      }]),
+      "Tester"
+    );
+    
+    // Step 5: Reviewer checks everything
+    console.log("👀 Reviewer checking...");
+    const reviewResult = await runAgentWithFallback(
+      () => aiProvider.chat([{
+        role: "system",
+        content: "You are a code reviewer. Review the code, tests, and security analysis. Identify conflicts or issues."
+      }, {
+        role: "user",
+        content: `
+          Code: ${codeResult.output}
+          Tests: ${testResult.output}
+          Security: ${securityResult.output}
+          
+          Provide a comprehensive review and identify any conflicts between agents.
+        `
+      }]),
+      "Reviewer"
+    );
+    
+    // Check for conflicts between agents
+    const conflicts = detectConflicts(reviewResult.output);
+    
+    if (conflicts.length > 0) {
+      console.log("⚠️ Conflicts detected, resolving...");
+      const resolution = await resolveConflicts(conflicts, aiProvider);
+      
+      return {
+        success: true,
+        result: resolution.code,
+        tests: resolution.tests,
+        review: reviewResult.output,
+        security: securityResult.output,
+        conflictsResolved: true
+      };
+    }
+    
+    return {
+      success: true,
+      result: codeResult.output,
+      tests: testResult.output,
+      review: reviewResult.output,
+      security: securityResult.output,
+      conflictsResolved: false
+    };
+    
+  } catch (error) {
+    console.error("Multi-agent task failed:", error);
+    
+    // Fallback to single AI
+    console.log("⚠️ Falling back to single AI...");
+    return {
+      success: true,
+      result: await fallbackToSingleAI(task, aiProvider),
+      fallbackUsed: true
+    };
+  }
+}
+
+// Helper: Run agent with timeout and error handling
+async function runAgentWithFallback(
+  agentFn: () => Promise<any>,
+  agentName: string,
+  timeoutMs: number = 30000
+): Promise<{ success: boolean; output?: string; error?: string }> {
+  try {
+    const result = await Promise.race([
+      agentFn(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error(`${agentName} timeout`)), timeoutMs)
+      )
+    ]);
+    
+    return { success: true, output: result };
+  } catch (error) {
+    console.error(`${agentName} failed:`, error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Helper: Detect conflicts in review
+function detectConflicts(reviewOutput: string): string[] {
+  const conflicts: string[] = [];
+  const conflictKeywords = ['conflict', 'contradiction', 'disagree', 'incompatible', 'issue'];
+  
+  conflictKeywords.forEach(keyword => {
+    if (reviewOutput.toLowerCase().includes(keyword)) {
+      conflicts.push(keyword);
+    }
+  });
+  
+  return conflicts;
+}
+
+// Helper: Resolve conflicts
+async function resolveConflicts(
+  conflicts: string[],
+  aiProvider: MultiAIOrchestrator
+): Promise<{ code: string; tests: string }> {
+  const resolution = await aiProvider.chat([{
+    role: "system",
+    content: "You are a conflict resolver. Merge conflicting suggestions into a unified solution."
+  }, {
+    role: "user",
+    content: `Conflicts detected: ${conflicts.join(', ')}\n\nResolve these conflicts and provide final code and tests.`
+  }]);
+  
+  return {
+    code: resolution,
+    tests: '' // Simplified for now
+  };
+}
+
+// Helper: Fallback to single AI
+async function fallbackToSingleAI(
+  task: string,
+  aiProvider: MultiAIOrchestrator
 ): Promise<string> {
-  const results: Record<string, string> = {};
-  
-  // Check if provider supports multi-step operations
-  // Require chat capability for multi-agent orchestration
-  aiProvider.requireCapability("chat");
-  
-  // Step 1: Architect designs
-  console.log("🏗️ Architect designing solution...");
-  results.design = await aiProvider.chat([{
-    role: "system",
-    content: "You are a software architect. Design a solution for the given task."
-  }, {
-    role: "user", 
-    content: `Design: ${task}`
-  }]);
-  
-  // Step 2: Developer implements
-  console.log("👨‍💻 Developer implementing...");
-  results.code = await aiProvider.chat([{
-    role: "system",
-    content: "You are a senior developer. Implement the given design."
-  }, {
+  return await aiProvider.chat([{
     role: "user",
-    content: `Implement: ${results.design}`
+    content: `Complete this task: ${task}`
   }]);
-  
-  // Step 3: Tester writes tests
-  console.log("🧪 Tester writing tests...");
-  results.tests = await aiProvider.chat([{
-    role: "system", 
-    content: "You are a QA engineer. Write comprehensive tests for the given code."
-  }, {
-    role: "user",
-    content: `Test: ${results.code}`
-  }]);
-  
-  // Step 4: Security audits
-  console.log("🔒 Security analyzing...");
-  results.securityReport = await aiProvider.chat([{
-    role: "system",
-    content: "You are a security expert. Audit the given code for vulnerabilities."
-  }, {
-    role: "user",
-    content: `Audit: ${results.code}`
-  }]);
-  
-  // Step 5: Reviewer checks
-  console.log("👀 Reviewer checking...");
-  results.review = await aiProvider.chat([{
-    role: "system",
-    content: "You are a code reviewer. Review the code and suggest improvements."
-  }, {
-    role: "user",
-    content: `Review: ${results.code}`
-  }]);
-  
-  // Step 6: Developer refines
+}
+
+interface AgentResult {
+  success: boolean;
+  result?: string;
+  tests?: string;
+  review?: string;
+  security?: string;
+  error?: string;
+  fallback?: string;
+  fallbackUsed?: boolean;
+  conflictsResolved?: boolean;
+}
   console.log("✨ Applying improvements...");
   const finalCode = await aiProvider.chat([{
     role: "system",
@@ -1375,69 +1697,74 @@ const result = await multiAgentTask(
 
 ## **LEVEL 4: Learning & Memory** 🧠💾
 
-### **4.1 ULTRA-ADVANCED Long-Term Memory (99%+ Accuracy)**
+### **4.1 Production-Ready Long-Term Memory System**
 
-AIDE uses a **quantum-enhanced, multi-dimensional memory system** with perfect recall and infinite storage capacity.
+AIDE uses a **practical, scalable memory system** with vector embeddings and intelligent retention policies.
 
-#### **Ultra-Memory Architecture:**
+#### **Memory Architecture:**
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              SYNAPTIC MEMORY (Instant)                  │
-│  - Every keystroke, mouse movement, hesitation          │
-│  - Nanosecond-level capture                            │
-│  Duration: Continuous stream                            │
+│           WORKING MEMORY (In-Memory Cache)              │
+│  - Current conversation context                         │
+│  - Active file references                               │
+│  Duration: Current session only                         │
+│  Storage: RAM (cleared on restart)                      │
 └─────────────────────────────────────────────────────────┘
                          ↓
 ┌─────────────────────────────────────────────────────────┐
-│           WORKING MEMORY (Quantum RAM)                  │
-│  - Current conversation + deep context                  │
-│  - Active thoughts and intentions                       │
-│  Duration: Current session                              │
+│          SHORT-TERM MEMORY (SQLite + Vector DB)         │
+│  - Recent coding sessions (last 7 days)                 │
+│  - Recent decisions and patterns                        │
+│  Duration: 7 days (auto-cleanup)                        │
+│  Storage: ~100 MB                                       │
 └─────────────────────────────────────────────────────────┘
                          ↓
 ┌─────────────────────────────────────────────────────────┐
-│          EPISODIC MEMORY (Vector + Graph DB)            │
-│  - Coding sessions with full context                    │
-│  - Decision trees and reasoning paths                   │
-│  Duration: Days to weeks                                │
+│          LONG-TERM MEMORY (Vector + SQLite)             │
+│  - Important decisions and patterns                     │
+│  - Code style preferences                               │
+│  - Architectural insights                               │
+│  Duration: 90 days (auto-cleanup)                       │
+│  Storage: ~1 GB                                         │
 └─────────────────────────────────────────────────────────┘
                          ↓
 ┌─────────────────────────────────────────────────────────┐
-│         SEMANTIC MEMORY (Knowledge Graph)               │
-│  - Code patterns, architectural principles              │
-│  - Deep understanding of your style                     │
-│  Duration: Months to years                              │
-└─────────────────────────────────────────────────────────┘
-                         ↓
-┌─────────────────────────────────────────────────────────┐
-│        CRYSTALLIZED MEMORY (Wisdom Storage)             │
-│  - Core insights and breakthrough moments               │
-│  - Fundamental principles and philosophies              │
-│  Duration: Years to decades                             │
-└─────────────────────────────────────────────────────────┘
-                         ↓
-┌─────────────────────────────────────────────────────────┐
-│          IMMORTAL MEMORY (Eternal Archive)              │
-│  - Never-forget moments and critical insights           │
-│  - Perfect preservation of key knowledge                │
-│  Duration: Forever                                      │
+│         PERMANENT MEMORY (User-Pinned Only)             │
+│  - User-marked important memories                       │
+│  - Critical project knowledge                           │
+│  Duration: Until user deletes                           │
+│  Storage: Up to 10 GB per workspace                     │
 └─────────────────────────────────────────────────────────┘
 ```
 
 | Memory Type | Retention | Capacity | Access Speed | Example |
 |-------------|-----------|----------|--------------|---------|
-| **Synaptic** | Nanoseconds | Unlimited | Instant | Every keystroke, mouse movement |
-| **Working** | Current session | Unlimited | < 1ms | Active context, current thoughts |
-| **Episodic** | Days to weeks | Unlimited | < 10ms | Coding sessions, decisions made |
-| **Semantic** | Months to years | Unlimited | < 50ms | Code knowledge, patterns learned |
-| **Crystallized** | Years to decades | Unlimited | < 100ms | Deep wisdom, architectural principles |
-| **Immortal** | Forever | Unlimited | < 200ms | Core insights, never-forget moments |
+| **Working** | Current session | 50 MB | < 1ms | Active conversation, current file |
+| **Short-term** | 7 days | 100 MB | < 10ms | Recent sessions, quick decisions |
+| **Long-term** | 90 days | 1 GB | < 50ms | Code patterns, style preferences |
+| **Permanent** | User-controlled | 10 GB max | < 100ms | User-pinned critical knowledge |
 
-### Semantic Index
-- Vector embeddings for similarity search
-- Topic clustering
-- Context retrieval
+**Total Storage Limit:** 10 GB per workspace (automatically enforced)
+
+#### **Memory Retention Policy:**
+
+```typescript
+// Automatic cleanup rules
+const retentionPolicy = {
+  working: 'session-only',           // Cleared on app close
+  shortTerm: '7-days',               // Auto-delete after 7 days
+  longTerm: '90-days',               // Auto-delete after 90 days
+  permanent: 'user-controlled'       // Never auto-delete
+};
+
+// When approaching 10 GB limit
+const cleanupStrategy = {
+  step1: 'Delete oldest short-term memories',
+  step2: 'Delete lowest-importance long-term memories',
+  step3: 'Warn user before deleting permanent memories',
+  step4: 'Compress embeddings (reduce dimensions)'
+};
 ```
 
 #### **Ultra-Advanced Implementation:**
@@ -1447,13 +1774,19 @@ AIDE uses a **quantum-enhanced, multi-dimensional memory system** with perfect r
 import { Database } from "better-sqlite3";
 import { LanceDB } from "vectordb"; // Vector database
 
-interface UltraMemory {
+interface RealisticMemory {
   id: string;
   timestamp: Date;
   workspaceId: string; // Workspace isolation
-  type: "decision" | "preference" | "pattern" | "mistake" | "success" | "feedback";
+  type: "decision" | "preference" | "pattern";
   content: string;
-  embedding: number[]; // Provider-defined dimensionality (varies by model)
+  
+  // Provider-aware embeddings
+  embedding: number[];
+  embeddingProvider: string; // Which provider generated this
+  embeddingModel: string;     // Which model generated this
+  embeddingDimensions: number; // Track dimensions
+  
   context: {
     file?: string;
     function?: string;
@@ -1461,12 +1794,30 @@ interface UltraMemory {
     framework?: string;
     tags: string[];
   };
-  importance: number; // 0-1 (auto-calculated)
-  sentiment: "positive" | "negative" | "neutral";
-  references: string[]; // IDs of related memories
+  
+  importance: number; // 0-100 (auto-calculated)
+  retentionLevel: 'working' | 'short-term' | 'long-term' | 'permanent';
+  expiresAt: Date | null; // Null for permanent
+  
+  // Usage tracking
   accessCount: number; // How often recalled
   lastAccessed: Date;
-  decayFactor: number; // Importance decay over time
+  
+  // Storage management
+  sizeBytes: number; // Track memory size
+}
+
+interface MemoryStorageInfo {
+  totalSizeGB: number;
+  maxSizeGB: 10; // Hard limit
+  usagePercent: number;
+  memoriesByType: {
+    working: number;
+    shortTerm: number;
+    longTerm: number;
+    permanent: number;
+  };
+  nextCleanupDate: Date;
 }
 
 interface MemoryCluster {
@@ -1481,16 +1832,19 @@ function sha256(text: string): string {
   return `hash_${text.length}_${text.slice(0, 8)}`;
 }
 
-export class UltraLongTermMemory {
+export class ProductionMemorySystem {
   private db: Database;
   private vectorDB: LanceDB;
-  private aiProvider: MultiAIOrchestrator; // Use provider system instead of direct OpenAI
-  private workspaceId: string; // Workspace isolation
+  private aiProvider: MultiAIOrchestrator;
+  private workspaceId: string;
+  
+  // Storage limits
+  private readonly MAX_STORAGE_GB = 10;
+  private readonly MAX_STORAGE_BYTES = 10 * 1024 * 1024 * 1024; // 10 GB
   
   // Multi-tier storage
-  private workingMemory: Map<string, UltraMemory> = new Map(); // Current session
-  private shortTermCache: Map<string, UltraMemory> = new Map(); // Last 24h
-  private clusters: Map<string, MemoryCluster> = new Map();
+  private workingMemory: Map<string, RealisticMemory> = new Map(); // Session only
+  private shortTermCache: Map<string, RealisticMemory> = new Map(); // 7 days
   
   constructor(
     workspaceId: string,
@@ -1499,7 +1853,183 @@ export class UltraLongTermMemory {
   ) {
     this.workspaceId = workspaceId;
     this.db = new Database(dbPath);
-    this.aiProvider = aiProvider; // Inject provider system
+    this.aiProvider = aiProvider;
+  }
+  
+  // Get current storage info
+  async getStorageInfo(): Promise<MemoryStorageInfo> {
+    const stats = this.db.prepare(`
+      SELECT 
+        SUM(size_bytes) as total_bytes,
+        retention_level,
+        COUNT(*) as count
+      FROM memories
+      WHERE workspace_id = ?
+      GROUP BY retention_level
+    `).all(this.workspaceId);
+    
+    const totalBytes = stats.reduce((sum, s: any) => sum + (s.total_bytes || 0), 0);
+    
+    return {
+      totalSizeGB: totalBytes / (1024 * 1024 * 1024),
+      maxSizeGB: 10,
+      usagePercent: (totalBytes / this.MAX_STORAGE_BYTES) * 100,
+      memoriesByType: {
+        working: this.workingMemory.size,
+        shortTerm: stats.find((s: any) => s.retention_level === 'short-term')?.count || 0,
+        longTerm: stats.find((s: any) => s.retention_level === 'long-term')?.count || 0,
+        permanent: stats.find((s: any) => s.retention_level === 'permanent')?.count || 0
+      },
+      nextCleanupDate: this.calculateNextCleanup()
+    };
+  }
+  
+  // Handle provider switching
+  async handleProviderSwitch(newProvider: string, newModel: string): Promise<void> {
+    console.log(`🔄 Provider switched to ${newProvider}/${newModel}`);
+    console.log('⚠️ Old embeddings will remain but new memories will use new provider');
+    
+    // Option 1: Keep old embeddings (mixed provider support)
+    // Option 2: Re-generate all embeddings (expensive, takes time)
+    
+    const shouldRegenerate = await this.askUserToRegenerateEmbeddings();
+    
+    if (shouldRegenerate) {
+      await this.regenerateAllEmbeddings(newProvider, newModel);
+    }
+  }
+  
+  private async regenerateAllEmbeddings(provider: string, model: string): Promise<void> {
+    const memories = this.db.prepare(`
+      SELECT id, content FROM memories WHERE workspace_id = ?
+    `).all(this.workspaceId);
+    
+    console.log(`🔄 Regenerating ${memories.length} embeddings with ${provider}/${model}...`);
+    
+    for (const memory of memories as any[]) {
+      try {
+        const embedding = await this.generateEmbedding(memory.content);
+        
+        this.db.prepare(`
+          UPDATE memories 
+          SET embedding = ?,
+              embedding_provider = ?,
+              embedding_model = ?,
+              embedding_dimensions = ?
+          WHERE id = ?
+        `).run(
+          JSON.stringify(embedding),
+          provider,
+          model,
+          embedding.length,
+          memory.id
+        );
+      } catch (error) {
+        console.error(`Failed to regenerate embedding for memory ${memory.id}:`, error);
+      }
+    }
+    
+    console.log('✅ All embeddings regenerated');
+  }
+  
+  private async generateEmbedding(text: string): Promise<number[]> {
+    // Check if provider supports embeddings
+    if (!this.aiProvider.checkCapability('embeddings')) {
+      // Fallback: Use simple hash-based pseudo-embedding
+      return this.generateFallbackEmbedding(text);
+    }
+    
+    try {
+      const response = await this.aiProvider.generateEmbedding(text);
+      return response.embedding;
+    } catch (error) {
+      console.warn('Embedding generation failed, using fallback', error);
+      return this.generateFallbackEmbedding(text);
+    }
+  }
+  
+  private generateFallbackEmbedding(text: string): number[] {
+    // Simple fallback: TF-IDF style embedding (768 dimensions)
+    const dimensions = 768;
+    const embedding = new Array(dimensions).fill(0);
+    
+    // Hash-based pseudo-embedding
+    for (let i = 0; i < text.length; i++) {
+      const charCode = text.charCodeAt(i);
+      const index = charCode % dimensions;
+      embedding[index] += 1 / text.length;
+    }
+    
+    // Normalize
+    const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+    return embedding.map(val => val / magnitude);
+  }
+  
+  // Automatic cleanup when approaching limit
+  async enforceStorageLimit(): Promise<void> {
+    const info = await this.getStorageInfo();
+    
+    if (info.usagePercent < 90) {
+      return; // Still have 10% headroom
+    }
+    
+    console.log(`⚠️ Storage at ${info.usagePercent.toFixed(1)}%, starting cleanup...`);
+    
+    // Step 1: Delete expired short-term memories
+    this.db.prepare(`
+      DELETE FROM memories 
+      WHERE workspace_id = ? 
+      AND retention_level = 'short-term'
+      AND expires_at < ?
+    `).run(this.workspaceId, Date.now());
+    
+    // Step 2: Delete expired long-term memories
+    this.db.prepare(`
+      DELETE FROM memories 
+      WHERE workspace_id = ? 
+      AND retention_level = 'long-term'
+      AND expires_at < ?
+    `).run(this.workspaceId, Date.now());
+    
+    // Step 3: Delete low-importance long-term memories
+    this.db.prepare(`
+      DELETE FROM memories 
+      WHERE workspace_id = ? 
+      AND retention_level = 'long-term'
+      AND importance < 50
+      ORDER BY importance ASC, last_accessed ASC
+      LIMIT 100
+    `).run(this.workspaceId);
+    
+    // Step 4: Warn user if still over limit
+    const updatedInfo = await this.getStorageInfo();
+    if (updatedInfo.usagePercent > 95) {
+      this.warnUserStorageFull(updatedInfo);
+    }
+  }
+  
+  private warnUserStorageFull(info: MemoryStorageInfo): void {
+    // Show notification to user
+    console.warn(`
+      ⚠️ MEMORY STORAGE CRITICAL
+      
+      Usage: ${info.totalSizeGB.toFixed(2)} GB / ${info.maxSizeGB} GB
+      
+      Please delete some permanent memories or clear workspace memory.
+    `);
+  }
+  
+  private calculateNextCleanup(): Date {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(2, 0, 0, 0); // 2 AM tomorrow
+    return tomorrow;
+  }
+  
+  private async askUserToRegenerateEmbeddings(): Promise<boolean> {
+    // In production, show modal to user
+    // For now, return false (keep mixed embeddings)
+    return false;
   }
   
   async initialize(vectorDBPath: string): Promise<void> {
