@@ -1440,7 +1440,7 @@ AIDE delivers a revolutionary development environment with the following complet
 
 ### Core AI Features
 
-- 🤖 **43 AI Providers** (31 provider templates: 29 cloud + 2 local + 12 CLI agents)
+- 🤖 **44 AI Providers** (31 provider templates: 29 cloud + 2 local + 13 CLI agents)
 - 🔄 **Dynamic Model Fetching**: Models fetched live from provider APIs
 - 💬 **Streaming Chat Interface**: Real-time AI conversations
 

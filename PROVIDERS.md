@@ -134,7 +134,7 @@ This document defines the **constitutional provider schema and configuration law
 
 > **Note:** Models are fetched dynamically from each provider's API. The "Models Endpoint" column shows where AIDE fetches available models. Providers marked "None (fallback)" use a static fallback list.
 
-> **Note:** This table shows examples of cloud providers. The complete list of 30 provider templates (including 2 local providers) is in the [Provider Templates](#provider-templates-api-configuration-only) section below.
+> **Note:** This table shows examples of cloud providers. The complete list of 31 provider templates (including 2 local providers) is in the [Provider Templates](#provider-templates-api-configuration-only) section below.
 
 ### CLI Agents (Local) - Priorities 51-62
 
@@ -152,6 +152,7 @@ This document defines the **constitutional provider schema and configuration law
 | `codex`        | Codex CLI          | `codex`        | `pip install codex-cli`                  | 60       |
 | `warp`         | Warp AI            | Built-in       | Download Warp terminal                   | 61       |
 | `droid`        | Droid              | `droid`        | `npm install -g droid-cli`               | 62       |
+| `qwen_cli`     | Qwen CLI           | `qwen`         | `pip install qwen-cli`                   | 63       |
 | `qwen_cli`     | Qwen CLI           | `qwen`         | `pip install qwen-cli`                   | 63       |
 
 ## Dynamic Model Discovery

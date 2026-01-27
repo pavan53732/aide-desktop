@@ -4,7 +4,7 @@
 > Stability Tier: Experimental  
 > Last Amended: 2026-01-27  
 > Governing Document: SPECIFICATIONS.md  
-> Binding Authority: Non-Binding (Informational / Exploratory Only)
+> Binding Authority: Binding
 
 ---
 
@@ -2418,17 +2418,6 @@ interface AgentResult {
   fallbackUsed?: boolean;
   conflictsResolved?: boolean;
 }
-  console.log("✨ Applying improvements...");
-  const finalCode = await aiProvider.chat([{
-    role: "system",
-    content: "You are a senior developer. Improve the code based on the review feedback."
-  }, {
-    role: "user",
-    content: `Improve: ${results.code} based on ${results.review}`
-  }]);
-  
-  return finalCode;
-}
 ```
 
 **Example Usage:**
@@ -2491,7 +2480,7 @@ AIDE uses a **practical, scalable memory system** with vector embeddings and int
 | **Working** | Current session | 50 MB | < 1ms | Active conversation, current file |
 | **Short-term** | 7 days | 100 MB | < 10ms | Recent sessions, quick decisions |
 | **Long-term** | 90 days | 1 GB | < 50ms | Code patterns, style preferences |
-| **Permanent** | User-controlled | 1 GB max | < 100ms | User-pinned critical knowledge |
+| **Permanent** | User-controlled | 10 GB max | < 100ms | User-pinned critical knowledge |
 
 **Total Storage Limit:** 10 GB per workspace (automatically enforced)
 
@@ -3015,18 +3004,6 @@ export class ProductionMemorySystem {
     await this.vectorDB.optimize();
     
     console.log("✅ Consolidation complete");
-  }
-  
-  /**
-   * Generate embedding using configured AI provider
-   */
-  private async generateEmbedding(text: string): Promise<number[]> {
-    // Check if current provider supports embeddings
-    // Use capability API from AIControlPlane
-    this.aiProvider.requireCapability("embeddings");
-    
-    const response = await this.aiProvider.generateEmbedding(text);
-    return response.embedding;
   }
   
   /**

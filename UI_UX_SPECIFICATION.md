@@ -1,7 +1,8 @@
 # AIDE - UI/UX Design Specification
 
-> Stability Tier: Core UI Law  
+> Stability Tier: Core UI Law
 > Last Amended: 2026-01-28
+> Governing Document: SPECIFICATIONS.md
 
 ---
 
@@ -1149,9 +1150,9 @@ export function actionToast() {
 
 | Library      | Version | Purpose           |
 | ------------ | ------- | ----------------- |
-| React        | 19.x    | UI framework      |
-| TypeScript   | 5.7+    | Type safety       |
-| Tailwind CSS | 4.0     | Styling           |
+| React        | 18.2    | UI framework      |
+| TypeScript   | 5       | Type safety       |
+| Tailwind CSS | 3       | Styling           |
 | shadcn/ui    | latest  | Component library |
 
 ### Enhanced Components
@@ -2533,6 +2534,8 @@ They are prohibited in:
 - File Tree
 - Command Palette
 - Code Review Views
+
+> **Note:** Animations and effects are PROHIBITED on Trust Surfaces (diff modals, error states, critical confirmations) per SPECIFICATIONS.md. This ensures code review accuracy and maintains user trust in critical UI interactions.
 
 ## Performance Governor
 

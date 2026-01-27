@@ -1,18 +1,18 @@
 ---# AIDE - AI Desktop Editor
 
-> Document Status: Living Specification  
-> Stability Tier: Stable  
-> Last Updated: 2026-01-25  
+> Document Status: Living Specification  
+> Stability Tier: Stable  
+> Last Updated: 2026-01-27  
 > Governing Document: SPECIFICATIONS.md
 
 <p align="center">
-  <strong>Your configurable AI bridge to local files</strong>
+  <strong>Your configurable AI bridge to local files</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Living_Specification-blue" alt="Status">
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
-  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
+  <img src="https://img.shields.io/badge/Status-Living_Specification-blue" alt="Status">
+  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
 </p>
 
 ---
@@ -37,11 +37,11 @@ This README is a **Stable, user-facing charter** governed by `SPECIFICATIONS.md`
 Rules:
 1. This document MUST NOT define architecture, command contracts, or provider behavior.
 2. Technical authority resides in:
-   - `SPECIFICATIONS.md` (system law)
-   - `PROVIDERS.md` (AI provider law)
-   - `UI_UX_SPECIFICATION.md` (interface law)
+   - `SPECIFICATIONS.md` (system law)
+   - `PROVIDERS.md` (AI provider law)
+   - `UI_UX_SPECIFICATION.md` (interface law)
 3. Any change that affects installation, security model, or distribution mechanics
-   MUST be reflected in `SPECIFICATIONS.md`.
+   MUST be reflected in `SPECIFICATIONS.md`.
 4. The `Last Updated` field in the header MUST be maintained.
 
 ---
@@ -65,28 +65,19 @@ Rules:
 **To install and use AIDE on Windows (no coding required):**
 
 1. **Download** the installer:
-   - Go to [Releases](https://github.com/yourusername/aide-desktop/releases)
-   - Download `AIDE_<platform>_<arch>.msi` (5-15 MB)
+   - Go to [Releases](https://github.com/yourusername/aide-desktop/releases)
+   - Download `AIDE_<platform>_<arch>.msi` (5-15 MB)
 
 2. **Install**:
-   - Double-click the downloaded `.msi` file
-   - Follow the installation wizard
-## Constitutional Boundaries (User-Facing)
-
-- AIDE does not modify files automatically or in the background.
-- All file edits require user review and acceptance in the Diff view.
-- AI actions originate from user input or user-initiated analysis sessions.
-- Agents and internal orchestration are not user-visible concepts.
-- Provider models are always selected by the user and fetched dynamically.
-
-
-   - Click "Install"
+   - Double-click the downloaded `.msi` file
+   - Follow the installation wizard
+   - Click "Install"
 
 3. **Run**:
-   - Find AIDE in your Start Menu
-   - Double-click to launch
-   - Configure your AI provider (OpenAI, Anthropic, etc.)
-   - Start chatting with AI about your code!
+   - Find AIDE in your Start Menu
+   - Double-click to launch
+   - Configure your AI provider (OpenAI, Anthropic, etc.)
+   - Start chatting with AI about your code!
 
 **System Requirements:**
 - Windows 10 or Windows 11 (64-bit)
@@ -98,7 +89,7 @@ Rules:
 
 ## ✨ Key Features
 
-- **🤖 Multi-Provider AI Hub**: Connect and configure 46 AI providers (31 cloud + 2 local + 13 CLI agents) in one interface
+- **🤖 Multi-Provider AI Hub**: Connect and configure **44 AI providers** (29 cloud + 2 local + 13 CLI agents) in one interface
 - **🧠 Advanced Intelligence**: Context-aware AI that analyzes your project and adapts to your preferences during user-initiated sessions
 - **🔒 Secure File Operations**: Read and edit files with mandatory user confirmation
 - **💾 Local-First & Private**: Your API keys and file data stay on your machine
@@ -109,16 +100,16 @@ Rules:
 
 ## 🛠️ Tech Stack
 
-| Component             | Technology                                                                                 | Why Chosen                                      |
+| Component             | Technology                                                                                 | Why Chosen                                      |
 | --------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------- |
-| **Desktop Framework** | [Tauri 2.5](https://v2.tauri.app/)                                                         | Small, fast, secure desktop apps                |
-| **AI HTTP Client**    | Custom fetch/streaming implementation                                                        | Lightweight, provider-agnostic, supports streaming |
-| **Frontend UI**       | React 19 + TypeScript 5.5 + Tailwind CSS 4.0                                               | Modern, type-safe UI with utility-first styling |
-| **UI Components**     | [shadcn/ui](https://ui.shadcn.com/)                                                        | Accessible, customizable components             |
-| **State Management**  | [Zustand](https://zustand-demo.pmnd.rs/) + [TanStack Query v5](https://tanstack.com/query) | Lightweight state + robust server-state caching |
-| **Local Database**    | [Turso](https://turso.tech/) (via [Drizzle ORM](https://orm.drizzle.team/))                | Edge SQLite with type-safe ORM                  |
-| **Code Editor**       | [Monaco Editor](https://microsoft.github.io/monaco-editor/)                                | VS Code-grade editing for diff viewer           |
-| **Dev Tools**         | Vite 6 + Biome 2.0 + Vitest 2 + Playwright 2                                               | Fast builds, linting/formatting, testing        |
+| **Desktop Framework** | [Electron 25](https://www.electronjs.org/) (Chromium 119, Node 20)                        | Production-proven, stable, battle-tested        |
+| **AI HTTP Client**    | Custom fetch/streaming implementation                                                      | Lightweight, provider-agnostic, supports streaming |
+| **Frontend UI**       | React 18.2 + TypeScript 5 + Tailwind CSS 3                                                 | Modern, type-safe UI with utility-first styling |
+| **UI Components**     | [shadcn/ui](https://ui.shadcn.com/)                                                        | Accessible, customizable components             |
+| **State Management**  | [Zustand](https://zustand-demo.pmnd.rs/) + [TanStack Query v5](https://tanstack.com/query) | Lightweight state + robust server-state caching |
+| **Local Database**    | Better-SQLite3 + [Drizzle ORM](https://orm.drizzle.team/)                                  | Fastest SQLite for Node.js with type-safe ORM   |
+| **Code Editor**       | [Monaco Editor](https://microsoft.github.io/monaco-editor/)                                | VS Code-grade editing for diff viewer           |
+| **Dev Tools**         | Vite 5 + Biome 2.0 + Vitest 3 + Playwright 2                                               | Fast builds, linting/formatting, testing        |
 
 > **CLI Agents:** AIDE also supports 13 CLI-based AI tools (Aider, Copilot CLI, etc.). See [`PROVIDERS.md` CLI Agents section](./PROVIDERS.md#cli-agents-integration) for details.
 
@@ -130,8 +121,7 @@ Rules:
 
 #### Prerequisites
 
-- [Rust](https://www.rust-lang.org/tools/install) (for Tauri backend)
-- [Node.js](https://nodejs.org/) 20+ (for frontend)
+- [Node.js](https://nodejs.org/) 20+ (for frontend and Electron main process)
 - [pnpm](https://pnpm.io/) (recommended package manager)
 - AI provider API keys (OpenAI, Anthropic, etc.)
 
@@ -149,22 +139,22 @@ pnpm install
 pnpm db:push
 
 # Start development
-pnpm tauri dev
+pnpm electron:dev
 ```
 
 ### Available Scripts
 
 ```bash
-pnpm dev          # Start Vite dev server
-pnpm tauri dev    # Start Tauri development
-pnpm build        # Build for production
-pnpm tauri build  # Build production executable (.exe/.msi)
-pnpm test         # Run Vitest tests
-pnpm test:e2e     # Run Playwright tests
-pnpm lint         # Run Biome linter
-pnpm format       # Format with Biome
-pnpm db:push      # Push database schema
-pnpm db:studio    # Open Drizzle Studio
+pnpm dev          # Start Vite dev server
+pnpm electron:dev # Start Electron development
+pnpm build        # Build for production
+pnpm electron:build # Build production executable (.exe/.msi)
+pnpm test         # Run Vitest tests
+pnpm test:e2e     # Run Playwright tests
+pnpm lint         # Run Biome linter
+pnpm format       # Format with Biome
+pnpm db:push      # Push database schema
+pnpm db:studio    # Open Drizzle Studio
 ```
 
 ## 📦 Building & Distribution
@@ -173,12 +163,12 @@ pnpm db:studio    # Open Drizzle Studio
 
 ```bash
 # Build Windows installer and portable executable
-pnpm tauri build
+pnpm electron:build
 
 # Output location:
-# src-tauri/target/release/bundle/msi/AIDE_<platform>_<arch>.msi (Installer)
-# src-tauri/target/release/bundle/nsis/AIDE_<platform>_<arch>-setup.exe (NSIS Installer)
-# src-tauri/target/release/AIDE.exe (Portable)
+# dist/AIDE_<platform>_<arch>.msi (Installer)
+# dist/AIDE_<platform>_<arch>-setup.exe (NSIS Installer)
+# dist/AIDE.exe (Portable)
 ```
 
 ### Distribution Files
@@ -187,40 +177,39 @@ After building, you get multiple distribution options:
 
 | File | Type | Size | Use Case |
 |------|------|------|----------|
-| `AIDE_<platform>_<arch>.msi` | Windows Installer | 5-15 MB | Standard installation with shortcuts |
-| `AIDE_<platform>_<arch>-setup.exe` | NSIS Installer | 5-15 MB | Custom branded installer |
-| `AIDE.exe` | Portable Executable | 5-10 MB | Run without installation (USB, testing) |
+| `AIDE_<platform>_<arch>.msi` | Windows Installer | 100-200 MB | Standard installation with shortcuts |
+| `AIDE_<platform>_<arch>-setup.exe` | NSIS Installer | 100-200 MB | Custom branded installer |
+| `AIDE.exe` | Portable Executable | 100-200 MB | Run without installation (USB, testing) |
 
 ### Installing on Other Windows PCs
 
 **For End Users (No Development Tools Required):**
 
 1. **MSI Installer (Recommended):**
-   - Download `AIDE_<platform>_<arch>.msi`
-   - Double-click to run installer
-   - Follow installation wizard
-   - App appears in Start Menu
+   - Download `AIDE_<platform>_<arch>.msi`
+   - Double-click to run installer
+   - Follow installation wizard
+   - App appears in Start Menu
 
 2. **Portable Executable:**
-   - Download `AIDE.exe`
-   - Double-click to run
-   - No installation needed
+   - Download `AIDE.exe`
+   - Double-click to run
+   - No installation needed
 
 3. **System Requirements:**
-   - Windows 10/11 (64-bit)
-   - Edge WebView2 (auto-installs if missing)
-   - 100 MB disk space
-   - No Node.js, npm, or development tools required
+   - Windows 10/11 (64-bit)
+   - 100 MB disk space
+   - No Node.js, npm, or development tools required
 
 ### Distribution & Publishing
 
 ```bash
 # Create GitHub Release with installers
 gh release create <release-tag> \
-  src-tauri/target/release/bundle/msi/*.msi \
-  src-tauri/target/release/bundle/nsis/*.exe \
-  --title "AIDE Release" \
-  --notes "Release notes"
+  dist/*.msi \
+  dist/*.exe \
+  --title "AIDE Release" \
+  --notes "Release notes"
 
 # Or manually upload to:
 # - GitHub Releases
@@ -233,46 +222,41 @@ gh release create <release-tag> \
 To avoid "Unknown Publisher" warnings:
 
 ```json
-// tauri.conf.json
+// electron-builder.yml
 {
-  "bundle": {
-    "windows": {
-      "certificateThumbprint": "YOUR_CERT_THUMBPRINT",
-      "digestAlgorithm": "sha256",
-      "timestampUrl": "http://timestamp.digicert.com"
-    }
-  }
+  "win": {
+    "certificateFile": "path/to/cert.p12",
+    "certificatePassword": "CERT_PASSWORD"
+  }
 }
 ```
 
-## 🏗️ Why Tauri Over .NET/Electron?
+## 🏗️ Why Electron?
 
-AIDE uses **Tauri 2.5** for superior performance and developer experience:
+AIDE uses **Electron 25** for its production-proven stability and extensive ecosystem:
 
-| Feature | Tauri | .NET (WPF/WinUI) | Electron |
-|---------|-------|------------------|----------|
-| **App Size** | 5-15 MB | 50-150 MB | 100-200 MB |
-| **Memory Usage** | 50-150 MB | 100-300 MB | 300-500 MB |
-| **Startup Time** | < 1 second | 2-3 seconds | 3-5 seconds |
-| **Windows** | ✅ Windows 10/11 | ❌ Windows only | ✅ All platforms |
-| **Performance** | 🚀 Native (Rust) | ⚡ Good (C#) | 🐢 Slow (Chromium) |
-| **UI Framework** | React/Vue/Svelte | XAML | Web tech |
-| **Hot Reload** | ✅ Yes | ⚠️ Limited | ✅ Yes |
+| Feature | Electron 25 | Notes |
+|---------|-------------|-------|
+| **Platform Support** | Windows, macOS, Linux | True cross-platform |
+| **Chromium Version** | 119 | Latest web features, secure |
+| **Node.js Version** | 20 | LTS with native module support |
+| **Mature Ecosystem** | Extensive | Large community, battle-tested |
+| **Used By** | VS Code, Slack, Discord, Claude Desktop | Industry standard |
+| **Auto-Updates** | electron-updater | Built-in support |
 
 **Key Advantages:**
-- ✅ **10x Smaller** - 5 MB vs 150 MB installers
-- ✅ **Blazing Fast** - Rust backend rivals C++ performance
-- ✅ **Modern Stack** - React + TypeScript + Tailwind CSS
-- ✅ **Secure** - Rust prevents memory bugs and data races
-- ✅ **Windows-native** - Optimized specifically for Windows 10/11
-- ✅ **Native Look** - Uses system WebView (Edge WebView2 on Windows)
+- ✅ **Production-Proven** - Used by millions of applications worldwide
+- ✅ **Full Node.js Access** - Direct filesystem, native modules
+- ✅ **Modern Web Stack** - React + TypeScript + Tailwind CSS
+- ✅ **Mature Tooling** - electron-builder, auto-updaters, debug tools
+- ✅ **Consistent Experience** - Same runtime across all platforms
 
 ### Real-World Deployment Scenarios
 
 **Scenario 1: Enterprise Internal Tool**
 ```bash
 # Build once on CI/CD
-pnpm tauri build
+pnpm electron:build
 
 # Deploy to company network share
 \\company-server\apps\AIDE_<platform>_<arch>.msi
@@ -284,8 +268,8 @@ pnpm tauri build
 **Scenario 2: Public Distribution**
 ```bash
 # Build and release
-pnpm tauri build
-gh release create <release-tag> src-tauri/target/release/bundle/msi/*.msi
+pnpm electron:build
+gh release create <release-tag> dist/*.msi
 
 # Users download from GitHub/website and install
 # Works like any commercial Windows application
@@ -294,10 +278,10 @@ gh release create <release-tag> src-tauri/target/release/bundle/msi/*.msi
 **Scenario 3: Portable USB Distribution**
 ```bash
 # Build portable executable
-pnpm tauri build
+pnpm electron:build
 
 # Copy to USB drive
-cp src-tauri/target/release/AIDE.exe E:\Tools\
+cp dist/AIDE.exe E:\Tools\
 
 # Run on any Windows PC without installation
 # Perfect for contractors, demos, or restricted environments
@@ -308,12 +292,12 @@ cp src-tauri/target/release/AIDE.exe E:\Tools\
 
 1. **First Launch**: App opens to Settings page
 2. **Add AI Provider**:
-   - Select provider type (OpenRouter, Groq, Anthropic, etc.)
-   - Enter API endpoint and key
-   - Click "Test Connection" to verify
+   - Select provider type (OpenRouter, Groq, Anthropic, etc.)
+   - Enter API endpoint and key
+   - Click "Test Connection" to verify
 3. **Select Model**:
-   - App fetches available models from provider's API
-   - Choose your preferred model from the dropdown
+   - App fetches available models from provider's API
+   - Choose your preferred model from the dropdown
 4. **Select Workspace**: Choose a folder for file operations
 5. **Start Chatting**: Ask the AI to help with your files!
 
@@ -343,49 +327,51 @@ AIDE: [Creates file proposal → User reviews → Accepts/Rejects]
 
 ```
 aide-desktop/
-├── src/                      # Frontend (React/TypeScript)
-│   ├── components/           # UI Components
-│   │   ├── ui/              # shadcn/ui components
-│   │   ├── chat/            # Chat interface components
-│   │   ├── diff/            # Diff viewer components
-│   │   └── providers/       # Provider selector components
-│   ├── lib/
-│   │   ├── ai/              # AI HTTP client setup
-│   │   ├── db/              # Drizzle ORM schema & queries
-│   │   ├── cli/             # CLI agent execution
-│   │   └── utils/           # Helper utilities
-│   ├── stores/              # Zustand state stores
-│   ├── hooks/               # Custom React hooks
-│   └── main.tsx             # App entry point
-├── src-tauri/               # Backend (Rust)
-│   ├── src/
-│   │   ├── commands/        # Tauri commands (read_file, write_file)
-│   │   └── main.rs
-│   └── tauri.conf.json      # Security & permissions
-├── tests/                   # Test files
-│   ├── unit/               # Vitest unit tests
-│   └── e2e/                # Playwright E2E tests
-├── SPECIFICATIONS.md        # Complete project blueprint
-├── PROVIDERS.md             # AI provider configurations
-├── UI_UX_SPECIFICATION.md   # Design & interface specs
-└── README.md                # This file
+├── src/                      # Frontend (React/TypeScript)
+│   ├── components/           # UI Components
+│   │   ├── ui/              # shadcn/ui components
+│   │   ├── chat/            # Chat interface components
+│   │   ├── diff/            # Diff viewer components
+│   │   └── providers/       # Provider selector components
+│   ├── lib/
+│   │   ├── ai/              # AI HTTP client setup
+│   │   ├── db/              # Drizzle ORM schema & queries
+│   │   ├── cli/             # CLI agent execution
+│   │   └── utils/           # Helper utilities
+│   ├── stores/              # Zustand state stores
+│   ├── hooks/               # Custom React hooks
+│   └── main.tsx             # App entry point
+├── electron/                 # Electron main process
+│   ├── main/
+│   │   ├── index.js         # Main entry point
+│   │   ├── ipc-handlers/    # IPC handlers (file-ops, keychain, cli-agents)
+│   │   └── config.js        # App configuration
+│   └── preload/
+│       └── index.js         # IPC bridge
+├── tests/                    # Test files
+│   ├── unit/                # Vitest unit tests
+│   └── e2e/                 # Playwright E2E tests
+├── SPECIFICATIONS.md         # Complete project blueprint
+├── PROVIDERS.md              # AI provider configurations
+├── UI_UX_SPECIFICATION.md    # Design & interface specs
+└── README.md                 # This file
 ```
 
 ## 🔒 Security Model
 
-| Principle                | Implementation                                                                                  |
+| Principle                | Implementation                                                                                 |
 | ------------------------ | ----------------------------------------------------------------------------------------------- |
-| **File Sandboxing**      | All operations confined to user-selected workspace only                                         |
-| **Credential Safety**    | API keys encrypted in Windows Credential Manager                                                 |
-| **Explicit Consent**     | All file edits require manual approval via diff view - no auto-apply                            |
-| **No Telemetry**         | Zero data collection - app only communicates with user-configured AI providers\*                |
-| **No Hardcoded Secrets** | No API keys, endpoints, or model names hardcoded in source                                      |
+| **File Sandboxing**      | All operations confined to user-selected workspace only                                         |
+| **Credential Safety**    | API keys encrypted in Windows Credential Manager                                                |
+| **Explicit Consent**     | All file edits require manual approval via diff view - no auto-apply                            |
+| **No Telemetry**         | Zero data collection - app only communicates with user-configured AI providers*                 |
+| **No Hardcoded Secrets** | No API keys, endpoints, or model names hardcoded in source                                      |
 
 > \*Exception: OpenRouter requires `extraHeaders` for rankings. This is the only allowed exception.
 
 ## ✨ Current Features
 
-- ✅ Multi-provider AI configuration (46 providers: 31 cloud + 2 local + 13 CLI agents)
+- ✅ Multi-provider AI configuration (**44 providers**: 29 cloud + 2 local + 13 CLI agents)
 - ✅ Dynamic model fetching from provider API
 - ✅ Secure file operations with diff viewer
 - ✅ Workspace sandboxing
@@ -396,13 +382,13 @@ aide-desktop/
 
 ## 📚 Documentation
 
-| Document                                             | Description                                                                              |
+| Document                                             | Description                                                                              |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [`README.md`](./README.md)                           | This file - quick start and overview                                                     |
-| [`SPECIFICATIONS.md`](./SPECIFICATIONS.md)           | Complete technical specification, architecture, feature set                              |
-| [`PROVIDERS.md`](./PROVIDERS.md)                     | AI provider configurations: 31 templates (29 cloud + 2 local) + 13 CLI agents = 44 total |
-| [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) | UI components, design system, user flows                                                 |
-| [`INTELLIGENCE.md`](./INTELLIGENCE.md)               | Advanced AI intelligence features: context awareness, learning, multi-model routing      |
+| [`README.md`](./README.md)                           | This file - quick start and overview                                                     |
+| [`SPECIFICATIONS.md`](./SPECIFICATIONS.md)           | Complete technical specification, architecture, feature set                              |
+| [`PROVIDERS.md`](./PROVIDERS.md)                     | AI provider configurations: 29 templates (29 cloud + 2 local) + 13 CLI agents = 44 total |
+| [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) | UI components, design system, user flows                                                 |
+| [`INTELLIGENCE.md`](./INTELLIGENCE.md)               | Advanced AI intelligence features: context awareness, learning, multi-model routing      |
 
 > **For AI Agents:** Always read `SPECIFICATIONS.md` first. Models are NEVER hardcoded - they are fetched from provider APIs at runtime.
 
@@ -433,25 +419,25 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ```bash
 # Optional environment variables for advanced users
-AIDE_LOG_LEVEL=debug          # Enable debug logging
-AIDE_CACHE_DIR=/custom/path   # Custom cache directory
-AIDE_MAX_FILE_SIZE=10MB       # Maximum file size for processing
-AIDE_CONCURRENT_REQUESTS=3    # Max simultaneous AI requests
-AIDE_OFFLINE_MODE=true        # Force offline mode for testing
+AIDE_LOG_LEVEL=debug          # Enable debug logging
+AIDE_CACHE_DIR=/custom/path   # Custom cache directory
+AIDE_MAX_FILE_SIZE=10MB       # Maximum file size for processing
+AIDE_CONCURRENT_REQUESTS=3    # Max simultaneous AI requests
+AIDE_OFFLINE_MODE=true        # Force offline mode for testing
 ```
 
 ### Configuration Files
 
 ```bash
 # User-level configuration
-~/.aide/config.json           # Global settings
-~/.aide/providers.json        # Provider configurations
-~/.aide/keybindings.json      # Custom keyboard shortcuts
+~/.aide/config.json           # Global settings
+~/.aide/providers.json        # Provider configurations
+~/.aide/keybindings.json      # Custom keyboard shortcuts
 
 # Project-level configuration
-.aide/workspace.json          # Workspace-specific settings
-.aide/ignore                  # Files to exclude from AI context
-.aide/templates/              # Custom code templates
+.aide/workspace.json          # Workspace-specific settings
+.aide/ignore                  # Files to exclude from AI context
+.aide/templates/              # Custom code templates
 ```
 
 ### Advanced Usage
@@ -459,10 +445,10 @@ AIDE_OFFLINE_MODE=true        # Force offline mode for testing
 ```bash
 # CLI commands for power users
 aide --provider openrouter --model "anthropic/claude-3-5-sonnet" --file src/main.ts
-aide --batch-process src/                    # Process entire directory
-aide --export-conversation conversation.md   # Export chat history
-aide --import-settings settings.json         # Import configuration
-aide --health-check                          # System diagnostics
+aide --batch-process src/                    # Process entire directory
+aide --export-conversation conversation.md   # Export chat history
+aide --import-settings settings.json         # Import configuration
+aide --health-check                          # System diagnostics
 ```
 
 ## 🚀 Performance Optimization
@@ -510,24 +496,24 @@ aide --health-check                          # System diagnostics
 ```typescript
 // Available metrics for personal productivity tracking
 interface PersonalMetrics {
-  usage: {
-    requestsPerDay: number;
-    tokensConsumed: number;
-    costEstimate: number;
-  };
-  
-  performance: {
-    averageResponseTime: number;
-    successRate: number;
-    errorRate: number;
-  };
-  
-  productivity: {
-    filesModified: number;
-    linesGenerated: number;
-    timesSaved: number;
-    skillsLearned: string[];
-  };
+  usage: {
+    requestsPerDay: number;
+    tokensConsumed: number;
+    costEstimate: number;
+  };
+  
+  performance: {
+    averageResponseTime: number;
+    successRate: number;
+    errorRate: number;
+  };
+  
+  productivity: {
+    filesModified: number;
+    linesGenerated: number;
+    timesSaved: number;
+    skillsLearned: string[];
+  };
 }
 ```
 
@@ -546,7 +532,7 @@ interface PersonalMetrics {
 
 ### ❌ **Not Included (By Design)**
 - **Enterprise/Team Features**: Shared workspaces, team management, organization controls
-- **Mobile Applications**: Mobile companion apps, cross-platform mobile support  
+- **Mobile Applications**: Mobile companion apps, cross-platform mobile support  
 - **Compliance Systems**: SOC 2, HIPAA, enterprise audit trails, SSO integration
 - **Team Collaboration**: Multi-user workspaces, shared provider pools, team analytics
 - **Enterprise Integrations**: CI/CD pipelines, monitoring systems (Prometheus, Grafana), enterprise SSO
