@@ -29,9 +29,7 @@
 **CRITICAL:** All intelligence features must use the configured AI provider system from `PROVIDERS.md`. Never hardcode model names or create direct API clients.
 
 ```typescript
-// ✅ CORRECT: Use provider system
-// Unified naming: MultiAIOrchestrator is an alias for AIControlPlane from SPECIFICATIONS.md
-type MultiAIOrchestrator = AIControlPlane;
+// ✅ CORRECT: Use provider system via AIControlPlane from SPECIFICATIONS.md
 
 interface AIControlPlane {
   chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse>;
@@ -1768,7 +1766,7 @@ Provide optimization strategies with trade-offs explained.`,
 export async function routeAndExecute(
   userRequest: string,
   context: RealisticProjectContext,
-  aiProvider: MultiAIOrchestrator
+  aiProvider: AIControlPlane
 ): Promise<string> {
   // Step 1: Classify task (instant, no AI call)
   const classification = classifyTask(userRequest);
@@ -1858,7 +1856,7 @@ const SPECIALIZED_MODELS: ModelSpecialization[] = [
 export async function routeToSpecializedModel(
   userRequest: string,
   context: ProjectContext,
-  aiProvider: MultiAIOrchestrator
+  aiProvider: AIControlPlane
 ): Promise<{ prompt: string; systemMessage: string }> {
   // Classify the user's intent using simple keyword matching
   const intent = classifyIntentSimple(userRequest);
@@ -2215,7 +2213,7 @@ const developerInput = architectOutput.output;
 export async function multiAgentTask(
   task: string,
   context: ProjectContext,
-  aiProvider: MultiAIOrchestrator
+  aiProvider: AIControlPlane
 ): Promise<AgentResult> {
   try {
     // Check provider capability
@@ -2380,7 +2378,7 @@ function detectConflicts(reviewOutput: string): string[] {
 // Helper: Resolve conflicts
 async function resolveConflicts(
   conflicts: string[],
-  aiProvider: MultiAIOrchestrator
+  aiProvider: AIControlPlane
 ): Promise<{ code: string; tests: string }> {
   const resolution = await aiProvider.chat([{
     role: "system",
@@ -2399,7 +2397,7 @@ async function resolveConflicts(
 // Helper: Fallback to single AI
 async function fallbackToSingleAI(
   task: string,
-  aiProvider: MultiAIOrchestrator
+  aiProvider: AIControlPlane
 ): Promise<string> {
   return await aiProvider.chat([{
     role: "user",
@@ -2572,7 +2570,7 @@ function sha256(text: string): string {
 export class ProductionMemorySystem {
   private db: Database;
   private vectorDB: LanceDB;
-  private aiProvider: MultiAIOrchestrator;
+  private aiProvider: AIControlPlane;
   private workspaceId: string;
   
   // Storage limits
@@ -2586,7 +2584,7 @@ export class ProductionMemorySystem {
   constructor(
     workspaceId: string,
     dbPath: string,
-    aiProvider: MultiAIOrchestrator
+    aiProvider: AIControlPlane
   ) {
     // FIX 1: Sanitize workspaceId to prevent path traversal
     this.workspaceId = this.sanitizeWorkspaceId(workspaceId);
@@ -3294,7 +3292,7 @@ AI suggests code → User accepts/rejects → AI analyzes feedback
 // lib/intelligence/self-improvement.ts
 
 export class SelfImprovement {
-  constructor(private aiProvider: MultiAIOrchestrator, private memory: UltraLongTermMemory) {}
+  constructor(private aiProvider: AIControlPlane, private memory: UltraLongTermMemory) {}
   
   async learnFromFeedback(feedback: Feedback): Promise<void> {
     if (!feedback.accepted) {

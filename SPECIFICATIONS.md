@@ -175,7 +175,7 @@ These versions are verified in production by Claude Desktop (Anthropic) and Mini
 
 ```mermaid
 graph TB
-    User[User Input] --> Frontend[React 19 + TypeScript + Tailwind]
+    User[User Input] --> Frontend[React 18.2 + TypeScript + Tailwind]
     Frontend --> IPC[Electron IPC]
 
     IPC --> Main[Electron Main Process]
@@ -183,7 +183,7 @@ graph TB
     Main --> FileOps[File Operations]
     Main --> CLIExec[CLI Execution]
 
-    MultiAI --> HTTP[31+ HTTP Providers Cloud & Local]
+    MultiAI --> HTTP[31 HTTP Providers: 29 Cloud + 2 Local]
     MultiAI --> LocalAI[Ollama/LM Studio]
     CLIExec --> CLI[13 CLI Agents]
 
@@ -234,6 +234,32 @@ Any IPC command enabling background automation, agent orchestration, or silent f
 ### 3.4 AI Control Plane Architecture
 
 **AIDE uses a single, unified AI control plane to prevent architectural conflicts and ensure consistent behavior.**
+
+#### MVP vs Experimental Features
+
+Features in AIDE are categorized by implementation status:
+
+| Status | Description | Documentation |
+|--------|-------------|---------------|
+| **MVP** | Core features required for initial release | This document (SPECIFICATIONS.md) |
+| **Experimental** | Advanced features planned for future releases | INTELLIGENCE.md |
+
+**MVP Features (Core):**
+- Multi-provider AI configuration (HTTP providers)
+- Secure file operations with diff viewer
+- Workspace sandboxing
+- OS keychain storage
+- CLI agent integration (configuration and basic execution)
+
+**Experimental Features (Future):**
+- Advanced intelligence (context awareness, learning, multi-model routing)
+- Long-term memory system with embeddings
+- Multi-agent collaboration
+- Predictive assistance
+- Visual code understanding
+- Voice coding
+
+> **Note:** Experimental features are defined in INTELLIGENCE.md and are marked as NON-BINDING. They must be ratified into SPECIFICATIONS.md before implementation.
 
 #### Single AI Authority
 
@@ -596,7 +622,7 @@ function getFallbackModels(providerType: string): ModelInfo[] {
 
 ```typescript
 // lib/db/schema.ts
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, blob, real, primaryKey } from "drizzle-orm/sqlite-core";
 
 // Chat history
 export const conversations = sqliteTable("conversations", {
@@ -635,6 +661,34 @@ export const preferences = sqliteTable("preferences", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
 });
+
+// AI Memory System (Experimental - See INTELLIGENCE.md for full specification)
+export const memories = sqliteTable("memories", {
+  id: text("id").primaryKey(),
+  timestamp: integer("timestamp", { mode: "timestamp" }).notNull(),
+  workspace_id: text("workspace_id").notNull(),
+  type: text("type", { enum: ["decision", "preference", "pattern", "success", "mistake", "feedback"] }).notNull(),
+  content: text("content").notNull(),
+  embedding: blob("embedding"), // Vector embedding for similarity search
+  embedding_provider: text("embedding_provider"), // Provider that generated embedding
+  embedding_model: text("embedding_model"), // Model that generated embedding
+  embedding_dimensions: integer("embedding_dimensions"), // Dimensions of embedding
+  context: text("context"), // JSON string of context data
+  importance: real("importance").notNull(), // 0-100 importance score
+  retention_level: text("retention_level", { enum: ["working", "short_term", "long_term", "permanent"] }).notNull(),
+  expires_at: integer("expires_at", { mode: "timestamp" }),
+  access_count: integer("access_count").default(0),
+  last_accessed: integer("last_accessed", { mode: "timestamp" }).notNull(),
+});
+
+// Memory relationships for graph-based memory
+export const memoryRelations = sqliteTable("memory_relations", {
+  memory_id: text("memory_id").references(() => memories.id),
+  related_id: text("related_id").references(() => memories.id),
+  strength: real("strength").notNull(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.memory_id, table.related_id] }),
+}));
 ```
 
 ### 3.7 CLI Agent Integration
@@ -1440,7 +1494,7 @@ AIDE delivers a revolutionary development environment with the following complet
 
 ### Core AI Features
 
-- 🤖 **44 AI Providers** (31 provider templates: 29 cloud + 2 local + 13 CLI agents)
+- 🤖 **44 AI Connections** (29 cloud HTTP + 2 local HTTP + 13 CLI agents)
 - 🔄 **Dynamic Model Fetching**: Models fetched live from provider APIs
 - 💬 **Streaming Chat Interface**: Real-time AI conversations
 

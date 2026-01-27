@@ -23,7 +23,7 @@
 | 7   | **Accessibility is mandatory**              | All components must meet WCAG AA standards.                                                                |
 | 8   | **Trust Surfaces Are Minimal**              | The Diff Modal, Error Modals, and Permission Prompts must never use glassmorphism, gradients, glow, 3D, or motion. |
 | 9   | **No Emotional AI Signaling**               | UI must not imply intent, confidence, mood, or agency of the AI system.                                    |
-| 10  | **Performance Before Spectacle**            | Visual effects must degrade gracefully or disable automatically when performance drops below target FPS.   |
+| 10  | **Performance Before Spectacle**            | Performance is always the priority. Rich effects are only used when performance is not compromised. The Diff Modal must NEVER have blur, animations, or visual effects. |
 | 11  | **System Messages Are Neutral**             | System messages must be factual and non-anthropomorphic.                                                   |
 | 12  | **Neutral System Language**                 | UI text must avoid anthropomorphic or emotional phrasing. Use operational language instead (e.g., "Processing request", "Response streaming"). |
 
@@ -661,6 +661,8 @@ export function ModelDropdownSkeleton() {
 ```
 
 ## 7. Micro-interactions Library
+
+> **Performance Hierarchy Note:** Performance is always the priority. Rich effects in this section are only used when performance is not compromised. The Diff Modal (Section 4.3) must NEVER have blur, animations, or visual effects - it must remain static and high-contrast at all times.
 
 ### 7.1 Button Interactions
 

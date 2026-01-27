@@ -134,7 +134,7 @@ This document defines the **constitutional provider schema and configuration law
 
 > **Note:** Models are fetched dynamically from each provider's API. The "Models Endpoint" column shows where AIDE fetches available models. Providers marked "None (fallback)" use a static fallback list.
 
-> **Note:** This table shows examples of cloud providers. The complete list of 31 provider templates (including 2 local providers) is in the [Provider Templates](#provider-templates-api-configuration-only) section below.
+> **Note:** This table shows examples of cloud providers. The complete list of 31 HTTP provider templates (29 cloud + 2 local) + 13 CLI agents = 44 total AI connections is detailed in the [Provider Templates](#provider-templates-api-configuration-only) section below.
 
 ### CLI Agents (Local) - Priorities 51-62
 
@@ -1051,6 +1051,18 @@ aide providers add \
 
 ## CLI Agents Integration
 
+### Supported vs Detected CLI Agents
+
+AIDE includes **13 supported CLI agents** in its configuration system. These agents can be used if installed:
+
+| Status | Description |
+|--------|-------------|
+| **Supported** | Agent is defined in AIDE's configuration schema and can be used if installed on the system |
+| **Detected** | Agent is installed and available on the user's system (verified via `check-cli-availability`) |
+| **Active** | Agent is both detected and enabled by the user in settings |
+
+**MVP Scope:** For MVP, CLI agents are **supported** (configuration exists) but auto-detection is optional. Users can manually configure CLI agents if installed.
+
 ### Auto-Detection System
 
 ```typescript
@@ -1702,4 +1714,7 @@ interface ModelInfo {
 
 ---
 
-**Supported Providers**: 31 provider templates (29 cloud + 2 local) + 13 CLI agents = 44 Total
+**Supported Providers**: 44 AI connections total
+- 29 Cloud HTTP Providers
+- 2 Local HTTP Providers (Ollama, LM Studio)
+- 13 CLI Agents
