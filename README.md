@@ -2,7 +2,7 @@
 
 > Document Status: Living Specification  
 > Stability Tier: Stable  
-> Last Updated: 2026-01-27  
+> Last Updated: 2026-01-28  
 > Governing Document: SPECIFICATIONS.md
 
 <p align="center">
