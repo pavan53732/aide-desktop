@@ -17,7 +17,7 @@
 | #   | Principle                          | Description                                                                                   |
 | --- | ---------------------------------- | --------------------------------------------------------------------------------------------- |
 | 1   | **Context-Aware**                  | AIDE understands your entire project, not just individual files                               |
-| 2   | **Proactive**                      | AIDE finds issues and suggests improvements before you ask                                    |
+| 2   | **User-Triggered Analysis**        | AIDE analyzes code only in response to explicit user chat requests or user-enabled analysis sessions |
 | 3   | **Learning**                       | AIDE learns from your coding style, preferences, and past decisions                           |
 | 4   | **Multi-Model**                    | AIDE routes tasks to specialized AI models for better results                                 |
 | 5   | **Collaborative**                  | Multiple AI agents work together on complex tasks                                             |
@@ -69,6 +69,19 @@ const memory = new UltraLongTermMemory(
 
 ---
 
+## Intelligence Constitutional Constraints
+
+All intelligence systems must comply with the following:
+
+1. Intelligence execution must originate from a user chat request or explicit user-enabled action.
+2. Intelligence systems may generate diffs but may not write files directly.
+3. File writes must occur only through IPC `fs.applyEdit` in the Main process.
+4. Agents are internal-only and must not appear in UI, IPC, or user-facing logs.
+5. Intelligence visualization must use neutral, operational system states only.
+6. Provider access must use AIControlPlane exclusively.
+
+---
+
 ## Governance & Authority Scope
 
 This document defines **experimental and aspirational intelligence behavior**.
@@ -84,26 +97,28 @@ Rules:
 
    MUST be formally amended into `SPECIFICATIONS.md` before implementation.
 4. The `Last Amended` field in the header MUST be updated for any change.
+5. Marketing language, emojis, and comparative claims are prohibited in this document.
+   This file defines system behavior, not product positioning.
 
 ---
 
 ## 📋 Table of Contents
 
 1. [Level 1: Context Awareness](#level-1-context-awareness)
-2. [Level 2: Proactive Intelligence](#level-2-proactive-intelligence)
+2. [Level 2: User-Triggered Analysis](#level-2-user-triggered-analysis)
 3. [Level 3: Multi-Model Intelligence](#level-3-multi-model-intelligence)
 4. [Level 4: Learning & Memory](#level-4-learning--memory)
 5. [Level 5: Advanced Features](#level-5-advanced-features)
-6. [Level 6: Ultra-Deep Microscopic Intelligence](#level-6-ultra-deep-microscopic-intelligence)
+6. [Level 6: Heuristic Intelligence](#level-6-heuristic-intelligence)
 7. [Intelligence Metrics](#intelligence-metrics)
 
 ---
 
 ## **LEVEL 1: Context Awareness** 🔍
 
-### **1.1 ULTRA-ADVANCED Project Understanding (99%+ Accuracy)**
+### **1.1 Project Understanding**
 
-AIDE performs **microscopic multi-dimensional analysis** for near-perfect project understanding at the atomic level:
+AIDE performs multi-dimensional analysis for comprehensive project understanding:
 
 #### **Layer 1: File System Analysis (Lightweight)**
 - Language detection (by file extensions)
@@ -911,11 +926,11 @@ const prompt = `
 
 ---
 
-## **LEVEL 2: Proactive Intelligence** 🤖
+## **LEVEL 2: User-Triggered Analysis**
 
-### **2.1 Auto-Detect Issues**
+### **2.1 Issue Detection**
 
-AIDE continuously watches your code and suggests fixes BEFORE you ask.
+AIDE analyzes code only in response to explicit user chat requests or user-enabled analysis sessions.
 
 #### **What It Detects:**
 
@@ -1234,7 +1249,10 @@ class SmartProactiveAnalyzer {
       original: originalContent,
       proposed: fixedContent,
       onAccept: async () => {
-        await writeFile(issue.file, fixedContent);
+        await ipc.invoke("fs.applyEdit", {
+          file: issue.file,
+          content: fixedContent
+        });
         toast.success(`✅ Applied fix to ${issue.file}`);
       },
       onReject: () => {
@@ -1292,9 +1310,9 @@ function detectLongFunctions(content: string): Array<{ name: string; lines: numb
 
 ---
 
-### **2.2 Predictive Suggestions**
+### **2.2 Heuristic Suggestions**
 
-AIDE predicts what you're about to do and offers help proactively.
+AIDE predicts what you're about to do and offers help when requested.
 
 #### **Prediction Patterns:**
 
@@ -2473,7 +2491,7 @@ AIDE uses a **practical, scalable memory system** with vector embeddings and int
 | **Working** | Current session | 50 MB | < 1ms | Active conversation, current file |
 | **Short-term** | 7 days | 100 MB | < 10ms | Recent sessions, quick decisions |
 | **Long-term** | 90 days | 1 GB | < 50ms | Code patterns, style preferences |
-| **Permanent** | User-controlled | 10 GB max | < 100ms | User-pinned critical knowledge |
+| **Permanent** | User-controlled | 1 GB max | < 100ms | User-pinned critical knowledge |
 
 **Total Storage Limit:** 10 GB per workspace (automatically enforced)
 
@@ -3264,10 +3282,10 @@ class MemoryCache {
   }
 }
 
-// Background consolidation worker
-setInterval(async () => {
+// Consolidation runs only when triggered by user action or app startup
+async function runConsolidationOnUserTrigger() {
   await memory.consolidate();
-}, 60 * 60 * 1000); // Every hour
+}
 ```
 
 #### **Accuracy Metrics:**
@@ -3304,7 +3322,7 @@ export class SelfImprovement {
   async learnFromFeedback(feedback: Feedback): Promise<void> {
     if (!feedback.accepted) {
       // Analyze why it was rejected using configured provider
-      if (this.aiProvider.supportsChat()) {
+      if (this.aiProvider.checkCapability("chat")) {
         const analysis = await this.aiProvider.chat([{
           role: "user",
           content: `I suggested this code:
@@ -3324,7 +3342,7 @@ But the user rejected it. Why might this have been rejected? What could be impro
     
     if (feedback.actualSolution) {
       // Learn from better solution using configured provider
-      if (this.aiProvider.supportsChat()) {
+      if (this.aiProvider.checkCapability("chat")) {
         const comparison = await this.aiProvider.chat([{
           role: "user", 
           content: `I suggested: ${feedback.suggestion}
@@ -3390,11 +3408,11 @@ AIDE aims to achieve revolutionary intelligence levels that surpass all existing
 
 | Metric | Target | Measurement | How to Achieve |
 |--------|--------|-------------|----------------|
-| **Context Accuracy** | > 99% | AI understands project at molecular level | Ultra-deep AST parsing, molecular analysis, quantum embeddings |
-| **Issue Detection Rate** | > 95% | Catches 19 out of 20 real issues | Multi-dimensional static analysis, predictive pattern detection |
-| **Prediction Accuracy** | > 90% | Predicts correctly 9 out of 10 times | Behavioral learning, intent analysis, molecular patterns |
-| **User Acceptance Rate** | > 95% | Users trust AI like themselves | Perfect style matching, surgical precision, zero side effects |
-| **False Positive Rate** | < 3% | Ultra-minimal false alarms | Ultra-high confidence thresholds, quantum verification |
+| **Context Accuracy** | > 95% | AI understands project at semantic level | Deep AST parsing, semantic analysis, heuristic embeddings |
+| **Issue Detection Rate** | > 90% | Catches 9 out of 10 real issues | Multi-dimensional static analysis, heuristic pattern detection |
+| **Prediction Accuracy** | > 85% | Predicts correctly 85% of the time | Behavioral learning, intent analysis, semantic patterns |
+| **User Acceptance Rate** | > 90% | Users trust AI assistance | Style matching, precision editing, minimal side effects |
+| **False Positive Rate** | < 5% | Minimal false alarms | High confidence thresholds, semantic verification |
 | **Time Saved** | > 85% | Revolutionary productivity gains | Predictive intelligence, molecular understanding, instant recall |
 
 ### **Why These Targets Are Revolutionary:**
@@ -3495,435 +3513,80 @@ This document aligns with the Core Constitution in `SPECIFICATIONS.md`:
 
 ---
 
-## **LEVEL 8: Visual Intelligence Feedback** 🎨
+## LEVEL 8: System State Visualization (Non-Anthropomorphic)
 
-### **8.1 Real-Time Visual State Communication**
+This section defines neutral, operational system feedback only.
 
-AIDE provides **revolutionary visual feedback** that no other AI coding assistant offers, making intelligence features tangible and beautiful.
+### 8.1 System Processing States
 
-#### **AI Mood Indicator System**
+Allowed states:
+- `Idle` — No active requests
+- `Processing` — AI request in progress
+- `Awaiting Approval` — Diff pending user action
+- `Error` — Operation failed
+- `Offline` — Provider unavailable
 
-```typescript
-// lib/intelligence/visual-feedback/mood-system.ts
+Visual indicators must be static, high-contrast, and non-emotional.
+Animations are prohibited on Trust Surfaces.
 
-interface AIMoodState {
-  mood: 'thinking' | 'confident' | 'unsure' | 'excited';
-  confidence: number;        // 0-100
-  processingStage: string;   // "analyzing", "generating", "reviewing"
-  estimatedTime: number;     // seconds
-}
+### 8.2 Internal Agent Telemetry (Non-UI)
 
-export class AIMoodVisualizer {
-  private currentMood: AIMoodState;
-  
-  // Update mood based on AI processing
-  updateMood(analysis: CodeAnalysis): AIMoodState {
-    const confidence = this.calculateConfidence(analysis);
-    
-    if (confidence > 90) return { mood: 'confident', confidence };
-    if (confidence > 70) return { mood: 'excited', confidence };
-    if (confidence > 50) return { mood: 'thinking', confidence };
-    return { mood: 'unsure', confidence };
-  }
-  
-  // Visual representation
-  getMoodVisualization(): MoodVisual {
-    return {
-      color: this.getMoodGradient(),
-      animation: this.getMoodAnimation(),
-      icon: this.getMoodIcon(),
-      label: this.getMoodLabel()
-    };
-  }
-  
-  private getMoodGradient(): string {
-    const gradients = {
-      thinking: 'from-blue-500 to-cyan-500',
-      confident: 'from-green-500 to-emerald-500',
-      unsure: 'from-yellow-500 to-orange-500',
-      excited: 'from-pink-500 to-purple-500'
-    };
-    return gradients[this.currentMood.mood];
-  }
-}
-```
-
-#### **Code Quality Ring Visualization**
-
-Real-time quality assessment displayed as animated SVG rings:
-
-```typescript
-// lib/intelligence/visual-feedback/quality-ring.ts
-
-interface CodeQualityMetrics {
-  overall: number;           // 0-100 overall score
-  complexity: number;        // Cyclomatic complexity score
-  maintainability: number;   // Maintainability index
-  testCoverage: number;      // Test coverage percentage
-  documentation: number;     // Documentation completeness
-  performance: number;       // Performance score
-}
-
-export class QualityRingVisualizer {
-  renderQualityRing(metrics: CodeQualityMetrics): SVGRing {
-    return {
-      outerRing: this.createRing(metrics.overall, this.getQualityColor(metrics.overall)),
-      middleRing: this.createRing(metrics.maintainability, 'blue'),
-      innerRing: this.createRing(metrics.performance, 'green'),
-      centerScore: metrics.overall,
-      animation: 'progressive-fill', // Smooth animation
-      duration: 2000 // 2 seconds
-    };
-  }
-  
-  private getQualityColor(score: number): GradientColors {
-    if (score >= 80) return { from: '#10b981', to: '#34d399' }; // Green
-    if (score >= 60) return { from: '#3b82f6', to: '#60a5fa' }; // Blue
-    if (score >= 40) return { from: '#f59e0b', to: '#fbbf24' }; // Orange
-    return { from: '#ef4444', to: '#f87171' }; // Red
-  }
-}
-```
-
-### **8.2 Intelligence State Visualization**
-
-#### **Processing Stages with Visual Feedback**
-
-```typescript
-// lib/intelligence/visual-feedback/processing-stages.ts
-
-interface ProcessingStage {
-  stage: 'analyzing' | 'thinking' | 'generating' | 'reviewing' | 'optimizing';
-  progress: number;
-  visual: StageVisualization;
-}
-
-export const stageVisuals = {
-  analyzing: {
-    loader: 'AIBrainLoader',         // Rotating rings
-    color: 'blue',
-    message: 'Analyzing your code...',
-    particles: 'active'
-  },
-  thinking: {
-    loader: 'PulseLoader',           // Pulsing dots
-    color: 'purple',
-    message: 'Thinking of solutions...',
-    particles: 'moderate'
-  },
-  generating: {
-    loader: 'GradientProgress',      // Progress bar
-    color: 'green',
-    message: 'Generating code...',
-    particles: 'intense'
-  },
-  reviewing: {
-    loader: 'CircularProgress',      // Circular ring
-    color: 'orange',
-    message: 'Reviewing quality...',
-    particles: 'subtle'
-  },
-  optimizing: {
-    loader: 'SpinLoader',            // Spinning circle
-    color: 'pink',
-    message: 'Optimizing solution...',
-    particles: 'dynamic'
-  }
-};
-```
-
-### **8.3 Proactive Intelligence Visualization**
-
-#### **Issue Detection with Visual Alerts**
-
-```typescript
-// lib/intelligence/visual-feedback/proactive-alerts.ts
-
-interface ProactiveAlert {
-  severity: 'critical' | 'warning' | 'suggestion' | 'info';
-  type: 'bug' | 'performance' | 'security' | 'style' | 'optimization';
-  visual: AlertVisualization;
-  action: SuggestedAction;
-}
-
-export class ProactiveVisualizer {
-  showAlert(issue: DetectedIssue): AlertVisualization {
-    return {
-      notification: this.createNotification(issue),
-      highlight: this.createCodeHighlight(issue.location),
-      badge: this.createBadge(issue.severity),
-      animation: this.getAlertAnimation(issue.severity)
-    };
-  }
-  
-  private getAlertAnimation(severity: string): AnimationConfig {
-    const animations = {
-      critical: {
-        type: 'pulse-urgent',
-        color: 'red',
-        intensity: 'high',
-        glow: true
-      },
-      warning: {
-        type: 'fade-in',
-        color: 'orange',
-        intensity: 'medium',
-        glow: false
-      },
-      suggestion: {
-        type: 'slide-in',
-        color: 'blue',
-        intensity: 'low',
-        glow: false
-      },
-      info: {
-        type: 'appear',
-        color: 'gray',
-        intensity: 'minimal',
-        glow: false
-      }
-    };
-    return animations[severity];
-  }
-}
-```
-
-### **8.4 Multi-Agent Collaboration Visualization**
-
-#### **Agent Activity Dashboard**
-
-```typescript
-// lib/intelligence/visual-feedback/multi-agent-viz.ts
-
-interface AgentActivity {
-  agentId: string;
-  role: 'architect' | 'developer' | 'tester' | 'reviewer';
-  status: 'idle' | 'working' | 'waiting' | 'complete';
-  progress: number;
-  visual: AgentVisual;
-}
-
-export class MultiAgentVisualizer {
-  renderAgentDashboard(agents: Agent[]): DashboardVisualization {
-    return {
-      layout: 'horizontal-cards',
-      agents: agents.map(agent => ({
-        card: this.createAgentCard(agent),
-        statusIndicator: this.createStatusBadge(agent.status),
-        progressRing: this.createProgressRing(agent.progress),
-        activityFeed: this.createActivityFeed(agent.recentActions)
-      })),
-      connections: this.visualizeAgentCommunication(agents)
-    };
-  }
-  
-  private visualizeAgentCommunication(agents: Agent[]): ConnectionLines {
-    // Show animated lines between agents when they communicate
-    return agents.flatMap(agent =>
-      agent.communications.map(comm => ({
-        from: agent.id,
-        to: comm.targetAgent,
-        animation: 'particle-flow',
-        color: this.getCommunicationColor(comm.type),
-        intensity: comm.importance
-      }))
-    );
-  }
-}
-```
-
-### **8.5 Learning Progress Visualization**
-
-#### **Skill Development Tracker**
-
-```typescript
-// lib/intelligence/visual-feedback/learning-viz.ts
-
-interface LearningProgress {
-  skill: string;
-  level: number;           // 0-100
-  recentImprovement: number;
-  trend: 'improving' | 'stable' | 'declining';
-  visual: ProgressVisualization;
-}
-
-export class LearningVisualizer {
-  renderSkillProgress(skills: LearnedSkill[]): SkillDashboard {
-    return {
-      skillBars: skills.map(skill => ({
-        name: skill.name,
-        progress: this.createAnimatedProgressBar(skill.level),
-        trend: this.createTrendIndicator(skill.trend),
-        icon: this.getSkillIcon(skill.category)
-      })),
-      overallProgress: this.createProgressRing(
-        this.calculateOverallProgress(skills)
-      ),
-      achievements: this.renderAchievementBadges(skills)
-    };
-  }
-  
-  private createTrendIndicator(trend: string): TrendVisual {
-    const icons = {
-      improving: { icon: '📈', color: 'green', animation: 'pulse-success' },
-      stable: { icon: '➡️', color: 'blue', animation: 'none' },
-      declining: { icon: '📉', color: 'red', animation: 'fade-warning' }
-    };
-    return icons[trend];
-  }
-}
-```
-
-### **8.6 Context Awareness Visualization**
-
-#### **Project Understanding Map**
-
-```typescript
-// lib/intelligence/visual-feedback/context-viz.ts
-
-interface ContextVisualization {
-  projectMap: ProjectGraphVisual;
-  currentFocus: FocusHighlight;
-  relatedContext: RelatedItemsVisual;
-  confidenceLevel: ConfidenceIndicator;
-}
-
-export class ContextVisualizer {
-  renderContextMap(context: ProjectContext): ContextVisualization {
-    return {
-      // Interactive graph showing project structure
-      projectMap: {
-        nodes: this.createFileNodes(context.files),
-        edges: this.createDependencyLines(context.dependencies),
-        highlight: this.highlightActiveContext(context.currentFile),
-        animation: 'gentle-pulse'
-      },
-      
-      // What AIDE is currently focused on
-      currentFocus: {
-        file: context.currentFile,
-        function: context.currentFunction,
-        glow: true,
-        label: 'Current Focus'
-      },
-      
-      // Related files/functions AIDE is considering
-      relatedContext: {
-        items: context.relatedItems.map(item => ({
-          name: item.name,
-          relevance: item.relevanceScore,
-          visual: this.createRelevanceIndicator(item.relevanceScore)
-        }))
-      },
-      
-      // How confident AIDE is about its understanding
-      confidenceLevel: {
-        score: context.confidenceScore,
-        ring: this.createConfidenceRing(context.confidenceScore),
-        label: this.getConfidenceLabel(context.confidenceScore)
-      }
-    };
-  }
-}
-```
-
-### **8.7 Integration with UI Components**
-
-All visual intelligence features integrate seamlessly with AIDE's revolutionary UI:
-
-| Intelligence Feature | Visual Component | Location |
-|---------------------|------------------|----------|
-| **AI Mood** | Animated gradient badge | Chat header, next to avatar |
-| **Code Quality** | SVG progress ring | File viewer sidebar |
-| **Processing Stage** | Cinematic loaders | Chat message area |
-| **Proactive Alerts** | Notification center | Top-right corner |
-| **Multi-Agent Activity** | Agent cards | Bottom status bar |
-| **Learning Progress** | Skill dashboard | Settings page |
-| **Context Map** | Interactive graph | Left sidebar (expandable) |
-
-### **8.8 Performance Considerations**
-
-All visual feedback is **GPU-accelerated** and **performance-optimized**:
-
-```typescript
-// Visual feedback performance rules:
-1. Use CSS transforms (not position changes)
-2. Animate only opacity and transform
-3. Limit animations to 60 FPS
-4. Use will-change for complex animations
-5. Debounce rapid state changes
-6. Lazy-load visualizations when off-screen
-```
-
----
-
-## **Summary: Visual Intelligence Integration**
-
-AIDE's intelligence features aren't just powerful—they're **beautifully visualized**:
-
-✅ **AI Mood Indicators** - Know what AI is thinking  
-✅ **Code Quality Rings** - Instant quality feedback  
-✅ **Processing Animations** - Clear AI state visualization  
-✅ **Proactive Alerts** - Beautiful issue notifications  
-✅ **Multi-Agent Display** - See collaboration in real-time  
-✅ **Learning Progress** - Track skill development visually  
-✅ **Context Maps** - Understand project awareness  
-
-**No other AI coding assistant has this level of visual intelligence feedback!** 🎨🧠
+Agent coordination is internal and may be logged for debugging and audits.
+It must not be rendered as a user-facing dashboard or visual system.
 
 ---
 
 **Built with 🧠 to make coding 10x smarter and ✨ 100x more beautiful.**
-## **LEVEL 6: Ultra-Deep Microscopic Intelligence** 🔬
+## **LEVEL 6: Heuristic Intelligence**
 
-### **6.1 Molecular Code Understanding**
+### **6.1 Semantic Code Understanding**
 
-AIDE analyzes code at the atomic level - every character, token, and relationship matters.
+AIDE analyzes code at the semantic level - understanding patterns, relationships, and structure.
 
-#### **Atomic-Level Analysis:**
+#### **Semantic Analysis:**
 
 ```typescript
 // lib/intelligence/molecular-analyzer.ts
 
-interface MolecularCodeAnalysis {
+interface SemanticCodeAnalysis {
   // Token-level intelligence
   tokenAnalysis: {
     frequency: Map<string, number>;        // How often each token appears
     context: Map<string, TokenContext>;    // Meaning in different contexts
     relationships: TokenRelationship[];    // How tokens relate to each other
     evolution: TokenEvolution[];           // How token usage changes over time
-    emotions: TokenSentiment[];            // Emotional context of tokens
+    confidence: TokenSentiment[];          // Confidence scoring of tokens
   };
   
   // Character-level patterns
   characterPatterns: {
     indentationDNA: IndentationGenetics;   // Your indentation personality
     whitespaceGenome: WhitespacePattern[]; // Semantic meaning of spaces
-    bracketEmotions: BracketPsychology;    // Emotional bracket placement
+    bracketStructure: BracketPsychology;   // Structural bracket placement
     commentingHabits: CommentPersonality;  // How you communicate in code
     typingRhythm: TypingPattern[];         // Your coding rhythm and flow
   };
   
-  // Microscopic relationships
-  microscopicRelations: {
+  // Semantic relationships
+  semanticRelations: {
     variableLifecycles: VariableLifecycle[]; // Birth to death of every variable
     functionGenealogy: FunctionFamily[];     // Family trees of functions
-    classHierarchy: ClassGenetics[];         // Genetic inheritance patterns
+    classHierarchy: ClassGenetics[];         // Inheritance patterns
     moduleEcosystem: ModuleEcosystem;        // How modules interact and evolve
   };
   
-  // Quantum code states
-  quantumStates: {
+  // Semantic code states
+  semanticStates: {
     superposition: CodeSuperposition[];      // Multiple possible code states
-    entanglement: CodeEntanglement[];        // Quantum-linked code sections
+    entanglement: CodeEntanglement[];        // Linked code sections
     uncertainty: CodeUncertainty[];          // Areas of code uncertainty
     coherence: CodeCoherence;                // Overall code harmony
   };
 }
 
-export class MolecularCodeAnalyzer {
-  async analyzeAtomicLevel(codebase: string[]): Promise<MolecularCodeAnalysis> {
-    console.log("🔬 Starting Molecular Code Analysis...");
+export class SemanticCodeAnalyzer {
+  async analyzeSemanticLevel(codebase: string[]): Promise<SemanticCodeAnalysis> {
+    console.log("🔬 Starting Semantic Code Analysis...");
     
     // Analyze every single character
     const characterAnalysis = await this.analyzeEveryCharacter(codebase);
@@ -3931,17 +3594,17 @@ export class MolecularCodeAnalyzer {
     // Analyze every token relationship
     const tokenAnalysis = await this.analyzeTokenRelationships(codebase);
     
-    // Map microscopic patterns
-    const microscopicPatterns = await this.mapMicroscopicPatterns(codebase);
+    // Map semantic patterns
+    const semanticPatterns = await this.mapSemanticPatterns(codebase);
     
-    // Detect quantum code states
-    const quantumStates = await this.detectQuantumStates(codebase);
+    // Detect semantic code states
+    const semanticStates = await this.detectSemanticStates(codebase);
     
     return {
       tokenAnalysis,
       characterPatterns: characterAnalysis,
-      microscopicRelations: microscopicPatterns,
-      quantumStates
+      semanticRelations: semanticPatterns,
+      semanticStates
     };
   }
   
@@ -3962,7 +3625,7 @@ export class MolecularCodeAnalyzer {
           file,
           context,
           semanticMeaning: this.getSemanticMeaning(char, context),
-          emotionalWeight: this.getEmotionalWeight(char, context),
+          confidenceWeight: this.getConfidenceWeight(char, context),
           structuralImportance: this.getStructuralImportance(char, context),
           evolutionHistory: await this.getCharacterEvolution(char, file, i)
         };
@@ -3976,33 +3639,33 @@ export class MolecularCodeAnalyzer {
 }
 ```
 
-### **6.2 Surgical Precision Editing**
+### **6.2 Precision Editing**
 
-AIDE makes changes with molecular-level precision, understanding the exact impact of every character modification.
+AIDE makes changes with high precision, understanding the impact of modifications.
 
-#### **Zero-Side-Effect Editing:**
+#### **Precision Editing:**
 
 ```typescript
 // lib/intelligence/surgical-editor.ts
 
-interface SurgicalEdit {
-  // Molecular-level change analysis
+interface PrecisionEdit {
+  // Change analysis
   impact: {
     directImpact: DirectImpact[];           // Immediate effects
     rippleEffects: RippleEffect[];          // Secondary effects
-    quantumEffects: QuantumEffect[];        // Quantum entangled effects
+    semanticEffects: SemanticEffect[];      // Semantic effects
     futureImpact: FutureImpact[];           // Long-term consequences
   };
   
   // Precision metrics
   precision: {
     accuracy: number;                       // 0-1 (aim for 0.999+)
-    confidence: number;                     // 0-1 (surgical confidence)
+    confidence: number;                     // 0-1 (confidence level)
     sideEffectRisk: number;                 // 0-1 (risk of unintended effects)
     reversibility: number;                  // 0-1 (how easily undoable)
   };
   
-  // Molecular change description
+  // Change description
   changes: {
     charactersAdded: CharacterChange[];
     charactersRemoved: CharacterChange[];
@@ -4012,48 +3675,48 @@ interface SurgicalEdit {
   };
 }
 
-export class SurgicalEditor {
-  async makeSurgicalEdit(
+export class PrecisionEditor {
+  async makePrecisionEdit(
     file: string,
     change: CodeChange,
     context: ProjectContext
-  ): Promise<SurgicalEdit> {
-    // Analyze molecular-level impact
-    const impact = await this.analyzeMolecularImpact(file, change, context);
+  ): Promise<PrecisionEdit> {
+    // Analyze semantic impact
+    const impact = await this.analyzeSemanticImpact(file, change, context);
     
     // Calculate precision metrics
     const precision = await this.calculatePrecision(impact);
     
     // Plan the exact changes
-    const changes = await this.planMolecularChanges(change, impact);
+    const changes = await this.planSemanticChanges(change, impact);
     
-    // Verify zero side effects
+    // Verify side effects
     await this.verifySideEffects(changes, context);
     
     return { impact, precision, changes };
   }
   
-  private async analyzeMolecularImpact(
+  private async analyzeSemanticImpact(
     file: string,
     change: CodeChange,
     context: ProjectContext
   ): Promise<any> {
-    // Analyze impact at the molecular level
+    // Analyze impact at the semantic level
     const directImpact = await this.analyzeDirectImpact(file, change);
     const rippleEffects = await this.analyzeRippleEffects(change, context);
-    const quantumEffects = await this.analyzeQuantumEffects(change, context);
+    const semanticEffects = await this.analyzeSemanticEffects(change, context);
     const futureImpact = await this.predictFutureImpact(change, context);
     
-    return { directImpact, rippleEffects, quantumEffects, futureImpact };
+    return { directImpact, rippleEffects, semanticEffects, futureImpact };
   }
 }
 ```
 
-### **6.3 Predictive Code Intelligence**
+### **6.3 Predictive Assistance (Heuristic-Based)**
 
-AIDE predicts your next coding moves with supernatural accuracy.
+AIDE predicts your next coding moves with probabilistic accuracy.
 
-#### **Telepathic Code Prediction:**
+#### **Heuristic Code Prediction:**
 
 ```typescript
 // lib/intelligence/predictive-intelligence.ts
@@ -4061,7 +3724,7 @@ AIDE predicts your next coding moves with supernatural accuracy.
 interface PredictiveIntelligence {
   // Next-step prediction
   nextSteps: {
-    mostLikely: CodePrediction;             // 90%+ probability
+    mostLikely: CodePrediction;             // High probability
     alternatives: CodePrediction[];         // Other possibilities
     confidence: number;                     // Prediction confidence
     reasoning: string;                      // Why this prediction
@@ -4252,4 +3915,4 @@ interface IntelligentTesting {
 
 **AIDE Intelligence Roadmap — Experimental and Evolving** 🚀
 
-**Built with 🧠 to make coding infinitely smarter.**
+**Built with intelligence to make coding smarter.**

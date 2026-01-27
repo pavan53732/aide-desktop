@@ -2,7 +2,7 @@
 
 > Constitution Status: Ratified  
 > Stability Tier: Core  
-> Last Amended: 2026-01-27
+> Last Amended: 2026-01-28
 
 ---
 
@@ -21,6 +21,9 @@
 | 5   | **Diff Modal is sacred**         | File changes must always show a diff view. User must explicitly Accept or Reject. No auto-apply.                                                                  |
 | 6   | **Workspace sandboxing**         | All file operations are confined to the user-selected workspace directory.                                                                                        |
 | 7   | **No telemetry**                 | The app never phones home. All communication is with user-configured AI providers only.                                                                           |
+| 8   | **Chat is the Control Plane**    | All AI-initiated file reads, edits, and CLI actions must originate from a user chat message.                                                                      |
+| 9   | **Edits Are User-Governed**      | The system may write files to disk only after the user explicitly accepts changes in the Diff Modal.                                                             |
+| 10  | **Agents Are Internal**          | Agents may exist for reasoning and task decomposition but must never appear as UI or IPC concepts.                                                                |
 
 ### Cross-Reference Documents
 
@@ -86,6 +89,9 @@ Any modification to this file MUST follow these rules:
 5. **Human-in-the-Loop Enforcement**  
    No amendment may weaken the diff-and-confirm requirement or workspace sandboxing.
 
+6. **Edit Path Protection**  
+   No amendment may introduce any method of writing files that bypasses the chat → diff → user accept flow.
+
 ---
 
 ## 1. Project Vision
@@ -114,7 +120,7 @@ Any modification to this file MUST follow these rules:
 - **As a user,** I have a clean, familiar chat interface for conversing with the AI.
 - **As a user,** I can see a visual indicator of the currently active AI provider.
 - **As a user,** I can see a log of file activities (reads, proposed edits, applied changes) in a status panel.
-- 🤖 **44 AI Providers** (31 provider templates: 29 cloud + 2 local + 13 CLI agents)
+- 🤖 **Multi-Provider AI System** (Cloud, Local, and CLI-backed intelligence sources routed through the AI Control Plane)
 
 ## 3. Technical Architecture & Stack
 
@@ -173,7 +179,7 @@ graph TB
     Frontend --> IPC[Electron IPC]
 
     IPC --> Main[Electron Main Process]
-    Main --> MultiAI[Multi-AI Orchestrator]
+    Main --> MultiAI[AI Control Plane]
     Main --> FileOps[File Operations]
     Main --> CLIExec[CLI Execution]
 
@@ -200,7 +206,30 @@ graph TB
 - **Allowed:** Communication with user-configured AI providers for legitimate AI operations (chat, embeddings, model fetching).
 - **Prohibited:** Analytics, crash reporting, usage tracking, content analysis sent to non-configured endpoints.
 
-4.  **Explicit Consent:** The **diff-and-confirm** step is non-optional for the MVP. An "auto-apply" mode may be a configurable setting in the future, defaulting to OFF.
+4.  **Explicit Consent:** The **diff-and-confirm** step is mandatory for all file edits. Files may only be written to disk after explicit user acceptance in the Diff Modal.
+
+## IPC Constitutional Surface
+
+The following IPC commands define the only permitted user-facing control surface:
+
+### AI
+- `ai.chat`
+- `ai.stop`
+- `ai.fetchModels`
+
+### Files
+- `fs.readFile`
+- `fs.proposeEdit`
+- `fs.applyEdit`
+- `fs.rejectEdit`
+- `fs.snapshot`
+- `fs.rollback`
+
+### CLI
+- `run-cli-agent`
+- `check-cli-availability`
+
+Any IPC command enabling background automation, agent orchestration, or silent file execution is prohibited.
 
 ### 3.4 AI Control Plane Architecture
 
@@ -242,6 +271,7 @@ interface AIControlPlane {
 | **Model Validation** | Verify `selectedModel` is not null before AI calls | Prevent undefined model errors |
 | **Provider Isolation** | Each provider manages its own models and config | No cross-provider contamination |
 | **Graceful Fallback** | Auto-fallback to next provider on failure | Maintain service continuity |
+| **Edit Authority** | Only the Main process may write files to disk | AI systems and agents generate diffs; Main applies after user acceptance |
 
 #### Integration with Intelligence Features
 
@@ -263,6 +293,10 @@ class IntelligenceSystem {
     return parseAnalysis(response.content);
   }
 }
+
+// Intelligence systems may generate file edits as diffs,
+// but must not write to disk directly. All file writes
+// are performed by the Main process after Diff Modal acceptance.
 
 // Memory system must use control plane
 class MemorySystem {
@@ -590,7 +624,7 @@ export const fileOperations = sqliteTable("file_operations", {
   }).notNull(),
   filePath: text("file_path").notNull(),
   status: text("status", {
-    enum: ["pending", "accepted", "rejected"],
+    enum: ["proposed", "accepted", "applied", "rejected", "failed"],
   }).notNull(),
   diff: text("diff"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
@@ -606,6 +640,10 @@ export const preferences = sqliteTable("preferences", {
 ### 3.7 CLI Agent Integration
 
 #### Execution Strategy
+
+> **Edit Rule:**  
+> CLI agents may generate file changes, but all changes must be converted into diffs and presented in the Diff Modal.  
+> The Main process applies accepted changes to disk.
 
 CLI agents (Aider, GPT Engineer, Copilot CLI, etc.) are invoked from the Electron Main process using Node.js `child_process`.
 
@@ -1472,7 +1510,7 @@ User opens the AIDE application for the first time.
 1. UI shows "AI is thinking..." indicator.
 2. Status bar updates to: `Thinking...`
 3. Backend process:
-   - LangChain Agent receives the prompt.
+   - AIControlPlane receives the prompt.
    - Agent uses "read file" tool (Tauri command) to fetch `src/main.js`.
    - Agent sends prompt + file content to configured AI provider.
    - Agent receives code suggestion.
@@ -1492,7 +1530,7 @@ User opens the AIDE application for the first time.
 ### 5.8 Completion
 
 1. **If user clicks Accept:**
-   - Electron Main process writes new content to file.
+   - Main process validates workspace scope and writes new content to file atomically.
    - Modal closes instantly (no animation).
    - Toast appears: "✓ Changes applied to src/main.js"
    - Chat shows system message: "✓ Changes applied to `src/main.js`."
@@ -1888,6 +1926,5 @@ interface DevModeFeatures {
 #### Developer Tools Integration
 
 - **VS Code Extension**: Quick AIDE integration
-- **CLI Tool**: Batch operations and automation
-- **API Endpoints**: Programmatic access to AIDE features
-- **Plugin System**: Third-party extensions
+- **CLI Integration**: Chat-triggered execution of external AI tools
+- **Extension System**: UI and provider extensions that do not bypass chat or diff flow

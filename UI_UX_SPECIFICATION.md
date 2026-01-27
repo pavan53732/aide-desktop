@@ -1,5 +1,8 @@
 # AIDE - UI/UX Design Specification
 
+> Stability Tier: Core UI Law  
+> Last Amended: 2026-01-28
+
 ---
 
 ## ⚠️ IMPORTANT: Read This First
@@ -17,6 +20,11 @@
 | 5   | **Keyboard-first design**                   | All actions must be accessible via keyboard shortcuts. See Section 5.5.                                    |
 | 6   | **No hardcoded provider/model names in UI** | UI components must read from config, never hardcode "GPT-4" or "Claude" in JSX.                            |
 | 7   | **Accessibility is mandatory**              | All components must meet WCAG AA standards.                                                                |
+| 8   | **Trust Surfaces Are Minimal**              | The Diff Modal, Error Modals, and Permission Prompts must never use glassmorphism, gradients, glow, 3D, or motion. |
+| 9   | **No Emotional AI Signaling**               | UI must not imply intent, confidence, mood, or agency of the AI system.                                    |
+| 10  | **Performance Before Spectacle**            | Visual effects must degrade gracefully or disable automatically when performance drops below target FPS.   |
+| 11  | **System Messages Are Neutral**             | System messages must be factual and non-anthropomorphic.                                                   |
+| 12  | **Neutral System Language**                 | UI text must avoid anthropomorphic or emotional phrasing. Use operational language instead (e.g., "Processing request", "Response streaming"). |
 
 ### Provider Selector Behavior
 
@@ -163,6 +171,16 @@ This modal appears when the AI proposes a file edit.
   - `Accept & Apply` (Primary/Success variant): Applies the change to the file.
   - `Copy Changes` (Tertiary/Link variant): Copies the diff text to clipboard.
 - **Overlay:** The rest of the app is covered by a solid, high-contrast overlay (`bg-background/95`) to focus entirely on the diff. Blur and translucency are strictly forbidden here.
+
+### Constitutional Restrictions
+
+The following are explicitly prohibited inside the Diff Modal:
+- Glassmorphism or backdrop blur
+- Animated gradients, glow, neon, or particle effects
+- 3D transforms or hover motion
+- Interactive reveal sliders or cinematic loaders
+
+The Diff Modal must render in a static, high-contrast, code-review-optimized layout at all times.
 
 ### 4.4 File Tree Sidebar
 
@@ -1527,6 +1545,9 @@ export function AIAvatar({ thinking = false }) {
 
 ### 16.2 Morphing Message Bubbles
 
+> Accessibility Rule:  
+> Morphing, blur, and gradient message bubbles must be disabled when `prefers-reduced-motion` is set or when accessibility mode is enabled.
+
 ```typescript
 // components/chat/morphing-bubble.tsx
 export function MorphingBubble({ children, isUser = false }) {
@@ -1584,6 +1605,10 @@ export function AITypingIndicator() {
 ## 17. Futuristic Navigation
 
 ### 17.1 Floating Action Button (FAB)
+
+> Constitutional Rule:  
+> The FAB must not provide any action that modifies files, providers, or workspace state directly.  
+> It may only open UI navigation surfaces (Command Palette, Settings, Help).
 
 ```typescript
 // components/layout/floating-action-button.tsx
@@ -1742,6 +1767,9 @@ export function AnimatedCodeBlock({ code, language }) {
 ```
 
 ### 18.2 Interactive Diff Viewer with Slider
+
+> Status: Experimental (Non-MVP)  
+> This feature must not replace or interfere with the standard Monaco Diff Viewer used in the Diff Modal.
 
 ```typescript
 // components/diff/interactive-diff-viewer.tsx
@@ -1950,6 +1978,10 @@ export function CircularProgress({ progress, size = 120 }) {
 
 ## 20. Advanced Notification Center
 
+> Restriction:  
+> Notifications must only reflect user-initiated actions or system errors.  
+> Background or autonomous system activity notifications are prohibited.
+
 ### 20.1 Notification Center Component
 
 ```typescript
@@ -2107,59 +2139,17 @@ export function ThemeToggle() {
 
 ## 22. Unique Features
 
-### 22.1 AI Mood Indicator
+### 22.1 System State Indicator
 
-```typescript
-// components/ai/mood-indicator.tsx
-type AIMood = 'thinking' | 'confident' | 'unsure' | 'excited';
+The system state indicator communicates operational status only.
 
-export function AIMoodIndicator({ mood }: { mood: AIMood }) {
-  const moodConfig = {
-    thinking: {
-      gradient: "from-blue-500 to-cyan-500",
-      label: "Analyzing...",
-      icon: <Brain className="w-4 h-4" />
-    },
-    confident: {
-      gradient: "from-green-500 to-emerald-500",
-      label: "Confident",
-      icon: <CheckCircle className="w-4 h-4" />
-    },
-    unsure: {
-      gradient: "from-yellow-500 to-orange-500",
-      label: "Unsure",
-      icon: <AlertTriangle className="w-4 h-4" />
-    },
-    excited: {
-      gradient: "from-pink-500 to-purple-500",
-      label: "Excited!",
-      icon: <Sparkles className="w-4 h-4" />
-    }
-  };
-  
-  const config = moodConfig[mood];
-  
-  return (
-    <motion.div
-      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/50 backdrop-blur-sm border"
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-    >
-      <motion.div
-        className={`w-3 h-3 rounded-full bg-gradient-to-r ${config.gradient}`}
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.7, 1, 0.7]
-        }}
-        transition={{ duration: 2, repeat: Infinity }}
-      />
-      <span className="text-xs font-medium">{config.label}</span>
-      {config.icon}
-    </motion.div>
-  );
-}
-```
+#### States
+- `Thinking` — AI request in progress
+- `Offline` — No provider connectivity
+- `Ready` — System idle
+- `Error` — Action failed
+
+The indicator must not imply confidence, emotion, or intent.
 
 ### 22.2 Code Quality Ring
 
@@ -2231,6 +2221,15 @@ export function CodeQualityRing({ quality }: { quality: number }) {
 ```
 
 ### 22.3 Particle Background
+
+> Restriction:  
+> Particle backgrounds must be disabled automatically in:
+> - Diff Modal
+> - Error Modals
+> - Settings
+> - File Tree
+> - Low-performance mode
+> - `prefers-reduced-motion`
 
 ```typescript
 // components/effects/particle-background.tsx
@@ -2490,10 +2489,10 @@ interface DialogProps {
 ### 10.1 Advanced Features
 
 - **Plugin System:** Third-party extensions and themes
-- **Custom Workflows:** User-defined automation sequences
+- **Guided Workflows:** Chat-triggered multi-step UI flows
 - **Advanced Analytics:** Code quality metrics and insights
 - **Team Management:** Organization-level user and permission management
-- **API Integration:** Connect with external development tools
+- **Tool Integration:** External tools surfaced through chat and diff-confirm flow
 
 ### 10.2 Platform Expansion
 
@@ -2517,6 +2516,44 @@ interface DialogProps {
 
 - **AI Provider Configurations:** The visual components in this design (Provider Selector, Settings page) pull their data and logic from the technical specifications defined in [`PROVIDERS.md`](./PROVIDERS.md). Specifically: provider templates in Section "Provider Templates (API Configuration Only)", CLI agents in "CLI Agents Integration".
 - **Example:** The "Add Provider" form in Section 4.1 is built to populate the configuration schema defined in `PROVIDERS.md`.
+
+---
+
+## Visual Effect Scope Control
+
+Advanced visual effects (glass, neon, gradients, 3D, particles, glow) are restricted to:
+- Provider Selector
+- Welcome / Onboarding
+- Marketing or showcase views
+
+They are prohibited in:
+- Diff Modal
+- Error Modals
+- Settings Forms
+- File Tree
+- Command Palette
+- Code Review Views
+
+## Performance Governor
+
+The UI must dynamically degrade visual effects when:
+- Average FPS < 55
+- Memory usage exceeds budget
+- System reports `prefers-reduced-motion`
+
+Degraded mode disables:
+- Particles
+- 3D transforms
+- Glow / neon effects
+- Background blur
+- Gradient animations
+
+## UI Constitutional Terminology
+
+- **Trust Surfaces** — Diff Modal, Error Modals, Permission Prompts, Settings
+- **Decorative Surfaces** — Welcome screen, Provider cards, Marketing UI
+- **System State** — Operational status only, not AI intent or emotion
+- **User Action** — Any event initiated by explicit user input
 
 ---
 
