@@ -46,6 +46,16 @@ Rules:
 
 ---
 
+## Constitutional Boundaries (User-Facing)
+
+- AIDE does not modify files automatically or in the background.
+- All file edits require user review and acceptance in the Diff view.
+- AI actions originate from user input or user-initiated analysis sessions.
+- Agents and internal orchestration are not user-visible concepts.
+- Provider models are always selected by the user and fetched dynamically.
+
+---
+
 ## 🚀 Overview
 
 **AIDE** (AI Desktop Editor) is a secure, privacy-focused desktop application that allows you to chat with your choice of AI provider (OpenAI, Anthropic, Google Gemini, OpenRouter, local models, etc.) to directly **read, analyze, and edit files** within a controlled local workspace.
@@ -89,7 +99,7 @@ Rules:
 ## ✨ Key Features
 
 - **🤖 Multi-Provider AI Hub**: Connect and configure 46 AI providers (31 cloud + 2 local + 13 CLI agents) in one interface
-- **🧠 Advanced Intelligence**: Context-aware AI that understands your entire project, learns from your style, and predicts your needs
+- **🧠 Advanced Intelligence**: Context-aware AI that analyzes your project and adapts to your preferences during user-initiated sessions
 - **🔒 Secure File Operations**: Read and edit files with mandatory user confirmation
 - **💾 Local-First & Private**: Your API keys and file data stay on your machine
 - **🛠️ Developer-Friendly**: Works with your existing projects and workflows
@@ -110,7 +120,7 @@ Rules:
 | **Code Editor**       | [Monaco Editor](https://microsoft.github.io/monaco-editor/)                                | VS Code-grade editing for diff viewer           |
 | **Dev Tools**         | Vite 6 + Biome 2.0 + Vitest 2 + Playwright 2                                               | Fast builds, linting/formatting, testing        |
 
-> **CLI Agents:** AIDE also supports 12 CLI-based AI tools (Aider, Copilot CLI, etc.). See [`PROVIDERS.md` CLI Agents section](./PROVIDERS.md#cli-agents-integration) for details.
+> **CLI Agents:** AIDE also supports 13 CLI-based AI tools (Aider, Copilot CLI, etc.). See [`PROVIDERS.md` CLI Agents section](./PROVIDERS.md#cli-agents-integration) for details.
 
 ## 📋 Quick Start
 
