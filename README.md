@@ -573,6 +573,7 @@ interface PersonalMetrics {
 - **Plugin System**: Third-party extensions, custom plugins, marketplace integrations
 - **Advanced Collaboration**: Team features, shared workspaces, multi-user environments
 
+
 ### 🎯 **Our Philosophy**
 AIDE focuses on making **individual developers** incredibly productive with AI assistance while maintaining:
 - **Privacy**: Your code stays on your machine

@@ -206,10 +206,8 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
       "embeddings": true,
       "streaming": true,
       "functionCalling": true,
-      "vision": true,
       "codeGeneration": true,
-      "largeContext": true,
-      "multimodal": true
+      "largeContext": true
     }
   }
 }
@@ -232,8 +230,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
       "streaming": true,
       "functionCalling": true,
       "codeGeneration": true,
-      "largeContext": true,
-      "multimodal": true
+      "largeContext": true
     },
     "fallbackModels": [
       "claude-3-5-sonnet",
@@ -351,10 +348,8 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
       "embeddings": true,
       "streaming": true,
       "functionCalling": false,
-      "vision": false,
       "codeGeneration": true,
-      "largeContext": false,
-      "multimodal": false
+      "largeContext": false
     }
   }
 }
@@ -739,10 +734,8 @@ interface ProviderCapabilities {
   embeddings: boolean;        // Supports text embeddings
   streaming: boolean;         // Supports streaming responses
   functionCalling: boolean;   // Supports function/tool calling
-  vision: boolean;           // Supports image understanding
   codeGeneration: boolean;   // Optimized for code generation
   largeContext: boolean;     // Supports large context windows (>32k tokens)
-  multimodal: boolean;       // Supports multiple input types
 }
 
 // 1. HTTP/Cloud Providers (OpenAI, Anthropic, etc.)
