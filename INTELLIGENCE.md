@@ -2,7 +2,7 @@
 
 > Constitution Status: Ratified  
 > Stability Tier: Core  
-> Last Amended: 2026-01-28  
+> Last Amended: 2026-01-27  
 > Governing Document: SPECIFICATIONS.md  
 > Binding Authority: Core MVP Implementation Guide
 
@@ -58,10 +58,12 @@ interface WorkspaceScopedMemory {
 }
 
 // Memory isolation by workspace
+// Use Electron's app.getPath('userData') for cross-platform compatibility
+const userDataPath = app.getPath('userData'); // e.g., %APPDATA%/AIDE on Windows
 const memory = new UltraLongTermMemory(
-  `./data/workspaces/${workspaceId}/memories.db`,  // Workspace-specific DB
-  `./data/workspaces/${workspaceId}/vectors`,      // Workspace-specific vectors
-  aiProvider                                       // Configured provider
+  `${userDataPath}/workspaces/${workspaceId}/memories.db`,  // Workspace-specific DB
+  `${userDataPath}/workspaces/${workspaceId}/vectors`,      // Workspace-specific vectors
+  aiProvider                                                // Configured provider
 );
 ```
 

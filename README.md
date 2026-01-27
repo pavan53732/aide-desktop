@@ -2,7 +2,7 @@
 
 > Document Status: Living Specification  
 > Stability Tier: Stable  
-> Last Updated: 2026-01-28  
+> Last Updated: 2026-01-27  
 > Governing Document: SPECIFICATIONS.md
 
 <p align="center">
@@ -318,7 +318,7 @@ cp dist/AIDE.exe E:\Tools\
 ## ⚙️ Configuration
 
 1. **First Launch**: App opens to Settings page
-2. **Add AI Provider**:
+2. **Add AI provider**:
    - Select provider type (OpenRouter, Groq, Anthropic, etc.)
    - Enter API endpoint and key
    - Click "Test Connection" to verify
@@ -365,7 +365,7 @@ aide-desktop/
 │   │   └── layout/          # Header, status bar, command palette
 │   ├── lib/
 │   │   ├── ai/              # AI HTTP client, model discovery, control plane
-│   │   ├── intelligence/    # Advanced AI features (memory, multi-agent, etc.)
+│   │   ├── intelligence/    # Advanced AI features (memory, task orchestration, etc.)
 │   │   ├── cli/             # CLI agent execution and detection
 │   │   ├── db/              # Drizzle ORM schema & queries
 │   │   └── utils/           # Helper utilities (file, diff, vector)
@@ -381,7 +381,7 @@ aide-desktop/
 │       └── index.js         # IPC bridge
 ├── tests/                    # Test files
 │   ├── unit/                # Vitest unit tests (stores, utils, intelligence)
-│   └── e2e/                 # Playwright E2E tests (chat, file-ops, multi-agent)
+│   └── e2e/                 # Playwright E2E tests (chat, file-ops, complex-task)
 ├── drizzle/                  # Database migrations (including intelligence tables)
 ├── SPECIFICATIONS.md         # Complete project blueprint
 ├── PROVIDERS.md              # AI provider configurations (44 total connections)
@@ -572,6 +572,8 @@ interface PersonalMetrics {
 - **Real-time Pair Programming**: AI watching and suggesting as you type in real-time
 - **Plugin System**: Third-party extensions, custom plugins, marketplace integrations
 - **Advanced Collaboration**: Team features, shared workspaces, multi-user environments
+- **Visual Understanding (Vision)**: Image analysis, screenshot understanding, visual code inspection, image input capabilities
+- **Voice Interface**: Speech-to-text, text-to-speech, voice commands, audio input/output
 
 
 ### 🎯 **Our Philosophy**

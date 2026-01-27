@@ -1,7 +1,7 @@
 # AIDE - UI/UX Design Specification
 
 > Stability Tier: Core UI Law
-> Last Amended: 2026-01-28
+> Last Amended: 2026-01-27
 > Governing Document: SPECIFICATIONS.md
 
 
@@ -173,7 +173,7 @@ This modal appears when the AI proposes a file edit.
   - `Reject` (Secondary/Outline variant): Discards the proposal.
   - `Accept & Apply` (Primary/Success variant): Applies the change to the file.
   - `Copy Changes` (Tertiary/Link variant): Copies the diff text to clipboard.
-- **Overlay:** The rest of the app is covered by a solid, high-contrast overlay (`bg-background/95`) to focus entirely on the diff. Blur and translucency are strictly forbidden here.
+- **Overlay:** The rest of the app is covered by a solid, high-contrast overlay (`bg-background`) to focus entirely on the diff. Blur and translucency are strictly forbidden here.
 
 ### Constitutional Restrictions
 
@@ -217,7 +217,7 @@ export function DiffModal({ isOpen, onClose, changes }) {
   return (
     <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
       {/* Static overlay - no animations */}
-      <div className="fixed inset-0 bg-background/95" />
+      <div className="fixed inset-0 bg-background" />
       
       {/* Static modal - no motion components */}
       <div className="fixed inset-4 bg-background border rounded-lg shadow-lg">
@@ -1944,8 +1944,8 @@ export function FloatingActionButton() {
             exit={{ opacity: 0, y: 20 }}
             className="absolute bottom-20 right-0 space-y-3"
           >
-            <FABAction icon={<FileCode />} label="New File" onClick={() => {}} />
-            <FABAction icon={<MessageSquare />} label="New Chat" onClick={() => {}} />
+            <FABAction icon={<Command />} label="Commands" onClick={() => {}} />
+            <FABAction icon={<HelpCircle />} label="Help" onClick={() => {}} />
             <FABAction icon={<Settings />} label="Settings" onClick={() => {}} />
           </motion.div>
         )}

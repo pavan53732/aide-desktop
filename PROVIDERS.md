@@ -2,7 +2,7 @@
 
 > Constitution Status: Ratified  
 > Stability Tier: Core  
-> Last Amended: 2026-01-25  
+> Last Amended: 2026-01-27  
 > Governing Document: SPECIFICATIONS.md
 
 ---
@@ -136,7 +136,7 @@ This document defines the **constitutional provider schema and configuration law
 
 > **Note:** This table shows examples of cloud providers. The complete list of 31 HTTP provider templates (29 cloud + 2 local) + 13 CLI agents = 44 total AI connections is detailed in the [Provider Templates](#provider-templates-api-configuration-only) section below.
 
-### CLI agents (Local) - Priorities 51-62
+### CLI agents (Local) - Priorities 51-63
 
 | ID             | Agent Name         | Command        | Installation                             | Priority |
 | -------------- | ------------------ | -------------- | ---------------------------------------- | -------- |
@@ -152,7 +152,6 @@ This document defines the **constitutional provider schema and configuration law
 | `codex`        | Codex CLI          | `codex`        | `pip install codex-cli`                  | 60       |
 | `warp`         | Warp AI            | Built-in       | Download Warp terminal                   | 61       |
 | `droid`        | Droid              | `droid`        | `npm install -g droid-cli`               | 62       |
-| `qwen_cli`     | Qwen CLI           | `qwen`         | `pip install qwen-cli`                   | 63       |
 | `qwen_cli`     | Qwen CLI           | `qwen`         | `pip install qwen-cli`                   | 63       |
 
 ## Dynamic Model Discovery

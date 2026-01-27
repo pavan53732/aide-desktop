@@ -2,7 +2,7 @@
 
 > Constitution Status: Ratified  
 > Stability Tier: Core  
-> Last Amended: 2026-01-28
+> Last Amended: 2026-01-27
 
 
 ---
@@ -137,11 +137,11 @@ Any modification to this file MUST follow these rules:
 - **As a user,** the AI predicts what I need next based on my workflow patterns.
 - **As a user,** the AI can generate entire features from high-level natural language descriptions.
 - **As a user,** the AI makes precise edits with minimal side effects.
-- **As a user,** the AI proactively detects issues in my code when I request analysis.
+- **As a user,** the AI analyzes and detects issues in my code when I request analysis.
 
 ### Feature Set 5: Assisted Interaction Modes (MVP Priority: HIGH)
 
-- **As a user,** the AI can watch as I code and offer real-time assistance when requested.
+- **As a user,** I can request on-demand code analysis and assistance at any point during my coding session.
 
 ### Feature Set 6: Code Quality & Optimization (MVP Priority: HIGH)
 
@@ -249,13 +249,17 @@ The following IPC commands define the only permitted user-facing control surface
 - `fs.rollback`
 
 ### CLI
-- `run-cli-agent`
-- `check-cli-availability`
+- `cli.runAgent`
+- `cli.checkAvailability`
+
+### Keychain
+- `keychain.set`
+- `keychain.get`
 
 ### Intelligence (Core MVP)
 - `intelligence.analyzeProject`
 - `intelligence.routeTask`
-- `intelligence.executeMultiAgent`
+- `intelligence.executeComplexTask`
 - `intelligence.storeMemory`
 - `intelligence.recallMemories`
 - `intelligence.predictNextAction`
@@ -330,7 +334,7 @@ interface AIControlPlane {
   // Advanced Intelligence Operations (Core MVP)
   analyzeProject(workspace: string): Promise<ProjectContext>;
   routeTask(request: string, context: ProjectContext): Promise<TaskRoute>;
-  executeMultiAgent(task: string, context: ProjectContext): Promise<AgentResult>;
+  executeComplexTask(task: string, context: ProjectContext): Promise<TaskResult>;
   recallMemories(query: string, options?: RecallOptions): Promise<Memory[]>;
   storeMemory(memory: MemoryInput): Promise<string>;
   predictNextAction(context: CodingContext): Promise<PredictedAction>;
@@ -1788,7 +1792,7 @@ AIDE delivers a revolutionary development environment with the following complet
 
 - 🎨 **Clean UI**: Modern, responsive interface
 - ⚡ **Fast Performance**: Optimized with Electron's V8 engine and native Node.js modules
-- 🛠️ **CLI Agent Integration**: Execute AI tools like Aider, Copilot CLI
+- 🛠️ **CLI agent Integration**: Execute AI tools like Aider, Copilot CLI
 - 🔬 **Semantic Code Analysis**: Deep understanding of code structure and meaning
 - 🎯 **Precision Editing**: Surgical code changes with minimal side effects
 
@@ -1948,7 +1952,7 @@ aide-desktop/
 │   │   │   └── model-dropdown.tsx     # Dynamic model selection
 │   │   ├── intelligence/
 │   │   │   ├── memory-panel.tsx       # Memory management UI
-│   │   │   ├── agent-status.tsx       # Multi-agent execution status
+│   │   │   ├── task-progress.tsx       # Complex task execution status
 │   │   │   ├── prediction-panel.tsx   # Predictive suggestions
 │   │   │   ├── issue-panel.tsx        # Detected issues display
 │   │   │   └── analysis-panel.tsx     # Code analysis results
@@ -1972,7 +1976,7 @@ aide-desktop/
 │   │   ├── intelligence/
 │   │   │   ├── project-analyzer.ts    # Project understanding
 │   │   │   ├── task-router.ts         # Intelligent task routing
-│   │   │   ├── multi-agent.ts         # Multi-agent orchestration
+│   │   │   ├── task-orchestrator.ts   # Complex task orchestration
 │   │   │   ├── memory-system.ts       # Long-term memory
 │   │   │   ├── predictive-engine.ts   # Predictive assistance
 │   │   │   ├── code-generator.ts      # Advanced code generation
@@ -1993,8 +1997,7 @@ aide-desktop/
 │   │   └── utils/
 │   │       ├── file-utils.ts
 │   │       ├── diff-utils.ts
-│   │       ├── vector-utils.ts    # Vector operations for memory
-│   │       └── audio-utils.ts     # Audio processing utilities
+│   │       └── vector-utils.ts    # Vector operations for memory
 │   ├── stores/
 │   │   ├── provider-store.ts
 │   │   ├── workspace-store.ts
@@ -2008,7 +2011,7 @@ aide-desktop/
 │   │   ├── use-keyboard-shortcuts.ts
 │   │   ├── use-intelligence.ts    # Intelligence features hook
 │   │   ├── use-memory.ts          # Memory system hook
-│   │   └── use-multi-agent.ts     # Multi-agent hook
+│   │   └── use-complex-task.ts    # Complex task hook
 │   ├── styles/
 │   │   └── globals.css
 │   ├── App.tsx
@@ -2036,7 +2039,7 @@ aide-desktop/
 │       ├── chat.spec.ts
 │       ├── file-ops.spec.ts
 │       ├── intelligence.spec.ts   # Intelligence E2E tests
-│       └── multi-agent.spec.ts    # Multi-agent tests
+│       └── complex-task.spec.ts   # Complex task tests
 ├── drizzle/
 │   └── migrations/                # Database migrations (including intelligence tables)
 ├── .github/
@@ -2125,7 +2128,7 @@ aide-desktop/
 | Model fetch    | Graceful fallback | Fallback models shown if API fails         |
 | Error handling | User-friendly     | All errors show clear, actionable messages |
 | Memory persistence | 100% reliable   | Memories survive app restarts              |
-| Agent recovery | Graceful fallback | Single AI fallback if multi-agent fails   |
+| Task recovery | Graceful fallback | Single AI fallback if complex task fails  |
 
 ### User Experience Metrics
 
