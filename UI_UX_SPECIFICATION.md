@@ -15,7 +15,7 @@
 | #   | Principle                                   | Description                                                                                                |
 | --- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | 1   | **Diff Modal is Sacred**                    | The file diff viewer must NEVER have blur, translucency, or animations. Code review accuracy is paramount. |
-| 2   | **Models are fetched dynamically**          | Provider Selector shows models fetched from API at runtime, NOT hardcoded lists. See `PROVIDERS.md`.       |
+| 2   | **Models are fetched dynamically**          | Provider Selector shows models fetched from API at runtime, NOT hardcoded lists. Fallback models are used only when APIs fail. See `PROVIDERS.md`.       |
 | 3   | **selectedModel starts as null**            | When displaying provider cards, show "No model selected" if `selectedModel` is `null`.                     |
 | 4   | **State must always be visible**            | User must always know: Which provider is active? Which model? Is it thinking? What file?                   |
 | 5   | **Keyboard-first design**                   | All actions must be accessible via keyboard shortcuts. See Section 5.5.                                    |
@@ -53,6 +53,7 @@
 | Read provider/model names from config                  | Hardcode `"GPT-4"` or `"Claude"` in JSX |
 | Show "No model selected" when `selectedModel === null` | Show empty or undefined text            |
 | Fetch models on provider selection                     | Use static model lists in dropdowns     |
+| Use fallback models only when API fails                | Use fallback models as primary source   |
 | Keep Diff Modal opaque and high-contrast               | Add blur or glassmorphism to code views |
 | Respect `prefers-reduced-motion`                       | Force animations on all users           |
 | Use semantic color tokens (`--primary`, `--success`)   | Hardcode hex colors in components       |
@@ -660,9 +661,181 @@ export function ModelDropdownSkeleton() {
 }
 ```
 
-## 7. Micro-interactions Library
+## Motion & Accessibility Matrix
 
-> **Performance Hierarchy Note:** Performance is always the priority. Rich effects in this section are only used when performance is not compromised. The Diff Modal (Section 4.3) must NEVER have blur, animations, or visual effects - it must remain static and high-contrast at all times.
+**AIDE respects user accessibility preferences and system performance.** The following matrix defines which animations and effects are disabled in reduced motion mode:
+
+### Reduced Motion Behavior (`prefers-reduced-motion: reduce`)
+
+| Animation/Effect Type | Normal Mode | Reduced Motion Mode | Rationale |
+|----------------------|-------------|--------------------|-----------|
+| **Button hover/tap** | ✅ Enabled | ❌ Disabled | Prevents motion sickness |
+| **Card hover lift** | ✅ Enabled | ❌ Disabled | Reduces unnecessary movement |
+| **Loading spinners** | ✅ Enabled | ✅ **Enabled** | Essential feedback |
+| **Progress bars** | ✅ Enabled | ✅ **Enabled** | Essential feedback |
+| **Toast slide-in** | ✅ Enabled | ❌ Disabled | Instant appearance instead |
+| **Modal fade-in** | ✅ Enabled | ❌ Disabled | Instant appearance instead |
+| **Typing indicators** | ✅ Enabled | ✅ **Enabled** | Essential system state |
+| **Success/Error icons** | ✅ Enabled | ❌ Disabled | Static icons instead |
+| **Particle backgrounds** | ✅ Enabled | ❌ **Disabled** | Completely removed |
+| **3D transforms** | ✅ Enabled | ❌ **Disabled** | Flat design instead |
+| **Gradient animations** | ✅ Enabled | ❌ **Disabled** | Static gradients instead |
+| **Glow/Neon effects** | ✅ Enabled | ❌ **Disabled** | Standard borders instead |
+| **Glassmorphism blur** | ✅ Enabled | ❌ **Disabled** | Solid backgrounds instead |
+| **Morphing bubbles** | ✅ Enabled | ❌ **Disabled** | Standard message bubbles |
+| **Floating elements** | ✅ Enabled | ❌ **Disabled** | Fixed positioning instead |
+| **Skeleton shimmer** | ✅ Enabled | ❌ Disabled | Static skeleton instead |
+| **Ripple effects** | ✅ Enabled | ❌ **Disabled** | Standard button press |
+
+### Implementation
+
+```typescript
+// lib/utils/motion.ts
+export const getMotionConfig = () => {
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+  
+  return {
+    // Essential animations (always enabled)
+    essential: true,
+    
+    // Decorative animations (disabled in reduced motion)
+    decorative: !prefersReducedMotion,
+    
+    // Motion presets
+    duration: prefersReducedMotion ? 0 : 300,
+    spring: prefersReducedMotion 
+      ? { duration: 0 } 
+      : { type: "spring", stiffness: 400, damping: 30 }
+  };
+};
+
+// Usage in components
+export function AnimatedButton({ children, ...props }) {
+  const { decorative, duration } = getMotionConfig();
+  
+  return (
+    <motion.button
+      whileHover={decorative ? { scale: 1.02 } : {}}
+      whileTap={decorative ? { scale: 0.98 } : {}}
+      transition={{ duration }}
+      {...props}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+// Conditional rendering for heavy effects
+export function ConditionalParticles() {
+  const { decorative } = getMotionConfig();
+  
+  if (!decorative) return null;
+  
+  return <ParticleBackground />;
+}
+```
+
+### Performance-Based Degradation
+
+```typescript
+// lib/performance/motion-governor.ts
+export class MotionGovernor {
+  private fps: number[] = [];
+  private isReducedMode = false;
+  
+  startMonitoring() {
+    // Monitor FPS and automatically disable effects if performance drops
+    const measureFrame = () => {
+      const currentTime = performance.now();
+      const delta = currentTime - this.lastTime;
+      
+      if (delta > 0) {
+        const currentFPS = 1000 / delta;
+        this.fps.push(currentFPS);
+        
+        if (this.fps.length > 60) {
+          this.fps.shift();
+        }
+        
+        const avgFPS = this.fps.reduce((a, b) => a + b, 0) / this.fps.length;
+        
+        // Auto-disable decorative animations if FPS drops below 55
+        if (avgFPS < 55 && !this.isReducedMode) {
+          this.enableReducedMode();
+        }
+      }
+      
+      this.lastTime = currentTime;
+      requestAnimationFrame(measureFrame);
+    };
+    
+    measureFrame();
+  }
+  
+  private enableReducedMode() {
+    this.isReducedMode = true;
+    document.body.classList.add('reduced-motion-performance');
+    console.warn('Performance degradation detected - disabling decorative animations');
+  }
+}
+```
+
+### CSS Implementation
+
+```css
+/* globals.css */
+
+/* Respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Hide particle effects */
+  .particle-background {
+    display: none !important;
+  }
+  
+  /* Disable 3D transforms */
+  .transform-3d {
+    transform: none !important;
+  }
+  
+  /* Static gradients */
+  .animate-gradient {
+    animation: none !important;
+  }
+}
+
+/* Performance-based reduced motion */
+.reduced-motion-performance {
+  .decorative-animation {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .particle-background,
+  .glow-effect,
+  .blur-effect {
+    display: none !important;
+  }
+}
+
+/* Essential animations (always enabled) */
+.essential-animation {
+  /* Loading spinners, progress bars, typing indicators */
+  /* These are never disabled */
+}
+```
+
+---
 
 ### 7.1 Button Interactions
 

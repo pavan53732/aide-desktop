@@ -1,10 +1,10 @@
-# AIDE - Intelligence & AI Features Specification
+# AIDE - Intelligence & AI Features Implementation Guide
 
-> Constitution Status: Draft  
-> Stability Tier: Experimental  
+> Constitution Status: Ratified  
+> Stability Tier: Core  
 > Last Amended: 2026-01-27  
 > Governing Document: SPECIFICATIONS.md  
-> Binding Authority: Binding
+> Binding Authority: Core MVP Implementation Guide
 
 ---
 
@@ -82,21 +82,20 @@ All intelligence systems must comply with the following:
 
 ## Governance & Authority Scope
 
-This document defines **experimental and aspirational intelligence behavior**.
+This document defines **core intelligence features required for MVP implementation**.
 
 Rules:
-1. This file is **NON-BINDING**. It MUST NOT override `SPECIFICATIONS.md`, `PROVIDERS.md`, or `UI_UX_SPECIFICATION.md`.
-2. Features defined here are **optional, staged, or future-facing** unless explicitly ratified into Core documents.
-3. Any feature that introduces:
+1. This file is **BINDING** for MVP implementation. All features defined here are core requirements that work in conjunction with `SPECIFICATIONS.md`, `PROVIDERS.md`, and `UI_UX_SPECIFICATION.md`.
+2. Features defined here are **mandatory core MVP requirements** that must be implemented for the initial release.
+3. All features that introduce:
    - New Tauri commands
    - New provider capabilities
    - New data storage formats
    - New automated file-write behavior
 
-   MUST be formally amended into `SPECIFICATIONS.md` before implementation.
+   Are already integrated into `SPECIFICATIONS.md` as core MVP requirements.
 4. The `Last Amended` field in the header MUST be updated for any change.
-5. Marketing language, emojis, and comparative claims are prohibited in this document.
-   This file defines system behavior, not product positioning.
+5. This document defines core system behavior required for AIDE's revolutionary intelligence capabilities.
 
 ---
 
@@ -1956,7 +1955,9 @@ const SPECIALIZED_MODELS: ModelSpecialization[] = [
 
 ### **3.2 Multi-Agent Collaboration**
 
-Multiple AI agents work together on complex tasks. Each agent has a specialized role and communicates through structured outputs.
+Multiple AI agents work together on complex tasks through the single AIControlPlane authority. Each agent has a specialized role and communicates through structured outputs, but all AI operations go through the unified control plane.
+
+> **Critical Architecture Rule:** All agents must use the AIControlPlane as the single AI authority. No agent can create direct API clients or bypass the control plane. This ensures consistent provider management, capability checking, and fallback handling.
 
 #### **Agent Role Definitions:**
 
@@ -2213,10 +2214,13 @@ const developerInput = architectOutput.output;
 export async function multiAgentTask(
   task: string,
   context: ProjectContext,
-  aiProvider: AIControlPlane
+  aiProvider: AIControlPlane  // CRITICAL: Single AI authority
 ): Promise<AgentResult> {
   try {
-    // Check provider capability
+    // RULE: All agents must use the same AIControlPlane instance
+    // No agent can create direct API clients or bypass this authority
+    
+    // Check provider capability once for all agents
     aiProvider.requireCapability("chat");
     
     // Step 1: Architect designs solution
@@ -3343,7 +3347,7 @@ What makes their solution better? What patterns should I learn?`
 
 ### **5.1 Visual Code Understanding**
 
-AIDE can understand screenshots and design mockups.
+AIDE can understand screenshots and design mockups to generate code.
 
 ```typescript
 // User drags image into chat
@@ -3354,7 +3358,7 @@ const result = await analyzeScreenshot(image);
 
 ### **5.2 Voice Coding**
 
-Talk to AIDE instead of typing.
+Talk to AIDE instead of typing commands.
 
 ```typescript
 // User: "Create a function called calculateTotal"
@@ -3888,6 +3892,6 @@ interface IntelligentTesting {
 
 ---
 
-**AIDE Intelligence Roadmap — Experimental and Evolving** 🚀
+**AIDE Intelligence Implementation Guide — Core MVP Requirements**
 
-**Built with intelligence to make coding smarter.**
+**Revolutionary intelligence features that make AIDE smarter than basic chatbots.**

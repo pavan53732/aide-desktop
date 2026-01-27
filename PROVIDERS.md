@@ -15,10 +15,10 @@
 
 | #   | Principle                                    | Description                                                                                                                  |
 | --- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Models are NEVER hardcoded**               | All AI models are fetched dynamically from provider APIs at runtime. |
+| 1   | **Primary models are dynamically fetched**   | AI models are fetched from provider APIs at runtime. Fallback models are static lists used only when API endpoints fail. |
 | 2   | **User selects the model**                   | After selecting a provider, the app fetches available models and user picks one. The `selectedModel` field starts as `null`. |
 | 3   | **Priority order matters**                   | `openai_compatible` providers first (cost-efficient), `openai` direct last (expensive fallback).                             |
-| 4   | **Fallback models are last resort**          | The `fallbackModels` field is ONLY used when a provider's `/models` endpoint is unavailable or fails.                       |
+| 4   | **Fallback models are emergency-only**       | The `fallbackModels` field is ONLY used when a provider's `/models` endpoint is unavailable or fails.                       |
 | 5   | **CLI agents ≠ HTTP providers**              | CLI agents (Aider, Copilot CLI) run local commands. HTTP providers call remote APIs. Different validation logic applies.     |
 | 6   | **API keys are NEVER stored in plaintext**   | All API keys must be encrypted using the OS-native secure key store:
 - Windows: Credential Manager
@@ -49,7 +49,7 @@
 
 | ✅ DO                                            | ❌ DON'T                                       |
 | ------------------------------------------------ | ---------------------------------------------- |
-| Fetch models dynamically from `/models` endpoint | Hardcode model names like `"gpt-4"` in code    |
+| Fetch models dynamically from `/models` endpoint | Hardcode model names in primary discovery      |
 | Use `selectedModel: null` as default             | Use `defaultModel: "gpt-4-turbo"`              |
 | Check if `selectedModel` exists before API call  | Assume a model is always selected              |
 | Use `fallbackModels` only when API fails        | Use `fallbackModels` as primary source        |
@@ -156,6 +156,31 @@ This document defines the **constitutional provider schema and configuration law
 | `qwen_cli`     | Qwen CLI           | `qwen`         | `pip install qwen-cli`                   | 63       |
 
 ## Dynamic Model Discovery
+
+AIDE uses a **primary-fallback model discovery strategy**:
+
+### Primary Method: Live API Fetching
+- **First Priority**: Fetch models from provider's `/models` endpoint at runtime
+- **User Experience**: Always shows current, available models
+- **Future-Proof**: New models (GPT-5, Claude-4) appear instantly without app updates
+
+### Fallback Method: Static Model Lists
+- **When Used**: Only when provider's `/models` endpoint is unavailable or fails
+- **Purpose**: Ensure app functionality when API is down
+- **Source**: The `fallbackModels` arrays in provider configurations below
+
+### Implementation Flow
+```
+1. User selects provider → App calls /models endpoint
+         ↓
+2. API Success → Show live models in dropdown
+         ↓
+3. API Failure → Show fallback models with warning
+         ↓
+4. User selects model → Save to selectedModel
+```
+
+**Key Point**: Fallback models are **emergency-only static lists**, not the primary model source.
 
 AIDE supports dynamic model fetching. See [Implementation Strategy](#implementation-strategy-dynamic-model-discovery) for details.
 
@@ -1021,10 +1046,10 @@ For local providers (LM Studio, Ollama, etc.):
 
 ## 5. UI/UX Integration Notes
 
-- **Configuration Interface:** The settings and provider selection UI for these configurations are designed in [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) (See Sections 4.1 & 5.3).
+- **Configuration Interface:** The settings and provider selection UI for these configurations are designed in [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) (See Provider Selector & Settings section).
 - **User Flow:** Adding a provider follows the UX flow: **Settings Page → Add Provider Form → Test Connection → Save**, as detailed in the UI/UX spec.
 - **Visual Components:** Provider cards display connection status badges, model selectors, and provider type indicators as specified in the UI design system.
-- **Icon System:** Each provider uses official logos or fallback icons from the `lucide-react` library as defined in UI_UX_SPECIFICATION.md Section 2.3.
+- **Icon System:** Each provider uses official logos or fallback icons from the `lucide-react` library as defined in UI_UX_SPECIFICATION.md Icon System section.
 
 ## Quick Setup Commands
 
@@ -1061,7 +1086,11 @@ AIDE includes **13 supported CLI agents** in its configuration system. These age
 | **Detected** | Agent is installed and available on the user's system (verified via `check-cli-availability`) |
 | **Active** | Agent is both detected and enabled by the user in settings |
 
+> **Critical:** All CLI agents must follow the same diff approval process as HTTP providers. CLI agents may generate file changes, but all changes must be converted into diffs and presented in the Diff Modal for user approval. No CLI agent can write files directly.
+
 **MVP Scope:** For MVP, CLI agents are **supported** (configuration exists) but auto-detection is optional. Users can manually configure CLI agents if installed.
+
+> **Edit Rule:** CLI agents may generate file changes, but all changes must be converted into diffs and presented in the Diff Modal for user approval. The Main process applies accepted changes to disk.
 
 ### Auto-Detection System
 

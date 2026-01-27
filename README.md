@@ -89,7 +89,7 @@ Rules:
 
 ## ✨ Key Features
 
-- **🤖 Multi-Provider AI Hub**: Connect and configure **44 AI connections** (29 cloud HTTP + 2 local HTTP + 13 CLI agents) in one interface
+- **🤖 Multi-Provider AI Hub**: Connect and configure **44 AI connections: 31 HTTP providers (29 cloud + 2 local) + 13 CLI agents** in one interface
 - **🧠 Advanced Intelligence**: Context-aware AI that analyzes your project and adapts to your preferences during user-initiated sessions
 - **🔒 Secure File Operations**: Read and edit files with mandatory user confirmation
 - **💾 Local-First & Private**: Your API keys and file data stay on your machine
@@ -105,7 +105,7 @@ Rules:
 | **Desktop Framework** | [Electron 25](https://www.electronjs.org/) (Chromium 119, Node 20)                        | Production-proven, stable, battle-tested        |
 | **AI HTTP Client**    | Custom fetch/streaming implementation                                                      | Lightweight, provider-agnostic, supports streaming |
 | **Frontend UI**       | React 18.2 + TypeScript 5 + Tailwind CSS 3                                                 | Modern, type-safe UI with utility-first styling |
-| **UI Components**     | [shadcn/ui](https://ui.shadcn.com/)                                                        | Accessible, customizable components             |
+| **UI Components**     | [shadcn/ui v2](https://ui.shadcn.com/)                                                        | Accessible, customizable components             |
 | **State Management**  | [Zustand](https://zustand-demo.pmnd.rs/) + [TanStack Query v5](https://tanstack.com/query) | Lightweight state + robust server-state caching |
 | **Local Database**    | Better-SQLite3 + [Drizzle ORM](https://orm.drizzle.team/)                                  | Fastest SQLite for Node.js with type-safe ORM   |
 | **Code Editor**       | [Monaco Editor](https://microsoft.github.io/monaco-editor/)                                | VS Code-grade editing for diff viewer           |
@@ -115,9 +115,36 @@ Rules:
 
 ## 📋 Quick Start
 
-> **👥 For End Users:** If you just want to **use** AIDE (not develop it), skip to [Installation for Users](#-installation-for-end-users) below.
+### For End Users (No Development Tools Required)
 
-### For Developers
+**To install and use AIDE (no coding required):**
+
+1. **Download** the installer:
+   - Go to [Releases](https://github.com/yourusername/aide-desktop/releases)
+   - Download `AIDE_<platform>_<arch>.msi` (5-15 MB)
+
+2. **Install**:
+   - Double-click the downloaded `.msi` file
+   - Follow the installation wizard
+   - Click "Install"
+
+3. **Run**:
+   - Find AIDE in your Start Menu
+   - Double-click to launch
+   - Configure your AI provider (OpenAI, Anthropic, etc.)
+   - Start chatting with AI about your code!
+
+**System Requirements:**
+- Windows 10 or Windows 11 (64-bit)
+- 100 MB free disk space
+- Internet connection (for AI providers)
+- **No programming tools or Node.js required!**
+
+---
+
+### For Developers (Contributing to AIDE)
+
+> **Note:** This section is only for developers who want to modify AIDE's source code. End users can skip this entirely.
 
 #### Prerequisites
 

@@ -1,4 +1,4 @@
-# Project AIDE: AI Desktop Editor - Complete Specification
+`# Project AIDE: AI Desktop Editor - Complete Specification
 
 > Constitution Status: Ratified  
 > Stability Tier: Core  
@@ -14,16 +14,18 @@
 
 | #   | Principle                        | Description                                                                                                                                                       |
 | --- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Models are NEVER hardcoded**   | All AI models are fetched dynamically from provider APIs. See `PROVIDERS.md`. |
+| 1   | **Primary models are dynamically fetched**   | AI models are fetched from provider APIs at runtime. Fallback models are static lists used only when API endpoints fail. See `PROVIDERS.md`. |
 | 2   | **User selects the model**       | After adding a provider, user must select a model from the fetched list. `selectedModel` starts as `null`.                                                        |
 | 3   | **Priority order matters**       | `openai_compatible` providers first (cost-efficient), `openai` direct last (expensive fallback).                                                                  |
 | 4   | **API keys in OS keychain only** | Never store API keys in config files, localStorage, or plain text.                                                                                                |
-| 5   | **Diff Modal is sacred**         | File changes must always show a diff view. User must explicitly Accept or Reject. No auto-apply.                                                                  |
+| 5   | **Diff Modal is sacred**         | File changes must always show a diff view. User must explicitly Accept or Reject. No auto-apply. **CRITICAL: The Diff Modal must NEVER have blur, translucency, animations, or visual effects - it must remain static and high-contrast for code review accuracy.**                                                                  |
 | 6   | **Workspace sandboxing**         | All file operations are confined to the user-selected workspace directory.                                                                                        |
 | 7   | **No telemetry**                 | The app never phones home. All communication is with user-configured AI providers only.                                                                           |
 | 8   | **Chat is the Control Plane**    | All AI-initiated file reads, edits, and CLI actions must originate from a user chat message.                                                                      |
 | 9   | **Edits Are User-Governed**      | The system may write files to disk only after the user explicitly accepts changes in the Diff Modal.                                                             |
 | 10  | **Agents Are Internal**          | Agents may exist for reasoning and task decomposition but must never appear as UI or IPC concepts.                                                                |
+| 11  | **Intelligence is Core**         | All advanced intelligence features are part of the core MVP, not experimental additions.                                                                          |
+| 12  | **Single AI Authority**          | All AI operations go through the AIControlPlane - no direct API clients or separate AI systems.                                                                   |
 
 ### Cross-Reference Documents
 
@@ -31,7 +33,7 @@
 | ---------------------------------------------------- | ------------------------------------------------------ |
 | [`PROVIDERS.md`](./PROVIDERS.md)                     | AI provider configurations, model fetching, CLI agents |
 | [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) | UI components, design system, user flows               |
-| [`INTELLIGENCE.md`](./INTELLIGENCE.md)               | Advanced AI intelligence features and capabilities     |
+| [`INTELLIGENCE.md`](./INTELLIGENCE.md)               | Advanced AI intelligence features and capabilities (now integrated into core MVP) |
 | [`SPECIFICATIONS.md`](./SPECIFICATIONS.md)           | Constitutional law — architecture, security, command contracts |
 | [`README.md`](./README.md)                           | Quick start, installation, project overview            |
 
@@ -55,8 +57,9 @@
 
 | ✅ DO                                     | ❌ DON'T                                      |
 | ----------------------------------------- | --------------------------------------------- |
-| Fetch models from provider API at runtime | Hardcode model names like `"gpt-4"` in code   |
+| Fetch models from provider API at runtime | Hardcode model names in primary discovery code   |
 | Use `selectedModel: null` as default      | Use `defaultModel: "gpt-4-turbo"`             |
+| Use fallback models only when API fails   | Use fallback models as primary source        |
 | Store API keys in OS keychain             | Store API keys in JSON config or localStorage |
 | Show diff modal for all file changes      | Auto-apply changes without user confirmation  |
 | Confine file operations to workspace      | Allow access to files outside workspace       |
@@ -97,8 +100,10 @@ Any modification to this file MUST follow these rules:
 ## 1. Project Vision
 
 **Project Name:** AIDE (AI Desktop Editor)  
-**Tagline:** "Your configurable AI bridge to local files"  
-**Core Mission:** Build a secure, privacy-focused desktop application that allows users to chat with their choice of AI provider (OpenAI, Anthropic, OpenRouter, local models, etc.) to directly read, analyze, and edit files within a controlled local workspace, with mandatory user confirmation for all changes.
+**Tagline:** "Your intelligent AI bridge to local files"  
+**Core Mission:** Build a secure, privacy-focused desktop application that allows users to chat with their choice of AI provider (OpenAI, Anthropic, OpenRouter, local models, etc.) to directly read, analyze, and edit files within a controlled local workspace, with mandatory user confirmation for all changes. AIDE features advanced intelligence capabilities including context awareness, learning, multi-agent collaboration, predictive assistance, and comprehensive code understanding.
+
+**Revolutionary Intelligence:** AIDE goes beyond basic chat-to-code by providing deep project understanding, semantic code analysis, long-term memory, multi-modal capabilities (voice, visual), and intelligent task routing that makes coding 10x more efficient and 100x more intelligent.
 
 ## 2. Core Features & User Stories
 
@@ -120,7 +125,41 @@ Any modification to this file MUST follow these rules:
 - **As a user,** I have a clean, familiar chat interface for conversing with the AI.
 - **As a user,** I can see a visual indicator of the currently active AI provider.
 - **As a user,** I can see a log of file activities (reads, proposed edits, applied changes) in a status panel.
-- 🤖 **Multi-Provider AI System** (Cloud, Local, and CLI-backed intelligence sources routed through the AI Control Plane)
+
+### Feature Set 4: Advanced Intelligence System (MVP Priority: HIGH)
+
+- **As a user,** the AI understands my entire project context, not just individual files.
+- **As a user,** the AI learns from my coding style, preferences, and past decisions.
+- **As a user,** the AI can route complex tasks to specialized reasoning approaches for better results.
+- **As a user,** the AI remembers important decisions and patterns across sessions.
+- **As a user,** the AI can coordinate multiple specialized agents to work on complex tasks.
+- **As a user,** the AI predicts what I need next based on my workflow patterns.
+- **As a user,** the AI can generate entire features from high-level natural language descriptions.
+- **As a user,** the AI makes precise edits with minimal side effects.
+- **As a user,** the AI proactively detects issues in my code when I request analysis.
+
+### Feature Set 5: Multi-Modal Capabilities (MVP Priority: HIGH)
+
+- **As a user,** I can drag screenshots or design mockups into the chat for the AI to understand and implement.
+- **As a user,** I can use voice commands to code instead of typing.
+- **As a user,** the AI can watch as I code and offer real-time assistance when requested.
+
+### Feature Set 6: Code Quality & Optimization (MVP Priority: HIGH)
+
+- **As a user,** the AI can automatically generate comprehensive tests for my code.
+- **As a user,** the AI can generate documentation for my functions, APIs, and projects.
+- **As a user,** the AI can review my code and suggest improvements.
+- **As a user,** the AI can detect performance bottlenecks and suggest optimizations.
+- **As a user,** the AI can identify security vulnerabilities and recommend fixes.
+- **As a user,** the AI can help refactor code and migrate between frameworks.
+
+### Feature Set 7: CLI Agent Integration (MVP Priority: HIGH)
+
+- **As a user,** I can configure and use CLI-based AI tools (Aider, Copilot CLI, etc.) through AIDE's interface.
+- **As a user,** CLI agents can read and modify files in my workspace with the same diff-and-confirm flow.
+- **As a user,** I can see which CLI agents are available and install new ones.
+
+🤖 **Complete AI System** (44 AI connections: 31 HTTP providers (29 cloud + 2 local) + 13 CLI agents routed through the unified AI Control Plane)
 
 ## 3. Technical Architecture & Stack
 
@@ -146,29 +185,30 @@ Any modification to this file MUST follow these rules:
 
 ### 3.1.1 Production-Verified Versions
 
-These versions are verified in production by Claude Desktop (Anthropic) and MiniMax Agent Desktop:
+**AIDE uses Electron 25** as its desktop framework. The table below compares AIDE's tech stack with other production AI desktop applications for reference:
 
-| Component | Your AIDE Version | Claude Desktop | MiniMax Agent | Recommendation |
-|-----------|-------------------|----------------|---------------|----------------|
-| **Desktop Framework** | Electron 25 | **Electron 25** | Tauri 1.5 | ✅ **Production-proven** |
-| **Chromium** | (bundled) | **Chromium 119** | System WebView | Auto-bundled |
-| **Node.js** | 20+ | **Node 20** | N/A (Rust) | ✅ **Keep Node 20** |
-| **React** | 18.2 | **React 18.2** | Vue 3 | ✅ **Production-proven** |
-| **TypeScript** | 5 | **TypeScript 5** | TypeScript 4.9 | ✅ **Production-proven** |
-| **Tailwind** | 3 | **Tailwind 3** | SASS | ✅ **Production-proven** |
-| **State** | Zustand 4 | **Zustand 4** | Pinia | ✅ **Production-proven** |
-| **Build Tool** | Vite 5 | **Vite 5** | Vite 5 | ✅ **Production-proven** |
-| **Database** | Drizzle + SQLite | better-sqlite3 | rusqlite + sqlx | ✅ **Keep Drizzle (better!)** |
-| **Editor** | Monaco | **Monaco** | CodeMirror 6 | ✅ **Keep Monaco** |
-| **UI Components** | shadcn/ui v2 | **shadcn/ui** | Ant Design Vue | ✅ **Keep shadcn/ui** |
-| **Bundler** | electron-builder | **electron-builder** | Tauri-Builder | ✅ **Keep electron-builder** |
+| Component | AIDE (Electron) | Claude Desktop (Electron) | MiniMax Agent (Tauri) | Status |
+|-----------|-----------------|---------------------------|------------------------|--------|
+| **Desktop Framework** | **Electron 25** | **Electron 25** | Tauri 1.5 | ✅ **Production-proven** |
+| **Chromium** | Chromium 119 (bundled) | **Chromium 119** | System WebView | ✅ **Auto-bundled** |
+| **Node.js** | **Node 20** | **Node 20** | N/A (Rust) | ✅ **Production-proven** |
+| **React** | **React 18.2** | **React 18.2** | Vue 3 | ✅ **Production-proven** |
+| **TypeScript** | **TypeScript 5** | **TypeScript 5** | TypeScript 4.9 | ✅ **Production-proven** |
+| **Tailwind** | **Tailwind CSS 3** | **Tailwind 3** | SASS | ✅ **Production-proven** |
+| **State** | **Zustand 4** | **Zustand 4** | Pinia | ✅ **Production-proven** |
+| **Build Tool** | **Vite 5** | **Vite 5** | Vite 5 | ✅ **Production-proven** |
+| **Database** | **Drizzle + SQLite** | better-sqlite3 | rusqlite + sqlx | ✅ **Enhanced with ORM** |
+| **Editor** | **Monaco Editor** | **Monaco** | CodeMirror 6 | ✅ **VS Code-grade** |
+| **UI Components** | **shadcn/ui v2** | **shadcn/ui** | Ant Design Vue | ✅ **Modern & Accessible** |
+| **Bundler** | **electron-builder** | **electron-builder** | Tauri-Builder | ✅ **Production-ready** |
 
-**Key Insight:** This stack matches Claude Desktop's production-proven versions exactly. All versions are battle-tested at scale.
+**Key Insight:** AIDE's Electron-based stack matches Claude Desktop's production-proven architecture exactly. All versions are battle-tested at scale.
 
-**Migration Path:**
-1. **MVP:** Use these exact versions for maximum stability
-2. **Post-MVP:** Monitor for security updates, upgrade incrementally
-3. **Future:** Consider Tauri migration (like MiniMax) for 50% size reduction if needed
+**Why Electron 25 for AIDE:**
+- **Production-Proven**: Same stack as Claude Desktop (millions of users)
+- **Full Node.js Access**: Required for CLI agent integration and native modules
+- **Mature Ecosystem**: Extensive tooling and community support
+- **Cross-Platform**: True native experience on Windows, macOS, and Linux
 
 
 ### 3.2 Complete System Architecture
@@ -229,37 +269,64 @@ The following IPC commands define the only permitted user-facing control surface
 - `run-cli-agent`
 - `check-cli-availability`
 
+### Intelligence (Core MVP)
+- `intelligence.analyzeProject`
+- `intelligence.routeTask`
+- `intelligence.executeMultiAgent`
+- `intelligence.storeMemory`
+- `intelligence.recallMemories`
+- `intelligence.predictNextAction`
+- `intelligence.generateCode`
+- `intelligence.analyzeCodeSemantically`
+- `intelligence.detectIssues`
+- `intelligence.optimizePerformance`
+- `intelligence.reviewCode`
+- `intelligence.generateTests`
+- `intelligence.generateDocumentation`
+- `intelligence.refactorCode`
+- `intelligence.analyzeVisualContent`
+- `intelligence.processVoiceInput`
+
 Any IPC command enabling background automation, agent orchestration, or silent file execution is prohibited.
 
 ### 3.4 AI Control Plane Architecture
 
 **AIDE uses a single, unified AI control plane to prevent architectural conflicts and ensure consistent behavior.**
 
-#### MVP vs Experimental Features
+#### Core MVP Features (All Required for Initial Release)
 
-Features in AIDE are categorized by implementation status:
+All features in AIDE are part of the core MVP scope. The following comprehensive feature set is required for the initial release:
 
-| Status | Description | Documentation |
-|--------|-------------|---------------|
-| **MVP** | Core features required for initial release | This document (SPECIFICATIONS.md) |
-| **Experimental** | Advanced features planned for future releases | INTELLIGENCE.md |
-
-**MVP Features (Core):**
-- Multi-provider AI configuration (HTTP providers)
+**Foundation Features:**
+- Multi-provider AI configuration (44 AI connections: 29 cloud HTTP + 2 local HTTP + 13 CLI agents)
 - Secure file operations with diff viewer
 - Workspace sandboxing
 - OS keychain storage
-- CLI agent integration (configuration and basic execution)
+- CLI agent integration (configuration and execution)
 
-**Experimental Features (Future):**
-- Advanced intelligence (context awareness, learning, multi-model routing)
-- Long-term memory system with embeddings
-- Multi-agent collaboration
-- Predictive assistance
-- Visual code understanding
-- Voice coding
+**Advanced Intelligence Features (Core MVP):**
+- Context awareness and project understanding
+- Multi-dimensional code analysis (semantic, structural, behavioral)
+- Multi-model intelligent task routing
+- Long-term memory system with vector embeddings
+- Multi-agent collaboration system
+- Predictive assistance and heuristic intelligence
+- Learning from user feedback and self-improvement
+- Advanced code generation from natural language
+- Precision editing with semantic understanding
+- Proactive issue detection and analysis
 
-> **Note:** Experimental features are defined in INTELLIGENCE.md and are marked as NON-BINDING. They must be ratified into SPECIFICATIONS.md before implementation.
+**Extended Capabilities (Core MVP):**
+- Visual code understanding (screenshot analysis)
+- Voice coding interface
+- AI pair programming mode
+- Real-time code analysis and suggestions
+- Automated testing and documentation generation
+- Performance optimization recommendations
+- Security vulnerability detection
+- Code refactoring and migration assistance
+
+> **Note:** All features listed above are binding requirements for the MVP release. The intelligence features integrate seamlessly with the provider system defined in PROVIDERS.md and use the AIControlPlane as the single AI authority.
 
 #### Single AI Authority
 
@@ -278,9 +345,27 @@ interface AIControlPlane {
   checkCapability(capability: keyof ProviderCapabilities): boolean;
   requireCapability(capability: keyof ProviderCapabilities): void;
   
-  // AI Operations (all go through this interface)
+  // Core AI Operations (all go through this interface)
   chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse>;
   generateEmbedding(text: string): Promise<EmbeddingResponse>;
+  
+  // Advanced Intelligence Operations (Core MVP)
+  analyzeProject(workspace: string): Promise<ProjectContext>;
+  routeTask(request: string, context: ProjectContext): Promise<TaskRoute>;
+  executeMultiAgent(task: string, context: ProjectContext): Promise<AgentResult>;
+  recallMemories(query: string, options?: RecallOptions): Promise<Memory[]>;
+  storeMemory(memory: MemoryInput): Promise<string>;
+  predictNextAction(context: CodingContext): Promise<PredictedAction>;
+  generateCode(prompt: string, context: ProjectContext): Promise<CodeGeneration>;
+  analyzeCodeSemantically(code: string): Promise<SemanticAnalysis>;
+  detectIssues(workspace: string): Promise<Issue[]>;
+  optimizePerformance(code: string): Promise<OptimizationSuggestion[]>;
+  reviewCode(code: string, context: ProjectContext): Promise<CodeReview>;
+  generateTests(code: string, framework: string): Promise<TestSuite>;
+  generateDocumentation(code: string): Promise<Documentation>;
+  refactorCode(code: string, refactorType: string): Promise<RefactoredCode>;
+  analyzeVisualContent(image: ImageData): Promise<VisualAnalysis>;
+  processVoiceInput(audio: AudioData): Promise<VoiceCommand>;
   
   // Fallback Management
   fallbackToNextProvider(): Promise<boolean>;
@@ -298,6 +383,9 @@ interface AIControlPlane {
 | **Provider Isolation** | Each provider manages its own models and config | No cross-provider contamination |
 | **Graceful Fallback** | Auto-fallback to next provider on failure | Maintain service continuity |
 | **Edit Authority** | Only the Main process may write files to disk | AI systems and agents generate diffs; Main applies after user acceptance |
+| **Intelligence Integration** | All advanced features use the control plane | No separate AI systems or direct API calls |
+| **Memory Isolation** | Memory systems are workspace-scoped | Each workspace has isolated memory |
+| **Agent Coordination** | Multi-agent systems coordinate through control plane | No direct agent-to-agent communication |
 
 #### Integration with Intelligence Features
 
@@ -320,10 +408,6 @@ class IntelligenceSystem {
   }
 }
 
-// Intelligence systems may generate file edits as diffs,
-// but must not write to disk directly. All file writes
-// are performed by the Main process after Diff Modal acceptance.
-
 // Memory system must use control plane
 class MemorySystem {
   constructor(private aiControlPlane: AIControlPlane) {}
@@ -335,6 +419,49 @@ class MemorySystem {
     // Use control plane for embeddings
     const response = await this.aiControlPlane.generateEmbedding(text);
     return response.embedding;
+  }
+}
+
+// Multi-agent system must use control plane
+class MultiAgentSystem {
+  constructor(private aiControlPlane: AIControlPlane) {}
+  
+  async executeAgentTask(task: string, agentRole: string): Promise<AgentOutput> {
+    this.aiControlPlane.requireCapability('chat');
+    
+    const response = await this.aiControlPlane.chat([{
+      role: 'system',
+      content: `You are a ${agentRole} agent. ${getAgentPrompt(agentRole)}`
+    }, {
+      role: 'user',
+      content: task
+    }]);
+    
+    return parseAgentOutput(response.content);
+  }
+}
+
+// Predictive intelligence system
+class PredictiveSystem {
+  constructor(private aiControlPlane: AIControlPlane) {}
+  
+  async predictNextAction(context: CodingContext): Promise<PredictedAction> {
+    this.aiControlPlane.requireCapability('chat');
+    
+    const prediction = await this.aiControlPlane.predictNextAction(context);
+    return prediction;
+  }
+}
+
+// Visual understanding system
+class VisualSystem {
+  constructor(private aiControlPlane: AIControlPlane) {}
+  
+  async analyzeScreenshot(image: ImageData): Promise<VisualAnalysis> {
+    this.aiControlPlane.requireCapability('vision');
+    
+    const analysis = await this.aiControlPlane.analyzeVisualContent(image);
+    return analysis;
   }
 }
 ```
@@ -358,8 +485,59 @@ const aiControlPlane = new AIControlPlane(userConfig);
 const providerSystem = aiControlPlane;                       // Same system
 const intelligenceSystem = new IntelligenceSystem(aiControlPlane); // Uses control plane
 const memorySystem = new MemorySystem(aiControlPlane);       // Uses control plane
+const multiAgentSystem = new MultiAgentSystem(aiControlPlane); // Uses control plane
+const predictiveSystem = new PredictiveSystem(aiControlPlane); // Uses control plane
+const visualSystem = new VisualSystem(aiControlPlane);       // Uses control plane
 
 // All systems use the same AI interface
+```
+
+#### Intelligence Features Implementation
+
+All intelligence features are implemented as services that use the AIControlPlane:
+
+```typescript
+// Core intelligence services
+interface IntelligenceServices {
+  projectAnalyzer: ProjectAnalyzer;
+  taskRouter: TaskRouter;
+  multiAgentOrchestrator: MultiAgentOrchestrator;
+  memoryManager: MemoryManager;
+  predictiveEngine: PredictiveEngine;
+  codeGenerator: CodeGenerator;
+  semanticAnalyzer: SemanticAnalyzer;
+  issueDetector: IssueDetector;
+  performanceOptimizer: PerformanceOptimizer;
+  codeReviewer: CodeReviewer;
+  testGenerator: TestGenerator;
+  documentationGenerator: DocumentationGenerator;
+  refactoringEngine: RefactoringEngine;
+  visualAnalyzer: VisualAnalyzer;
+  voiceProcessor: VoiceProcessor;
+}
+
+// All services inject the AIControlPlane
+class IntelligenceServiceFactory {
+  static create(aiControlPlane: AIControlPlane): IntelligenceServices {
+    return {
+      projectAnalyzer: new ProjectAnalyzer(aiControlPlane),
+      taskRouter: new TaskRouter(aiControlPlane),
+      multiAgentOrchestrator: new MultiAgentOrchestrator(aiControlPlane),
+      memoryManager: new MemoryManager(aiControlPlane),
+      predictiveEngine: new PredictiveEngine(aiControlPlane),
+      codeGenerator: new CodeGenerator(aiControlPlane),
+      semanticAnalyzer: new SemanticAnalyzer(aiControlPlane),
+      issueDetector: new IssueDetector(aiControlPlane),
+      performanceOptimizer: new PerformanceOptimizer(aiControlPlane),
+      codeReviewer: new CodeReviewer(aiControlPlane),
+      testGenerator: new TestGenerator(aiControlPlane),
+      documentationGenerator: new DocumentationGenerator(aiControlPlane),
+      refactoringEngine: new RefactoringEngine(aiControlPlane),
+      visualAnalyzer: new VisualAnalyzer(aiControlPlane),
+      voiceProcessor: new VoiceProcessor(aiControlPlane)
+    };
+  }
+}
 ```
 
 ### 3.5 State Management
@@ -561,7 +739,7 @@ export function useModels() {
 
       const modelsEndpoint = activeProvider.config.modelsEndpoint;
 
-      // If no models endpoint, use fallback
+      // If no models endpoint, use fallback models ONLY when API fails
       if (!modelsEndpoint) {
         return getFallbackModels(activeProvider.type);
       }
@@ -592,7 +770,7 @@ export function useModels() {
   });
 }
 
-// Fallback models for providers without /models endpoint
+// Fallback models ONLY used when provider's /models endpoint is unavailable or fails
 function getFallbackModels(providerType: string): ModelInfo[] {
   const fallbacks: Record<string, string[]> = {
     anthropic: [
@@ -662,7 +840,7 @@ export const preferences = sqliteTable("preferences", {
   value: text("value").notNull(),
 });
 
-// AI Memory System (Experimental - See INTELLIGENCE.md for full specification)
+// AI Memory System (Core MVP)
 export const memories = sqliteTable("memories", {
   id: text("id").primaryKey(),
   timestamp: integer("timestamp", { mode: "timestamp" }).notNull(),
@@ -689,6 +867,166 @@ export const memoryRelations = sqliteTable("memory_relations", {
 }, (table) => ({
   pk: primaryKey({ columns: [table.memory_id, table.related_id] }),
 }));
+
+// Project analysis cache
+export const projectAnalysis = sqliteTable("project_analysis", {
+  id: text("id").primaryKey(),
+  workspace_id: text("workspace_id").notNull(),
+  analysis_type: text("analysis_type", { enum: ["semantic", "structural", "dependency", "quality"] }).notNull(),
+  file_path: text("file_path"),
+  analysis_data: text("analysis_data").notNull(), // JSON
+  confidence: real("confidence").notNull(),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+  expires_at: integer("expires_at", { mode: "timestamp" }),
+});
+
+// Multi-agent execution logs
+export const agentExecutions = sqliteTable("agent_executions", {
+  id: text("id").primaryKey(),
+  conversation_id: text("conversation_id").references(() => conversations.id),
+  task_description: text("task_description").notNull(),
+  agents_used: text("agents_used").notNull(), // JSON array
+  execution_plan: text("execution_plan").notNull(), // JSON
+  results: text("results").notNull(), // JSON
+  status: text("status", { enum: ["running", "completed", "failed", "cancelled"] }).notNull(),
+  total_tokens: integer("total_tokens"),
+  total_cost: real("total_cost"),
+  duration_ms: integer("duration_ms"),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+  completed_at: integer("completed_at", { mode: "timestamp" }),
+});
+
+// Code generation history
+export const codeGenerations = sqliteTable("code_generations", {
+  id: text("id").primaryKey(),
+  conversation_id: text("conversation_id").references(() => conversations.id),
+  prompt: text("prompt").notNull(),
+  generated_code: text("generated_code").notNull(),
+  language: text("language").notNull(),
+  framework: text("framework"),
+  context: text("context"), // JSON
+  quality_score: real("quality_score"),
+  user_accepted: integer("user_accepted", { mode: "boolean" }),
+  feedback: text("feedback"),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+// Issue detection results
+export const detectedIssues = sqliteTable("detected_issues", {
+  id: text("id").primaryKey(),
+  workspace_id: text("workspace_id").notNull(),
+  file_path: text("file_path").notNull(),
+  issue_type: text("issue_type", { enum: ["security", "performance", "bug", "smell", "style"] }).notNull(),
+  severity: text("severity", { enum: ["critical", "high", "medium", "low"] }).notNull(),
+  description: text("description").notNull(),
+  suggested_fix: text("suggested_fix"),
+  line_number: integer("line_number"),
+  column_number: integer("column_number"),
+  auto_fixable: integer("auto_fixable", { mode: "boolean" }).default(false),
+  status: text("status", { enum: ["open", "fixed", "ignored", "false_positive"] }).default("open"),
+  detected_at: integer("detected_at", { mode: "timestamp" }).notNull(),
+  resolved_at: integer("resolved_at", { mode: "timestamp" }),
+});
+
+// Performance optimization suggestions
+export const optimizationSuggestions = sqliteTable("optimization_suggestions", {
+  id: text("id").primaryKey(),
+  workspace_id: text("workspace_id").notNull(),
+  file_path: text("file_path").notNull(),
+  optimization_type: text("optimization_type", { enum: ["algorithm", "memory", "io", "database", "network"] }).notNull(),
+  current_complexity: text("current_complexity"),
+  suggested_complexity: text("suggested_complexity"),
+  description: text("description").notNull(),
+  code_before: text("code_before").notNull(),
+  code_after: text("code_after").notNull(),
+  estimated_improvement: real("estimated_improvement"), // Percentage
+  confidence: real("confidence").notNull(),
+  status: text("status", { enum: ["pending", "applied", "rejected"] }).default("pending"),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+// Code review results
+export const codeReviews = sqliteTable("code_reviews", {
+  id: text("id").primaryKey(),
+  workspace_id: text("workspace_id").notNull(),
+  file_path: text("file_path").notNull(),
+  review_type: text("review_type", { enum: ["automated", "requested", "pre_commit"] }).notNull(),
+  overall_score: real("overall_score"), // 0-100
+  readability_score: real("readability_score"),
+  maintainability_score: real("maintainability_score"),
+  performance_score: real("performance_score"),
+  security_score: real("security_score"),
+  comments: text("comments").notNull(), // JSON array
+  suggestions: text("suggestions").notNull(), // JSON array
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+// Test generation results
+export const generatedTests = sqliteTable("generated_tests", {
+  id: text("id").primaryKey(),
+  workspace_id: text("workspace_id").notNull(),
+  source_file: text("source_file").notNull(),
+  test_file: text("test_file").notNull(),
+  test_framework: text("test_framework").notNull(),
+  test_code: text("test_code").notNull(),
+  coverage_estimate: real("coverage_estimate"), // Percentage
+  test_types: text("test_types").notNull(), // JSON array: ["unit", "integration", "edge_case"]
+  status: text("status", { enum: ["generated", "applied", "modified", "rejected"] }).default("generated"),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+// Documentation generation
+export const generatedDocs = sqliteTable("generated_docs", {
+  id: text("id").primaryKey(),
+  workspace_id: text("workspace_id").notNull(),
+  source_file: text("source_file").notNull(),
+  doc_type: text("doc_type", { enum: ["api", "readme", "inline", "tutorial"] }).notNull(),
+  content: text("content").notNull(),
+  format: text("format", { enum: ["markdown", "html", "jsdoc", "sphinx"] }).notNull(),
+  quality_score: real("quality_score"),
+  completeness_score: real("completeness_score"),
+  status: text("status", { enum: ["generated", "applied", "modified", "rejected"] }).default("generated"),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+// Predictive analysis
+export const predictions = sqliteTable("predictions", {
+  id: text("id").primaryKey(),
+  workspace_id: text("workspace_id").notNull(),
+  prediction_type: text("prediction_type", { enum: ["next_action", "bug_likelihood", "refactor_need", "performance_issue"] }).notNull(),
+  context: text("context").notNull(), // JSON
+  prediction: text("prediction").notNull(), // JSON
+  confidence: real("confidence").notNull(),
+  accuracy: real("accuracy"), // Filled in later when outcome is known
+  outcome: text("outcome"), // What actually happened
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+  validated_at: integer("validated_at", { mode: "timestamp" }),
+});
+
+// Visual analysis results
+export const visualAnalysis = sqliteTable("visual_analysis", {
+  id: text("id").primaryKey(),
+  workspace_id: text("workspace_id").notNull(),
+  image_hash: text("image_hash").notNull(),
+  analysis_type: text("analysis_type", { enum: ["screenshot", "design", "diagram", "ui_mockup"] }).notNull(),
+  detected_elements: text("detected_elements").notNull(), // JSON
+  generated_code: text("generated_code"),
+  confidence: real("confidence").notNull(),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+// Voice command processing
+export const voiceCommands = sqliteTable("voice_commands", {
+  id: text("id").primaryKey(),
+  workspace_id: text("workspace_id").notNull(),
+  audio_hash: text("audio_hash").notNull(),
+  transcription: text("transcription").notNull(),
+  intent: text("intent").notNull(),
+  parameters: text("parameters"), // JSON
+  executed_action: text("executed_action"),
+  success: integer("success", { mode: "boolean" }),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
 ```
 
 ### 3.7 CLI Agent Integration
@@ -1497,10 +1835,14 @@ AIDE delivers a revolutionary development environment with the following complet
 - 🤖 **44 AI Connections** (29 cloud HTTP + 2 local HTTP + 13 CLI agents)
 - 🔄 **Dynamic Model Fetching**: Models fetched live from provider APIs
 - 💬 **Streaming Chat Interface**: Real-time AI conversations
+- 🧠 **Advanced Intelligence**: Context awareness, learning, multi-model routing
+- 🤝 **Multi-Agent Collaboration**: Specialized agents working together
+- 🔮 **Predictive Assistance**: AI predicts your next coding moves
+- 💾 **Long-Term Memory**: AI remembers decisions and patterns across sessions
 
 ### Workspace & Security
 
-- � **Secure File Operations**: Read and edit files with mandatory user confirmation
+- 📁 **Secure File Operations**: Read and edit files with mandatory user confirmation
 - 🏝️ **Workspace Sandboxing**: Strict file access limited to user-selected directories
 - 🔍 **Diff Viewer**: Clear visual diffs for all proposed changes
 - 🔐 **OS Keychain Storage**: API keys stored in hardware-secured keychains
@@ -1509,7 +1851,31 @@ AIDE delivers a revolutionary development environment with the following complet
 
 - 🎨 **Clean UI**: Modern, responsive interface
 - ⚡ **Fast Performance**: Optimized with Electron's V8 engine and native Node.js modules
-- �️ **CLI Agent Integration**: Execute AI tools like Aider, Copilot CLI
+- 🛠️ **CLI Agent Integration**: Execute AI tools like Aider, Copilot CLI
+- 🔬 **Semantic Code Analysis**: Deep understanding of code structure and meaning
+- 🎯 **Precision Editing**: Surgical code changes with minimal side effects
+
+### Advanced Capabilities
+
+- 👁️ **Visual Code Understanding**: Analyze screenshots and design mockups
+- 🎤 **Voice Coding**: Talk to AIDE instead of typing
+- 👥 **AI Pair Programming**: Real-time coding assistance
+- 🧪 **Automated Testing**: Generate comprehensive test suites
+- 📚 **Documentation Generation**: Create API docs, READMEs, and inline comments
+- 🔍 **Code Review**: Automated code quality analysis
+- ⚡ **Performance Optimization**: Detect bottlenecks and suggest improvements
+- 🔒 **Security Analysis**: Identify vulnerabilities and recommend fixes
+- 🔄 **Code Refactoring**: Modernize and restructure code
+- 🚀 **Framework Migration**: Assist with technology stack upgrades
+
+### Intelligence Features
+
+- 📊 **Project Understanding**: Comprehensive analysis of entire codebases
+- 🎯 **Task Routing**: Intelligent routing to specialized AI approaches
+- 🧠 **Learning System**: Adapts to your coding style and preferences
+- 🔮 **Issue Detection**: Proactive identification of bugs and code smells
+- 💡 **Code Generation**: Create entire features from natural language
+- 🎨 **Natural Language to Code**: Transform descriptions into working implementations
 
 ## 5. Detailed User Workflow (MVP)
 
@@ -1637,7 +2003,8 @@ aide-desktop/
 │   │   │   ├── chat-container.tsx
 │   │   │   ├── chat-input.tsx
 │   │   │   ├── message-bubble.tsx
-│   │   │   └── typing-indicator.tsx
+│   │   │   ├── typing-indicator.tsx
+│   │   │   └── voice-input.tsx    # Voice coding interface
 │   │   ├── diff/
 │   │   │   ├── diff-modal.tsx
 │   │   │   └── diff-viewer.tsx    # Monaco diff
@@ -1645,9 +2012,18 @@ aide-desktop/
 │   │   │   ├── provider-selector.tsx  # Model selector, connection status
 │   │   │   ├── provider-card.tsx      # Cards with badges and icons
 │   │   │   └── model-dropdown.tsx     # Dynamic model selection
+│   │   ├── intelligence/
+│   │   │   ├── memory-panel.tsx       # Memory management UI
+│   │   │   ├── agent-status.tsx       # Multi-agent execution status
+│   │   │   ├── prediction-panel.tsx   # Predictive suggestions
+│   │   │   ├── issue-panel.tsx        # Detected issues display
+│   │   │   ├── analysis-panel.tsx     # Code analysis results
+│   │   │   └── visual-input.tsx       # Screenshot/image input
 │   │   ├── sidebar/
 │   │   │   ├── file-tree.tsx
-│   │   │   └── activity-log.tsx
+│   │   │   ├── activity-log.tsx
+│   │   │   ├── memory-browser.tsx     # Browse stored memories
+│   │   │   └── intelligence-panel.tsx # Intelligence features panel
 │   │   └── layout/
 │   │       ├── header.tsx
 │   │       ├── status-bar.tsx
@@ -1658,26 +2034,52 @@ aide-desktop/
 │   │   │   ├── chat.ts            # Streaming chat implementation
 │   │   │   ├── tools.ts           # File read/write tools
 │   │   │   ├── model-discovery.ts # Dynamic model fetching
-│   │   │   └── agent.ts           # AI agent setup
+│   │   │   ├── agent.ts           # AI agent setup
+│   │   │   └── control-plane.ts   # AIControlPlane implementation
+│   │   ├── intelligence/
+│   │   │   ├── project-analyzer.ts    # Project understanding
+│   │   │   ├── task-router.ts         # Intelligent task routing
+│   │   │   ├── multi-agent.ts         # Multi-agent orchestration
+│   │   │   ├── memory-system.ts       # Long-term memory
+│   │   │   ├── predictive-engine.ts   # Predictive assistance
+│   │   │   ├── code-generator.ts      # Advanced code generation
+│   │   │   ├── semantic-analyzer.ts   # Semantic code analysis
+│   │   │   ├── issue-detector.ts      # Proactive issue detection
+│   │   │   ├── performance-optimizer.ts # Performance analysis
+│   │   │   ├── code-reviewer.ts       # Automated code review
+│   │   │   ├── test-generator.ts      # Test generation
+│   │   │   ├── doc-generator.ts       # Documentation generation
+│   │   │   ├── refactoring-engine.ts  # Code refactoring
+│   │   │   ├── visual-analyzer.ts     # Visual content analysis
+│   │   │   └── voice-processor.ts     # Voice command processing
 │   │   ├── cli/
 │   │   │   ├── execute.ts         # CLI agent execution
 │   │   │   └── detection.ts       # CLI binary detection
 │   │   ├── db/
 │   │   │   ├── index.ts           # Database client
-│   │   │   ├── schema.ts          # Drizzle schema
+│   │   │   ├── schema.ts          # Drizzle schema (with intelligence tables)
 │   │   │   └── queries.ts         # Typed queries
 │   │   └── utils/
 │   │       ├── file-utils.ts
-│   │       └── diff-utils.ts
+│   │       ├── diff-utils.ts
+│   │       ├── vector-utils.ts    # Vector operations for memory
+│   │       └── audio-utils.ts     # Audio processing utilities
 │   ├── stores/
 │   │   ├── provider-store.ts
 │   │   ├── workspace-store.ts
 │   │   ├── chat-store.ts
+│   │   ├── intelligence-store.ts  # Intelligence features state
+│   │   ├── memory-store.ts        # Memory system state
 │   │   └── ui-store.ts
 │   ├── hooks/
 │   │   ├── use-ai.ts              # AI chat hook
 │   │   ├── use-file-operations.ts
 │   │   ├── use-keyboard-shortcuts.ts
+│   │   ├── use-intelligence.ts    # Intelligence features hook
+│   │   ├── use-memory.ts          # Memory system hook
+│   │   ├── use-multi-agent.ts     # Multi-agent hook
+│   │   ├── use-voice.ts           # Voice input hook
+│   │   └── use-visual.ts          # Visual analysis hook
 │   ├── styles/
 │   │   └── globals.css
 │   ├── App.tsx
@@ -1689,19 +2091,27 @@ aide-desktop/
 │   │   │   ├── file-ops.js        # read_file, write_file
 │   │   │   ├── workspace.js       # select_workspace
 │   │   │   ├── keychain.js        # secure storage
-│   │   │   └── cli-agents.js      # CLI agent execution
+│   │   │   ├── cli-agents.js      # CLI agent execution
+│   │   │   ├── intelligence.js    # Intelligence operations
+│   │   │   ├── memory.js          # Memory system operations
+│   │   │   ├── voice.js           # Voice processing
+│   │   │   └── visual.js          # Visual analysis
 │   │   └── config.js              # App configuration
 │   └── preload/
 │       └── index.js               # IPC bridge
 ├── tests/
 │   ├── unit/
 │   │   ├── stores.test.ts
-│   │   └── utils.test.ts
+│   │   ├── utils.test.ts
+│   │   ├── intelligence.test.ts   # Intelligence features tests
+│   │   └── memory.test.ts         # Memory system tests
 │   ├── e2e/
 │       ├── chat.spec.ts
-│       └── file-ops.spec.ts
+│       ├── file-ops.spec.ts
+│       ├── intelligence.spec.ts   # Intelligence E2E tests
+│       └── multi-agent.spec.ts    # Multi-agent tests
 ├── drizzle/
-│   └── migrations/                # Database migrations
+│   └── migrations/                # Database migrations (including intelligence tables)
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                 # GitHub Actions
@@ -1716,6 +2126,7 @@ aide-desktop/
 ├── README.md
 ├── SPECIFICATIONS.md
 ├── PROVIDERS.md
+├── INTELLIGENCE.md
 └── UI_UX_SPECIFICATION.md
 ```
 
@@ -1737,6 +2148,9 @@ aide-desktop/
 | Provider setup     | < 2 minutes  | From opening settings to successful connection |
 | Model selection    | < 30 seconds | From provider selection to model chosen        |
 | File edit flow     | < 1 minute   | From request to diff modal appearing           |
+| Context analysis   | < 10 seconds | Time to analyze project structure              |
+| Memory recall      | < 100ms      | Time to retrieve relevant memories             |
+| Multi-agent task   | < 3 minutes  | Complex task completion with multiple agents   |
 
 ### Performance Metrics
 
@@ -1745,9 +2159,23 @@ aide-desktop/
 | App startup time      | < 3 seconds   | From click to fully loaded UI                  |
 | File tree loading     | < 1 second    | For projects up to 10,000 files               |
 | Model fetching        | < 5 seconds   | API call to populate dropdown                  |
-| Memory usage          | < 200 MB      | Idle state with workspace loaded               |
+| Memory usage          | < 500 MB      | Idle state with workspace loaded and intelligence active |
 | Large file handling   | Files up to 1MB | Diff viewer performance                      |
-| Concurrent requests   | 3 simultaneous | Multiple AI conversations                     |
+| Concurrent requests   | 5 simultaneous | Multiple AI conversations and analysis        |
+| Vector search         | < 50ms        | Memory similarity search                       |
+| Code analysis         | < 30 seconds  | Full project semantic analysis                |
+
+### Intelligence Metrics
+
+| Metric                    | Target        | Measurement                                    |
+| ------------------------- | ------------- | ---------------------------------------------- |
+| Context accuracy          | > 95%         | AI understands project correctly               |
+| Issue detection rate      | > 90%         | Catches real issues vs false positives        |
+| Prediction accuracy       | > 85%         | Correct next-action predictions                |
+| Code generation quality   | > 90%         | Generated code compiles and works              |
+| Memory relevance          | > 90%         | Recalled memories are contextually relevant    |
+| Multi-agent coordination  | > 95%         | Agents work together without conflicts         |
+| Learning effectiveness    | > 80%         | AI adapts to user preferences over time        |
 
 ### Security Metrics
 
@@ -1757,6 +2185,7 @@ aide-desktop/
 | Workspace sandboxing | 100% enforced  | No file access outside selected folder               |
 | Telemetry            | Zero           | No network calls except to user-configured providers |
 | Diff confirmation    | 100% required  | No file writes without explicit user approval        |
+| Memory isolation     | 100% enforced  | Workspace memories never cross-contaminate           |
 
 ### Reliability Metrics
 
@@ -1767,6 +2196,8 @@ aide-desktop/
 | Reject action  | 100% reliable     | File unchanged on reject                   |
 | Model fetch    | Graceful fallback | Fallback models shown if API fails         |
 | Error handling | User-friendly     | All errors show clear, actionable messages |
+| Memory persistence | 100% reliable   | Memories survive app restarts              |
+| Agent recovery | Graceful fallback | Single AI fallback if multi-agent fails   |
 
 ### User Experience Metrics
 
@@ -1776,6 +2207,9 @@ aide-desktop/
 | Active model    | Always visible in header                |
 | Thinking state  | Always visible (spinner + status bar)   |
 | File context    | Clear which file is being discussed     |
+| Memory status   | Visible memory usage and health         |
+| Intelligence feedback | Clear indicators of AI understanding |
+| Learning progress | Visible adaptation to user preferences |
 
 
 ````
