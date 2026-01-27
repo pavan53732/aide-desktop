@@ -14,16 +14,16 @@
 
 | #   | Principle                                   | Description                                                                                                |
 | --- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 1   | **Diff Modal is Sacred**                    | The file diff viewer must NEVER have blur, translucency, or animations. Code review accuracy is paramount. |
+| 1   | **Diff Modal is Sacred**                    | The file diff viewer must NEVER have blur, translucency, animations, or visual effects. Code review accuracy is paramount. |
 | 2   | **Models are fetched dynamically**          | Provider Selector shows models fetched from API at runtime, NOT hardcoded lists. Fallback models are used only when APIs fail. See `PROVIDERS.md`.       |
-| 3   | **selectedModel starts as null**            | When displaying provider cards, show "No model selected" if `selectedModel` is `null`.                     |
+| 3   | **selectedModel starts as null**            | When displaying provider cards, show "No model selected" if `selectedModel` is `null`. There are NEVER any default models. |
 | 4   | **State must always be visible**            | User must always know: Which provider is active? Which model? Is it thinking? What file?                   |
 | 5   | **Keyboard-first design**                   | All actions must be accessible via keyboard shortcuts. See Section 5.5.                                    |
 | 6   | **No hardcoded provider/model names in UI** | UI components must read from config, never hardcode "GPT-4" or "Claude" in JSX.                            |
 | 7   | **Accessibility is mandatory**              | All components must meet WCAG AA standards.                                                                |
-| 8   | **Trust Surfaces Are Minimal**              | The Diff Modal, Error Modals, and Permission Prompts must never use glassmorphism, gradients, glow, 3D, or motion. |
+| 8   | **Trust Surfaces Are Minimal**              | The Diff Modal, Error Modals, and Permission Prompts must never use glassmorphism, gradients, glow, 3D, animations, or motion effects. |
 | 9   | **No Emotional AI Signaling**               | UI must not imply intent, confidence, mood, or agency of the AI system.                                    |
-| 10  | **Performance Before Spectacle**            | Performance is always the priority. Rich effects are only used when performance is not compromised. The Diff Modal must NEVER have blur, animations, or visual effects. |
+| 10  | **Performance Before Spectacle**            | Performance is always the priority. Rich effects are only used when performance is not compromised. The Diff Modal must NEVER have blur, animations, visual effects, or motion. |
 | 11  | **System Messages Are Neutral**             | System messages must be factual and non-anthropomorphic.                                                   |
 | 12  | **Neutral System Language**                 | UI text must avoid anthropomorphic or emotional phrasing. Use operational language instead (e.g., "Processing request", "Response streaming"). |
 
@@ -146,9 +146,9 @@ Use a clean, highly readable sans-serif stack.
     - **Model:** Currently selected model, or "No model selected" if `selectedModel` is `null`
     - **Status Badge:** `Connected` / `Configure` / `Error`
     - **Provider Type Badge:** `Cloud` / `Local` / `CLI`
-    - **CLI Agent Note:** CLI agents show "Local Binary" status and don't have model selection (they use their own model configuration)
+    - **CLI agent Note:** CLI agents show "Local Binary" status. Model selection works via command-line arguments (e.g., `--model gpt-4`) if the CLI tool supports it.
   - An `Add New Provider...` button at the bottom, leading to the full Settings page.
-- **Model Selection:** When user selects a provider, the app fetches available models from the provider's API (see `PROVIDERS.md`) and displays them in a dropdown for selection.
+- **Model Selection:** When user selects a provider, the app fetches available models from the provider's API (see `PROVIDERS.md`) and displays them in a dropdown for selection. For CLI agents, show a text input field where users can enter model names (e.g., "gpt-4", "claude-3-5-sonnet").
 - **Settings Page:** A dedicated page/modal with a form to add/edit providers. Uses a stepper for clarity: 1. Choose Type (OpenAI/Anthropic), 2. Enter Details (Endpoint, Key), 3. Test Connection.
 
 ### 4.2 Chat Interface
@@ -181,8 +181,101 @@ The following are explicitly prohibited inside the Diff Modal:
 - Animated gradients, glow, neon, or particle effects
 - 3D transforms or hover motion
 - Interactive reveal sliders or cinematic loaders
+- Framer Motion components or any CSS animations
+- Hover effects, scale transforms, or opacity transitions
+- Loading spinners or animated icons
 
 The Diff Modal must render in a static, high-contrast, code-review-optimized layout at all times.
+
+### Animation Restrictions for Trust Surfaces
+
+**CRITICAL RULE**: Trust Surfaces (Diff Modal, Error Modals, Permission Prompts) must NEVER use any form of animation or motion effects.
+
+**Prohibited in Trust Surfaces:**
+- `motion.div`, `motion.button`, or any Framer Motion components
+- CSS transitions, transforms, or keyframe animations
+- Hover effects that change scale, position, or opacity
+- Loading animations or spinners
+- Fade-in/fade-out effects
+- Any visual effects that could distract from critical decision-making
+
+**Allowed in Trust Surfaces:**
+- Static, high-contrast layouts only
+- Instant state changes (no transitions)
+- Standard HTML elements without motion
+- Monaco Editor's built-in diff highlighting (static)
+- Solid color backgrounds and borders
+
+**Implementation Note**: Use standard HTML elements (`<div>`, `<button>`) instead of `motion.*` components for all Trust Surface components.
+
+### Correct Diff Modal Implementation
+
+```tsx
+// ✅ CORRECT: Static implementation for Trust Surface
+export function DiffModal({ isOpen, onClose, changes }) {
+  return (
+    <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
+      {/* Static overlay - no animations */}
+      <div className="fixed inset-0 bg-background/95" />
+      
+      {/* Static modal - no motion components */}
+      <div className="fixed inset-4 bg-background border rounded-lg shadow-lg">
+        <div className="p-6">
+          <h2 className="text-xl font-semibold mb-4">
+            Review changes to {changes.filename}
+          </h2>
+          
+          {/* Monaco Editor diff viewer - static */}
+          <MonacoDiffEditor
+            original={changes.original}
+            modified={changes.modified}
+            language={changes.language}
+            options={{
+              readOnly: true,
+              renderSideBySide: true,
+              enableSplitViewResizing: false
+            }}
+          />
+          
+          {/* Static buttons - no hover animations */}
+          <div className="flex gap-3 mt-6">
+            <button 
+              onClick={onClose}
+              className="px-4 py-2 border rounded-md hover:bg-muted"
+            >
+              Reject
+            </button>
+            <button 
+              onClick={() => applyChanges(changes)}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            >
+              Accept & Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ❌ WRONG: Using motion components in Trust Surface
+export function WrongDiffModal({ isOpen, changes }) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50"
+        >
+          {/* This violates Trust Surface rules */}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+```
 
 ### 4.4 File Tree Sidebar
 
@@ -473,7 +566,7 @@ _Advanced features like 3D visualization and real-time collaboration are planned
 
 - User types: "Add error handling to `api.js`".
 - **State 1:** Input shows a loading indicator. Status bar: `Thinking...`.
-- **State 2:** A non-blocking toast appears: `Proposing changes...`. Diff modal appears instantly (no animation).
+- **State 2:** A non-blocking toast appears: `Proposing changes...`. Diff Modal appears instantly (no animation, no fade-in, no motion effects).
 - **State 3:** User reviews diff, clicks `Accept`. Modal closes instantly. A system message appears in chat: `✅ Changes applied to api.js`. Activity log adds an entry.
 
 ### 5.3 Adding a New AI Provider
@@ -483,12 +576,20 @@ _Advanced features like 3D visualization and real-time collaboration are planned
 
 ### 5.4 Selecting a Model for a Provider
 
+**For HTTP Providers:**
 - User clicks on a provider in the Provider Selector dropdown.
 - **State 1:** Loading spinner appears. App calls provider's `/models` endpoint.
 - **State 2:** Models dropdown appears showing available models.
 - **State 3:** User selects a model → `selectedModel` is saved.
 - **State 4:** Provider card updates to show selected model. Toast: `"Now using [model] with [provider]"`.
 - **Edge Case:** If `/models` endpoint fails, show fallback models with a warning.
+
+**For CLI agents:**
+- User clicks on a CLI agent in the Provider Selector dropdown.
+- **State 1:** Text input field appears for model name entry.
+- **State 2:** User types model name (e.g., "gpt-4", "claude-3-5-sonnet") → `selectedModel` is saved.
+- **State 3:** Provider card updates to show selected model. Toast: `"Now using [model] with [agent]"`.
+- **Note:** CLI agents that don't support model selection (like GitHub Copilot) show "Fixed Model" instead of input field.
 
 ### 5.5 Keyboard Shortcuts
 
@@ -664,6 +765,26 @@ export function ModelDropdownSkeleton() {
 ## Motion & Accessibility Matrix
 
 **AIDE respects user accessibility preferences and system performance.** The following matrix defines which animations and effects are disabled in reduced motion mode:
+
+### Animation Scope Control
+
+**CRITICAL**: Framer Motion and all animations are **COMPLETELY PROHIBITED** in Trust Surfaces but allowed in Decorative Surfaces.
+
+#### Trust Surfaces (NO ANIMATIONS ALLOWED)
+- **Diff Modal** - File change review interface
+- **Error Modals** - Critical error dialogs  
+- **Permission Prompts** - Security confirmation dialogs
+- **Settings Forms** - Configuration interfaces
+- **File Tree** - Workspace file browser
+- **Command Palette** - Keyboard navigation interface
+
+#### Decorative Surfaces (ANIMATIONS ALLOWED)
+- **Welcome Screen** - Onboarding and marketing
+- **Provider Cards** - AI provider selection interface
+- **Chat Interface** - Message bubbles and interactions
+- **Loading States** - Non-critical feedback
+- **Toast Notifications** - Non-blocking feedback
+- **Marketing UI** - Showcase and demonstration views
 
 ### Reduced Motion Behavior (`prefers-reduced-motion: reduce`)
 
@@ -1328,7 +1449,7 @@ export function actionToast() {
 | React        | 18.2    | UI framework      |
 | TypeScript   | 5       | Type safety       |
 | Tailwind CSS | 3       | Styling           |
-| shadcn/ui    | latest  | Component library |
+| shadcn/ui    | v2      | Component library |
 
 ### Enhanced Components
 
@@ -2690,27 +2811,35 @@ interface DialogProps {
 
 ## 12. Data Integration & References
 
-- **AI Provider Configurations:** The visual components in this design (Provider Selector, Settings page) pull their data and logic from the technical specifications defined in [`PROVIDERS.md`](./PROVIDERS.md). Specifically: provider templates in Section "Provider Templates (API Configuration Only)", CLI agents in "CLI Agents Integration".
+- **AI Provider Configurations:** The visual components in this design (Provider Selector, Settings page) pull their data and logic from the technical specifications defined in [`PROVIDERS.md`](./PROVIDERS.md). Specifically: provider templates in Section "Provider Templates (API Configuration Only)", CLI agents in "CLI Agent Integration".
 - **Example:** The "Add Provider" form in Section 4.1 is built to populate the configuration schema defined in `PROVIDERS.md`.
 
 ---
 
 ## Visual Effect Scope Control
 
-Advanced visual effects (glass, neon, gradients, 3D, particles, glow) are restricted to:
-- Provider Selector
-- Welcome / Onboarding
-- Marketing or showcase views
+Advanced visual effects (glass, neon, gradients, 3D, particles, glow) and **ALL ANIMATIONS** are restricted to:
+- Provider Selector (decorative surface)
+- Welcome / Onboarding (decorative surface)
+- Marketing or showcase views (decorative surface)
+- Chat Interface (decorative surface)
+- Toast Notifications (decorative surface)
 
-They are prohibited in:
-- Diff Modal
-- Error Modals
-- Settings Forms
-- File Tree
-- Command Palette
-- Code Review Views
+They are **COMPLETELY PROHIBITED** in:
+- **Diff Modal** (Trust Surface)
+- **Error Modals** (Trust Surface)
+- **Settings Forms** (Trust Surface)
+- **File Tree** (Trust Surface)
+- **Command Palette** (Trust Surface)
+- **Code Review Views** (Trust Surface)
 
-> **Note:** Animations and effects are PROHIBITED on Trust Surfaces (diff modals, error states, critical confirmations) per SPECIFICATIONS.md. This ensures code review accuracy and maintains user trust in critical UI interactions.
+> **Note:** Animations and effects are PROHIBITED on Trust Surfaces (Diff Modals, error states, critical confirmations) per SPECIFICATIONS.md. This ensures code review accuracy and maintains user trust in critical UI interactions.
+
+### Implementation Rule
+
+**Trust Surfaces**: Use standard HTML elements (`<div>`, `<button>`, `<input>`) - NEVER use `motion.*` components.
+
+**Decorative Surfaces**: May use Framer Motion components (`motion.div`, `motion.button`) for enhanced user experience.
 
 ## Performance Governor
 
@@ -2728,10 +2857,23 @@ Degraded mode disables:
 
 ## UI Constitutional Terminology
 
-- **Trust Surfaces** — Diff Modal, Error Modals, Permission Prompts, Settings
-- **Decorative Surfaces** — Welcome screen, Provider cards, Marketing UI
+- **Trust Surfaces** — Diff Modal, Error Modals, Permission Prompts, Settings (NO ANIMATIONS EVER)
+- **Decorative Surfaces** — Welcome screen, Provider cards, Chat interface, Marketing UI (ANIMATIONS ALLOWED)
 - **System State** — Operational status only, not AI intent or emotion
 - **User Action** — Any event initiated by explicit user input
+
+### Implementation Rules
+
+**Trust Surfaces**: 
+- Use standard HTML elements only (`<div>`, `<button>`, `<input>`)
+- NEVER use `motion.*` components from Framer Motion
+- No CSS animations, transitions, or transforms
+- Static, high-contrast layouts only
+
+**Decorative Surfaces**:
+- May use Framer Motion components for enhanced UX
+- Animations should respect `prefers-reduced-motion`
+- Performance must not be compromised
 
 ---
 

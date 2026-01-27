@@ -88,7 +88,7 @@ Rules:
 1. This file is **BINDING** for MVP implementation. All features defined here are core requirements that work in conjunction with `SPECIFICATIONS.md`, `PROVIDERS.md`, and `UI_UX_SPECIFICATION.md`.
 2. Features defined here are **mandatory core MVP requirements** that must be implemented for the initial release.
 3. All features that introduce:
-   - New Tauri commands
+   - New Electron IPC commands
    - New provider capabilities
    - New data storage formats
    - New automated file-write behavior
@@ -1206,7 +1206,7 @@ class SmartProactiveAnalyzer {
     return issues;
   }
   
-  // CRITICAL: Always show diff modal, NEVER auto-apply!
+  // CRITICAL: Always show Diff Modal, NEVER auto-apply!
   private showIssues(issues: ProactiveIssue[]): void {
     showNotification({
       title: "⚠️ AIDE Found Issues",
@@ -1228,7 +1228,7 @@ class SmartProactiveAnalyzer {
     // Show issues in panel, user clicks to review each one
     issues.forEach(issue => {
       if (issue.autoFix && issue.suggestedFix) {
-        // ALWAYS show diff modal - comply with SPECIFICATIONS.md
+        // ALWAYS show Diff Modal - comply with SPECIFICATIONS.md
         this.showFixDiffModal(issue);
       }
     });

@@ -15,12 +15,12 @@
 | #   | Principle                        | Description                                                                                                                                                       |
 | --- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | **Primary models are dynamically fetched**   | AI models are fetched from provider APIs at runtime. Fallback models are static lists used only when API endpoints fail. See `PROVIDERS.md`. |
-| 2   | **User selects the model**       | After adding a provider, user must select a model from the fetched list. `selectedModel` starts as `null`.                                                        |
+| 2   | **User selects the model**       | After adding a provider, user must select a model from the fetched list. `selectedModel` starts as `null` and there are NEVER any default models. |
 | 3   | **Priority order matters**       | `openai_compatible` providers first (cost-efficient), `openai` direct last (expensive fallback).                                                                  |
 | 4   | **API keys in OS keychain only** | Never store API keys in config files, localStorage, or plain text.                                                                                                |
 | 5   | **Diff Modal is sacred**         | File changes must always show a diff view. User must explicitly Accept or Reject. No auto-apply. **CRITICAL: The Diff Modal must NEVER have blur, translucency, animations, or visual effects - it must remain static and high-contrast for code review accuracy.**                                                                  |
 | 6   | **Workspace sandboxing**         | All file operations are confined to the user-selected workspace directory.                                                                                        |
-| 7   | **No telemetry**                 | The app never phones home. All communication is with user-configured AI providers only.                                                                           |
+| 7   | **No telemetry**                 | The app never phones home. All communication is with user-configured AI providers only (plus required API headers for provider functionality). |
 | 8   | **Chat is the Control Plane**    | All AI-initiated file reads, edits, and CLI actions must originate from a user chat message.                                                                      |
 | 9   | **Edits Are User-Governed**      | The system may write files to disk only after the user explicitly accepts changes in the Diff Modal.                                                             |
 | 10  | **Agents Are Internal**          | Agents may exist for reasoning and task decomposition but must never appear as UI or IPC concepts.                                                                |
@@ -58,10 +58,10 @@
 | ✅ DO                                     | ❌ DON'T                                      |
 | ----------------------------------------- | --------------------------------------------- |
 | Fetch models from provider API at runtime | Hardcode model names in primary discovery code   |
-| Use `selectedModel: null` as default      | Use `defaultModel: "gpt-4-turbo"`             |
+| Use `selectedModel: null` as default      | Use `defaultModel: "gpt-4-turbo"` (NEVER set defaults) |
 | Use fallback models only when API fails   | Use fallback models as primary source        |
 | Store API keys in OS keychain             | Store API keys in JSON config or localStorage |
-| Show diff modal for all file changes      | Auto-apply changes without user confirmation  |
+| Show Diff Modal for all file changes      | Auto-apply changes without user confirmation  |
 | Confine file operations to workspace      | Allow access to files outside workspace       |
 
 ---
@@ -159,7 +159,7 @@ Any modification to this file MUST follow these rules:
 - **As a user,** CLI agents can read and modify files in my workspace with the same diff-and-confirm flow.
 - **As a user,** I can see which CLI agents are available and install new ones.
 
-🤖 **Complete AI System** (44 AI connections: 31 HTTP providers (29 cloud + 2 local) + 13 CLI agents routed through the unified AI Control Plane)
+🤖 **Complete AI System** (44 AI connections: 31 HTTP providers (29 cloud + 2 local) + 13 CLI agents routed through the unified AIControlPlane)
 
 ## 3. Technical Architecture & Stack
 
@@ -185,30 +185,14 @@ Any modification to this file MUST follow these rules:
 
 ### 3.1.1 Production-Verified Versions
 
-**AIDE uses Electron 25** as its desktop framework. The table below compares AIDE's tech stack with other production AI desktop applications for reference:
+**AIDE uses Electron 25 (Chromium 119, Node 20)** as its desktop framework, matching the same production-proven stack used by Claude Desktop and other successful AI applications.
 
-| Component | AIDE (Electron) | Claude Desktop (Electron) | MiniMax Agent (Tauri) | Status |
-|-----------|-----------------|---------------------------|------------------------|--------|
-| **Desktop Framework** | **Electron 25** | **Electron 25** | Tauri 1.5 | ✅ **Production-proven** |
-| **Chromium** | Chromium 119 (bundled) | **Chromium 119** | System WebView | ✅ **Auto-bundled** |
-| **Node.js** | **Node 20** | **Node 20** | N/A (Rust) | ✅ **Production-proven** |
-| **React** | **React 18.2** | **React 18.2** | Vue 3 | ✅ **Production-proven** |
-| **TypeScript** | **TypeScript 5** | **TypeScript 5** | TypeScript 4.9 | ✅ **Production-proven** |
-| **Tailwind** | **Tailwind CSS 3** | **Tailwind 3** | SASS | ✅ **Production-proven** |
-| **State** | **Zustand 4** | **Zustand 4** | Pinia | ✅ **Production-proven** |
-| **Build Tool** | **Vite 5** | **Vite 5** | Vite 5 | ✅ **Production-proven** |
-| **Database** | **Drizzle + SQLite** | better-sqlite3 | rusqlite + sqlx | ✅ **Enhanced with ORM** |
-| **Editor** | **Monaco Editor** | **Monaco** | CodeMirror 6 | ✅ **VS Code-grade** |
-| **UI Components** | **shadcn/ui v2** | **shadcn/ui** | Ant Design Vue | ✅ **Modern & Accessible** |
-| **Bundler** | **electron-builder** | **electron-builder** | Tauri-Builder | ✅ **Production-ready** |
-
-**Key Insight:** AIDE's Electron-based stack matches Claude Desktop's production-proven architecture exactly. All versions are battle-tested at scale.
-
-**Why Electron 25 for AIDE:**
+**Why Electron 25 (Chromium 119, Node 20) for AIDE:**
 - **Production-Proven**: Same stack as Claude Desktop (millions of users)
 - **Full Node.js Access**: Required for CLI agent integration and native modules
 - **Mature Ecosystem**: Extensive tooling and community support
 - **Cross-Platform**: True native experience on Windows, macOS, and Linux
+- **Definitive Choice**: Electron 25 (Chromium 119, Node 20) is the mandated desktop framework for AIDE
 
 
 ### 3.2 Complete System Architecture
@@ -219,13 +203,13 @@ graph TB
     Frontend --> IPC[Electron IPC]
 
     IPC --> Main[Electron Main Process]
-    Main --> MultiAI[AI Control Plane]
+    Main --> MultiAI[AIControlPlane]
     Main --> FileOps[File Operations]
     Main --> CLIExec[CLI Execution]
 
     MultiAI --> HTTP[31 HTTP Providers: 29 Cloud + 2 Local]
     MultiAI --> LocalAI[Ollama/LM Studio]
-    CLIExec --> CLI[13 CLI Agents]
+    CLIExec --> CLI[13 CLI agents]
 
     FileOps --> NodeFS[Node.js fs/promises]
     FileOps --> Diff[Diff Modal]
@@ -241,10 +225,10 @@ graph TB
 2.  **Credential Storage:** API keys are encrypted and stored using Windows Credential Manager via the `node-keytar` library (native Node.js addon for Electron).
 3.  **No Telemetry:** The application will not phone home. All communication is strictly between the app and the user's configured AI provider endpoint.
 
-- **Telemetry Definition:** Any data sent to non-user-configured endpoints, including behavioral data, usage statistics, error reports, or content analysis sent to third parties.
-- **Exception:** OpenRouter requires `HTTP-Referer` and `X-Title` headers for API ranking. These contain only app identification, not user data.
-- **Allowed:** Communication with user-configured AI providers for legitimate AI operations (chat, embeddings, model fetching).
-- **Prohibited:** Analytics, crash reporting, usage tracking, content analysis sent to non-configured endpoints.
+- **Telemetry Definition:** Any data sent to non-user-configured endpoints for behavioral analysis, usage statistics, error reporting, or content analysis by third parties for non-functional purposes.
+- **Required API Headers Exception:** OpenRouter requires `HTTP-Referer` and `X-Title` headers for API functionality and ranking. These contain only app identification data, not user behavioral data or file content.
+- **Allowed:** Communication with user-configured AI providers for legitimate AI operations (chat, embeddings, model fetching) and required API headers for provider functionality.
+- **Prohibited:** Analytics services, crash reporting to third parties, usage tracking, behavioral analysis, content analysis sent to non-configured endpoints.
 
 4.  **Explicit Consent:** The **diff-and-confirm** step is mandatory for all file edits. Files may only be written to disk after explicit user acceptance in the Diff Modal.
 
@@ -289,9 +273,9 @@ The following IPC commands define the only permitted user-facing control surface
 
 Any IPC command enabling background automation, agent orchestration, or silent file execution is prohibited.
 
-### 3.4 AI Control Plane Architecture
+### 3.4 AIControlPlane Architecture
 
-**AIDE uses a single, unified AI control plane to prevent architectural conflicts and ensure consistent behavior.**
+**AIDE uses a single, unified AIControlPlane to prevent architectural conflicts and ensure consistent behavior.**
 
 #### Core MVP Features (All Required for Initial Release)
 
@@ -379,7 +363,7 @@ interface AIControlPlane {
 |------|-------------|-------------|
 | **Single AI Interface** | All AI operations must go through `AIControlPlane` | No direct API clients allowed |
 | **Capability Checking** | Check provider capabilities before operations | Throw error if capability missing |
-| **Model Validation** | Verify `selectedModel` is not null before AI calls | Prevent undefined model errors |
+| **Model Validation** | Verify `selectedModel` is not null before AI calls (user must select first) | Prevent undefined model errors |
 | **Provider Isolation** | Each provider manages its own models and config | No cross-provider contamination |
 | **Graceful Fallback** | Auto-fallback to next provider on failure | Maintain service continuity |
 | **Edit Authority** | Only the Main process may write files to disk | AI systems and agents generate diffs; Main applies after user acceptance |
@@ -1931,7 +1915,7 @@ User opens the AIDE application for the first time.
 2. Status bar updates to: `Thinking...`
 3. Backend process:
    - AIControlPlane receives the prompt.
-   - Agent uses "read file" tool (Tauri command) to fetch `src/main.js`.
+   - Agent uses "read file" tool (Electron IPC) to fetch `src/main.js`.
    - Agent sends prompt + file content to configured AI provider.
    - Agent receives code suggestion.
    - Agent uses "create edit proposal" tool to generate a diff.
@@ -2117,17 +2101,18 @@ aide-desktop/
 │       └── ci.yml                 # GitHub Actions
 ├── biome.json                     # Biome config
 ├── drizzle.config.ts             # Drizzle config
+├── electron-builder.yml          # Electron packaging config
 ├── playwright.config.ts          # Playwright config
 ├── vitest.config.ts              # Vitest config
-├── tailwind.config.ts
-├── tsconfig.json
-├── package.json
-├── pnpm-lock.yaml
-├── README.md
-├── SPECIFICATIONS.md
-├── PROVIDERS.md
-├── INTELLIGENCE.md
-└── UI_UX_SPECIFICATION.md
+├── tailwind.config.ts            # Tailwind CSS config
+├── tsconfig.json                 # TypeScript config
+├── package.json                  # Dependencies and scripts
+├── pnpm-lock.yaml               # Package lock file
+├── README.md                    # Project overview and quick start
+├── SPECIFICATIONS.md            # Complete technical specification
+├── PROVIDERS.md                 # AI provider configurations (44 connections)
+├── INTELLIGENCE.md              # Advanced AI intelligence features
+└── UI_UX_SPECIFICATION.md      # UI components and design system
 ```
 
 ### Configuration Files
@@ -2147,7 +2132,7 @@ aide-desktop/
 | Time to first edit | < 5 minutes  | From fresh install to accepted file edit       |
 | Provider setup     | < 2 minutes  | From opening settings to successful connection |
 | Model selection    | < 30 seconds | From provider selection to model chosen        |
-| File edit flow     | < 1 minute   | From request to diff modal appearing           |
+| File edit flow     | < 1 minute   | From request to Diff Modal appearing           |
 | Context analysis   | < 10 seconds | Time to analyze project structure              |
 | Memory recall      | < 100ms      | Time to retrieve relevant memories             |
 | Multi-agent task   | < 3 minutes  | Complex task completion with multiple agents   |
@@ -2183,7 +2168,7 @@ aide-desktop/
 | -------------------- | -------------- | ---------------------------------------------------- |
 | API key storage      | 100% encrypted | Keys only in OS keychain, never in files             |
 | Workspace sandboxing | 100% enforced  | No file access outside selected folder               |
-| Telemetry            | Zero           | No network calls except to user-configured providers |
+| Telemetry            | Zero           | No network calls except to user-configured providers and required API headers |
 | Diff confirmation    | 100% required  | No file writes without explicit user approval        |
 | Memory isolation     | 100% enforced  | Workspace memories never cross-contaminate           |
 
@@ -2235,7 +2220,7 @@ import path from 'path';
 import keytar from 'node-keytar';
 import Database from 'better-sqlite3';
 
-// Electron 25 configuration
+// Electron 25 (Chromium 119, Node 20) configuration
 app.commandLine.appendSwitch('enable-features', 'ElectronSerialChooser');
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 

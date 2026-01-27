@@ -26,7 +26,7 @@
 > 3. [`UI_UX_SPECIFICATION.md`](./UI_UX_SPECIFICATION.md) - UI components, design system
 > 4. [`INTELLIGENCE.md`](./INTELLIGENCE.md) - Advanced AI intelligence features (context awareness, learning, multi-model)
 >
-> **Key Rule:** Models are fetched from provider APIs at runtime. `selectedModel` starts as `null`. Never hardcode model names.
+> **Key Rule:** Models are fetched from provider APIs at runtime. `selectedModel` starts as `null` and there are NEVER any default models. Never hardcode model names.
 
 ---
 
@@ -106,12 +106,12 @@ Rules:
 | **AI HTTP Client**    | Custom fetch/streaming implementation                                                      | Lightweight, provider-agnostic, supports streaming |
 | **Frontend UI**       | React 18.2 + TypeScript 5 + Tailwind CSS 3                                                 | Modern, type-safe UI with utility-first styling |
 | **UI Components**     | [shadcn/ui v2](https://ui.shadcn.com/)                                                        | Accessible, customizable components             |
-| **State Management**  | [Zustand](https://zustand-demo.pmnd.rs/) + [TanStack Query v5](https://tanstack.com/query) | Lightweight state + robust server-state caching |
-| **Local Database**    | Better-SQLite3 + [Drizzle ORM](https://orm.drizzle.team/)                                  | Fastest SQLite for Node.js with type-safe ORM   |
+| **State Management**  | [Zustand 4](https://zustand-demo.pmnd.rs/) + [TanStack Query v5](https://tanstack.com/query) | Lightweight state + robust server-state caching |
+| **Local Database**    | Better-SQLite3 + [Drizzle ORM v0.36](https://orm.drizzle.team/)                                  | Fastest SQLite for Node.js with type-safe ORM   |
 | **Code Editor**       | [Monaco Editor](https://microsoft.github.io/monaco-editor/)                                | VS Code-grade editing for diff viewer           |
 | **Dev Tools**         | Vite 5 + Biome 2.0 + Vitest 3 + Playwright 2                                               | Fast builds, linting/formatting, testing        |
 
-> **CLI Agents:** AIDE also supports 13 CLI-based AI tools (Aider, Copilot CLI, etc.). See [`PROVIDERS.md` CLI Agents section](./PROVIDERS.md#cli-agents-integration) for details.
+> **CLI agents:** AIDE also supports 13 CLI-based AI tools (Aider, Copilot CLI, etc.). See [`PROVIDERS.md` CLI Agent Integration section](./PROVIDERS.md#cli-agent-integration) for details.
 
 ## 📋 Quick Start
 
@@ -260,9 +260,9 @@ To avoid "Unknown Publisher" warnings:
 
 ## 🏗️ Why Electron?
 
-AIDE uses **Electron 25** for its production-proven stability and extensive ecosystem:
+AIDE uses **Electron 25 (Chromium 119, Node 20)** for its production-proven stability and extensive ecosystem:
 
-| Feature | Electron 25 | Notes |
+| Feature | Electron 25 (Chromium 119, Node 20) | Notes |
 |---------|-------------|-------|
 | **Platform Support** | Windows, macOS, Linux | True cross-platform |
 | **Chromium Version** | 119 | Latest web features, secure |
@@ -356,31 +356,37 @@ AIDE: [Creates file proposal → User reviews → Accepts/Rejects]
 aide-desktop/
 ├── src/                      # Frontend (React/TypeScript)
 │   ├── components/           # UI Components
-│   │   ├── ui/              # shadcn/ui components
+│   │   ├── ui/              # shadcn/ui components (Button, Card, Badge)
 │   │   ├── chat/            # Chat interface components
-│   │   ├── diff/            # Diff viewer components
-│   │   └── providers/       # Provider selector components
+│   │   ├── diff/            # Diff viewer components (Monaco Editor)
+│   │   ├── providers/       # Provider selector components
+│   │   ├── intelligence/    # Intelligence features UI
+│   │   ├── sidebar/         # File tree, activity log, memory browser
+│   │   └── layout/          # Header, status bar, command palette
 │   ├── lib/
-│   │   ├── ai/              # AI HTTP client setup
+│   │   ├── ai/              # AI HTTP client, model discovery, control plane
+│   │   ├── intelligence/    # Advanced AI features (memory, multi-agent, etc.)
+│   │   ├── cli/             # CLI agent execution and detection
 │   │   ├── db/              # Drizzle ORM schema & queries
-│   │   ├── cli/             # CLI agent execution
-│   │   └── utils/           # Helper utilities
-│   ├── stores/              # Zustand state stores
-│   ├── hooks/               # Custom React hooks
+│   │   └── utils/           # Helper utilities (file, diff, vector, audio)
+│   ├── stores/              # Zustand state stores (provider, workspace, intelligence)
+│   ├── hooks/               # Custom React hooks (AI, intelligence, voice, visual)
 │   └── main.tsx             # App entry point
 ├── electron/                 # Electron main process
 │   ├── main/
 │   │   ├── index.js         # Main entry point
-│   │   ├── ipc-handlers/    # IPC handlers (file-ops, keychain, cli-agents)
+│   │   ├── ipc-handlers/    # IPC handlers (file-ops, keychain, cli-agents, intelligence)
 │   │   └── config.js        # App configuration
 │   └── preload/
 │       └── index.js         # IPC bridge
 ├── tests/                    # Test files
-│   ├── unit/                # Vitest unit tests
-│   └── e2e/                 # Playwright E2E tests
+│   ├── unit/                # Vitest unit tests (stores, utils, intelligence)
+│   └── e2e/                 # Playwright E2E tests (chat, file-ops, multi-agent)
+├── drizzle/                  # Database migrations (including intelligence tables)
 ├── SPECIFICATIONS.md         # Complete project blueprint
-├── PROVIDERS.md              # AI provider configurations
+├── PROVIDERS.md              # AI provider configurations (44 total connections)
 ├── UI_UX_SPECIFICATION.md    # Design & interface specs
+├── INTELLIGENCE.md           # Advanced AI intelligence features
 └── README.md                 # This file
 ```
 
@@ -391,10 +397,10 @@ aide-desktop/
 | **File Sandboxing**      | All operations confined to user-selected workspace only                                         |
 | **Credential Safety**    | API keys encrypted in Windows Credential Manager                                                |
 | **Explicit Consent**     | All file edits require manual approval via diff view - no auto-apply                            |
-| **No Telemetry**         | Zero data collection - app only communicates with user-configured AI providers*                 |
+| **No Telemetry**         | Zero data collection - app only communicates with user-configured AI providers**                |
 | **No Hardcoded Secrets** | No API keys, endpoints, or model names hardcoded in source                                      |
 
-> \*Exception: OpenRouter requires `extraHeaders` for rankings. This is the only allowed exception.
+> **Exception: Required API Headers:** OpenRouter requires `HTTP-Referer` and `X-Title` headers for API functionality and ranking. These contain only app identification data (`https://aide-app.com`, `AIDE Desktop Editor`), not user behavioral data or file content. This is the only allowed exception to the zero data collection policy.
 
 ## ✨ Current Features
 
@@ -503,7 +509,7 @@ aide --health-check                          # System diagnostics
 - [ ] API keys stored in OS keychain (never in files)
 - [ ] Workspace sandboxing enabled
 - [ ] Network traffic encrypted (HTTPS only)
-- [ ] No telemetry or data collection
+- [ ] No telemetry or data collection (except required API headers for provider functionality)
 - [ ] Regular security updates enabled
 - [ ] Local-first data processing
 
@@ -513,7 +519,7 @@ aide --health-check                          # System diagnostics
 |---------|----------------|---------|
 | **Local Processing** | Code analysis runs locally | Your code never leaves your machine |
 | **Encrypted Storage** | OS keychain for API keys | Military-grade credential protection |
-| **No Telemetry** | Zero data collection | Complete privacy |
+| **No Telemetry** | Zero data collection (except required API headers for provider functionality) | Complete privacy |
 | **Workspace Isolation** | Sandboxed file access | Protection from unauthorized access |
 
 ## 📊 Personal Analytics

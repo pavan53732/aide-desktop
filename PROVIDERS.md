@@ -16,7 +16,7 @@
 | #   | Principle                                    | Description                                                                                                                  |
 | --- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | 1   | **Primary models are dynamically fetched**   | AI models are fetched from provider APIs at runtime. Fallback models are static lists used only when API endpoints fail. |
-| 2   | **User selects the model**                   | After selecting a provider, the app fetches available models and user picks one. The `selectedModel` field starts as `null`. |
+| 2   | **User selects the model**                   | After selecting a provider, the app fetches available models and user picks one. The `selectedModel` field starts as `null` and there are NEVER any default models. |
 | 3   | **Priority order matters**                   | `openai_compatible` providers first (cost-efficient), `openai` direct last (expensive fallback).                             |
 | 4   | **Fallback models are emergency-only**       | The `fallbackModels` field is ONLY used when a provider's `/models` endpoint is unavailable or fails.                       |
 | 5   | **CLI agents ≠ HTTP providers**              | CLI agents (Aider, Copilot CLI) run local commands. HTTP providers call remote APIs. Different validation logic applies.     |
@@ -25,7 +25,7 @@
 - macOS: Keychain
 - Linux: Secret Service / KWallet       |
 | 7   | **Provider templates define endpoints only** | The JSON templates in this doc define API endpoints and auth methods, NOT available models.                                  |
-| 8   | **No Telemetry (Exception)**                 | OpenRouter requires `extraHeaders` for rankings. This is the only allowed exception to the "No Telemetry" rule.              |
+| 8   | **No Telemetry (Required API Headers Exception)** | OpenRouter requires `extraHeaders` for API functionality. This is the only allowed exception - required API headers contain only app identification, not user behavioral data. |
 
 ### User Flow (Must Understand)
 
@@ -50,7 +50,7 @@
 | ✅ DO                                            | ❌ DON'T                                       |
 | ------------------------------------------------ | ---------------------------------------------- |
 | Fetch models dynamically from `/models` endpoint | Hardcode model names in primary discovery      |
-| Use `selectedModel: null` as default             | Use `defaultModel: "gpt-4-turbo"`              |
+| Use `selectedModel: null` as default             | Use `defaultModel: "gpt-4-turbo"` (NEVER set defaults) |
 | Check if `selectedModel` exists before API call  | Assume a model is always selected              |
 | Use `fallbackModels` only when API fails        | Use `fallbackModels` as primary source        |
 | Store API keys in OS keychain                    | Store API keys in config files or localStorage |
@@ -95,7 +95,7 @@ All changes to this file MUST:
 Breaking changes to:
 - Provider schema
 - Capability flags
-- Tauri command names
+- Electron IPC command names
 - Fallback strategy
 
 Require a corresponding amendment in `SPECIFICATIONS.md`.
@@ -114,7 +114,7 @@ This document defines the **constitutional provider schema and configuration law
 > 2. Pre-configured `openai_compatible` providers (OpenRouter, Groq, Together, etc.)
 > 3. Native providers (Anthropic, Google, Mistral, etc.)
 > 4. Local providers (Ollama, LM Studio)
-> 5. CLI Agents (Aider, Copilot CLI, etc.)
+> 5. CLI agents (Aider, Copilot CLI, etc.)
 > 6. `openai` (direct) - **Last resort fallback** (most expensive)
 
 ### Example Cloud Providers (HTTP)
@@ -136,7 +136,7 @@ This document defines the **constitutional provider schema and configuration law
 
 > **Note:** This table shows examples of cloud providers. The complete list of 31 HTTP provider templates (29 cloud + 2 local) + 13 CLI agents = 44 total AI connections is detailed in the [Provider Templates](#provider-templates-api-configuration-only) section below.
 
-### CLI Agents (Local) - Priorities 51-62
+### CLI agents (Local) - Priorities 51-62
 
 | ID             | Agent Name         | Command        | Installation                             | Priority |
 | -------------- | ------------------ | -------------- | ---------------------------------------- | -------- |
@@ -336,7 +336,7 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
 }
 ```
 
-> **Note:** OpenRouter requires `extraHeaders` for rankings.
+> **Note:** OpenRouter requires `extraHeaders` for API functionality and ranking. These headers contain only app identification data, not user behavioral data or file content.
 
 ### 8. Local Ollama
 
@@ -731,7 +731,7 @@ interface BaseProviderConfig {
   enabled: boolean;
   priority: number;
   apiKey: string; // Encrypted reference
-  selectedModel: string | null; // User-selected at runtime
+  selectedModel: string | null; // User-selected at runtime (HTTP: from API dropdown, CLI: via text input)
   // Remove capabilities from user config
 // capabilities: ProviderCapabilities; // What this provider can do
 }
@@ -787,7 +787,7 @@ interface CloudProviderConfig extends BaseProviderConfig {
   };
 }
 
-// 2. CLI Agent Providers (Aider, Goose, etc.)
+// 2. CLI agent Providers (Aider, Goose, etc.)
 interface CLIProviderConfig extends BaseProviderConfig {
   type: "cli_agent";
   command: string; // The binary to execute (e.g., "aider")
@@ -797,6 +797,8 @@ interface CLIProviderConfig extends BaseProviderConfig {
     authType: "none"; // CLI tools handle their own auth or env vars
     environmentVars?: Record<string, string>;
     flags?: string[]; // Extra CLI flags (e.g., ["--no-auto-commits"])
+    supportsModelSelection?: boolean; // Whether this CLI agent supports --model flag
+    modelFlag?: string; // Custom model flag (default: "--model")
   };
 }
 
@@ -1074,9 +1076,9 @@ aide providers add \
 # Note: Model selection happens in the UI after provider is added
 ```
 
-## CLI Agents Integration
+## CLI Agent Integration
 
-### Supported vs Detected CLI Agents
+### Supported vs Detected CLI agents
 
 AIDE includes **13 supported CLI agents** in its configuration system. These agents can be used if installed:
 
@@ -1091,6 +1093,35 @@ AIDE includes **13 supported CLI agents** in its configuration system. These age
 **MVP Scope:** For MVP, CLI agents are **supported** (configuration exists) but auto-detection is optional. Users can manually configure CLI agents if installed.
 
 > **Edit Rule:** CLI agents may generate file changes, but all changes must be converted into diffs and presented in the Diff Modal for user approval. The Main process applies accepted changes to disk.
+
+### CLI agent Model Selection
+
+CLI agents handle model selection differently than HTTP providers:
+
+| Agent Type | Model Selection Method | Example |
+|------------|----------------------|---------|
+| **HTTP Providers** | Fetch models from API, user selects from dropdown | User selects "gpt-4-turbo" from OpenAI's `/models` response |
+| **CLI agents** | User specifies model via command-line arguments | `aider --model gpt-4 <files>` or `gpt-engineer --model claude-3-5-sonnet` |
+
+**CLI agent Model Selection Behavior:**
+- **Supported Agents**: Some CLI agents support `--model` flags (Aider, GPT Engineer, Gemini CLI, etc.)
+- **Fixed Model Agents**: Some CLI agents use fixed models (GitHub Copilot, Warp AI)
+- **Provider-Based Agents**: Some CLI agents support `--provider` flags (Goose CLI)
+
+**Implementation:**
+- CLI agents still have `selectedModel: string | null` in their configuration
+- When `selectedModel` is set, AIDE passes it as a command-line argument: `{command} --model {selectedModel}`
+- When `selectedModel` is `null`, AIDE uses the CLI agent's default model
+- Model selection UI shows a text input for CLI agents instead of a dropdown
+
+**Example CLI agent Execution:**
+```bash
+# User selects "gpt-4" for Aider
+aider --model gpt-4 src/main.ts
+
+# User selects "claude-3-5-sonnet" for GPT Engineer  
+gpt-engineer --model claude-3-5-sonnet ./my-project
+```
 
 ### Auto-Detection System
 
@@ -1129,7 +1160,7 @@ async function isCommandAvailable(
 }
 ```
 
-### Detailed CLI Agent Specifications
+### Detailed CLI agent Specifications
 
 #### 1. Aider AI
 
@@ -1523,7 +1554,7 @@ async function isCommandAvailable(
 }
 ```
 
-### CLI Agent Installation Guide
+### CLI agent Installation Guide
 
 #### Prerequisites Check
 
@@ -1579,7 +1610,7 @@ export async function installCLIAgent(agentId: string): Promise<InstallResult> {
 ```typescript
 async function validateProvider(config: AIProviderConfig): Promise<boolean> {
   try {
-    // 1. Handle CLI Agents via Electron IPC
+    // 1. Handle CLI agents via Electron IPC
     if (config.type === "cli_agent") {
       // Invokes Electron IPC to check if binary exists in PATH
       const { ipcRenderer } = window.electron;
@@ -1744,6 +1775,5 @@ interface ModelInfo {
 ---
 
 **Supported Providers**: 44 AI connections total
-- 29 Cloud HTTP Providers
-- 2 Local HTTP Providers (Ollama, LM Studio)
-- 13 CLI Agents
+- **31 HTTP Providers**: 29 cloud + 2 local (Ollama, LM Studio)
+- **13 CLI agents**

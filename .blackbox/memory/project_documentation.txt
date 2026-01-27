@@ -1,3 +1,3 @@
-# file-authority auto-fix diff-modal user-confirmation intelligence-system
-Resolved file operation authority inconsistencies by clarifying that all AI-generated file modifications, including auto-fixes from intelligence systems, require explicit user confirmation through the diff modal. Updated both SPECIFICATIONS.md and INTELLIGENCE.md to enforce human-in-the-loop for all file changes.
+# file-authority auto-fix Diff-Modal user-confirmation intelligence-system
+Resolved file operation authority inconsistencies by clarifying that all AI-generated file modifications, including auto-fixes from intelligence systems, require explicit user confirmation through the Diff Modal. Updated both SPECIFICATIONS.md and INTELLIGENCE.md to enforce human-in-the-loop for all file changes.
 
