@@ -20,7 +20,10 @@
 | 3   | **Priority order matters**                   | `openai_compatible` providers first (cost-efficient), `openai` direct last (expensive fallback).                             |
 | 4   | **Fallback models are last resort**          | The `fallbackModels` field is ONLY used when a provider's `/models` endpoint is unavailable or fails.                       |
 | 5   | **CLI agents ≠ HTTP providers**              | CLI agents (Aider, Copilot CLI) run local commands. HTTP providers call remote APIs. Different validation logic applies.     |
-| 6   | **API keys are NEVER stored in plaintext**   | All API keys must be encrypted using Windows Credential Manager.       |
+| 6   | **API keys are NEVER stored in plaintext**   | All API keys must be encrypted using the OS-native secure key store:
+- Windows: Credential Manager
+- macOS: Keychain
+- Linux: Secret Service / KWallet       |
 | 7   | **Provider templates define endpoints only** | The JSON templates in this doc define API endpoints and auth methods, NOT available models.                                  |
 | 8   | **No Telemetry (Exception)**                 | OpenRouter requires `extraHeaders` for rankings. This is the only allowed exception to the "No Telemetry" rule.              |
 
@@ -703,7 +706,8 @@ interface BaseProviderConfig {
   priority: number;
   apiKey: string; // Encrypted reference
   selectedModel: string | null; // User-selected at runtime
-  capabilities: ProviderCapabilities; // What this provider can do
+  // Remove capabilities from user config
+// capabilities: ProviderCapabilities; // What this provider can do
 }
 
 // Provider capabilities
@@ -1074,7 +1078,8 @@ async function isCommandAvailable(
   args: string[],
 ): Promise<boolean> {
   try {
-    await invoke("check_cli_availability", { command, args });
+    const { ipcRenderer } = window.electron;
+    await ipcRenderer.invoke('check-cli-availability', { command, args });
     return true;
   } catch {
     return false;
@@ -1532,10 +1537,11 @@ export async function installCLIAgent(agentId: string): Promise<InstallResult> {
 ```typescript
 async function validateProvider(config: AIProviderConfig): Promise<boolean> {
   try {
-    // 1. Handle CLI Agents via Tauri Command
+    // 1. Handle CLI Agents via Electron IPC
     if (config.type === "cli_agent") {
-      // Invokes Rust command to check if binary exists in PATH
-      return await invoke("check_cli_availability", {
+      // Invokes Electron IPC to check if binary exists in PATH
+      const { ipcRenderer } = window.electron;
+      return await ipcRenderer.invoke('check-cli-availability', {
         command: (config as CLIProviderConfig).command,
       });
     }
@@ -1581,7 +1587,7 @@ export function requiresCapability(
 }
 
 // Multi-AI Orchestrator with capability checking
-export class MultiAIOrchestrator {
+export class AIControlPlane {
   constructor(private currentProvider: AIProviderConfig) {}
   
   async chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse> {
@@ -1637,7 +1643,10 @@ export async function discoverModels(
 
   try {
     const models = await fetchModelsFromAPI(provider, endpoint);
-    return models.length > 0 ? models : getFallbackModels(provider.type);
+    if (models.length === 0) {
+  throw new Error("Models endpoint returned empty list");
+}
+return models;
   } catch {
     return getFallbackModels(provider.type);
   }

@@ -11,7 +11,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Living_Specification-blue" alt="Status">
-  <img src="https://img.shields.io/badge/Platform-Windows-green" alt="Platform">
+  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-green" alt="Platform">
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
 </p>
 
@@ -61,6 +61,15 @@ Rules:
 2. **Install**:
    - Double-click the downloaded `.msi` file
    - Follow the installation wizard
+## Constitutional Boundaries (User-Facing)
+
+- AIDE does not modify files automatically or in the background.
+- All file edits require user review and acceptance in the Diff view.
+- AI actions originate from user input or user-initiated analysis sessions.
+- Agents and internal orchestration are not user-visible concepts.
+- Provider models are always selected by the user and fetched dynamically.
+
+
    - Click "Install"
 
 3. **Run**:
@@ -75,18 +84,18 @@ Rules:
 - Internet connection (for AI providers)
 - **No programming tools or Node.js required!**
 
-> **AI Development Note**: This README, along with the `SPECIFICATIONS.md`, `PROVIDERS.md`, and `UI_UX_SPECIFICATION.md` files, serves as the complete blueprint for AI-assisted development. Copy sections into your AI full-stack builder (Replit Agent, Cursor, etc.) for implementation.
+> **AI Development Note**: This README, along with the `SPECIFICATIONS.md`, `PROVIDERS.md`, and `UI_UX_SPECIFICATION.md` files, serves as the complete blueprint for AI-assisted development. Use these documents as a unified set. Do not implement from partial excerpts, as architectural and security rules are defined across all governing files.
 
 ## ✨ Key Features
 
-- **🤖 Multi-Provider AI Hub**: Connect and configure 44 AI providers (31 provider templates: 29 cloud + 2 local + 13 CLI agents) in one interface
+- **🤖 Multi-Provider AI Hub**: Connect and configure 46 AI providers (31 cloud + 2 local + 13 CLI agents) in one interface
 - **🧠 Advanced Intelligence**: Context-aware AI that understands your entire project, learns from your style, and predicts your needs
 - **🔒 Secure File Operations**: Read and edit files with mandatory user confirmation
 - **💾 Local-First & Private**: Your API keys and file data stay on your machine
 - **🛠️ Developer-Friendly**: Works with your existing projects and workflows
 - **🏝️ Workspace Sandboxing**: Strict file access limited to user-selected directories
-- **🎯 Proactive Assistance**: AI finds issues and suggests improvements before you ask
-- **🧠🧠 Multi-Agent Collaboration**: Multiple specialized AIs work together on complex tasks
+- **🎯 Guided Assistance**: AI analyzes and suggests improvements when you request or start an analysis session
+- **🧠 Advanced Task Decomposition**: The system can break complex requests into structured steps internally
 
 ## 🛠️ Tech Stack
 
@@ -366,7 +375,7 @@ aide-desktop/
 
 ## ✨ Current Features
 
-- ✅ Multi-provider AI configuration (44 providers: 31 provider templates + 13 CLI agents)
+- ✅ Multi-provider AI configuration (46 providers: 31 cloud + 2 local + 13 CLI agents)
 - ✅ Dynamic model fetching from provider API
 - ✅ Secure file operations with diff viewer
 - ✅ Workspace sandboxing
@@ -549,4 +558,4 @@ If you need enterprise features, consider solutions like GitHub Copilot Enterpri
 
 ---
 
-**Built with ❤️ for individual developers who want AI superpowers.**
+**Built for individual developers who want powerful, private AI assistance.**
