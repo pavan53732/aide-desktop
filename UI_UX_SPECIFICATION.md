@@ -4,6 +4,7 @@
 > Last Amended: 2026-01-28
 > Governing Document: SPECIFICATIONS.md
 
+
 ---
 
 ## ⚠️ IMPORTANT: Read This First
@@ -159,7 +160,7 @@ Use a clean, highly readable sans-serif stack.
   - **System:** Centered, muted text. `text-center text-muted-foreground text-sm italic`.
 - **Chat Input:** A sticky bar at the bottom of the central panel. Contains:
   - A textarea that grows with content.
-  - An "Attach File/Context" button (paperclip icon) to explicitly add files to the context.
+  - An "Attach File/Context" button to explicitly add files to the context.
   - A "Send" button (paper plane icon). Changes to a "Stop" button (circle) while generating.
 
 ### 4.3 File Diff Modal (The Trust Center)

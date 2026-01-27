@@ -4,6 +4,7 @@
 > Stability Tier: Core  
 > Last Amended: 2026-01-28
 
+
 ---
 
 ## ⚠️ IMPORTANT: Read This First
@@ -103,7 +104,7 @@ Any modification to this file MUST follow these rules:
 **Tagline:** "Your intelligent AI bridge to local files"  
 **Core Mission:** Build a secure, privacy-focused desktop application that allows users to chat with their choice of AI provider (OpenAI, Anthropic, OpenRouter, local models, etc.) to directly read, analyze, and edit files within a controlled local workspace, with mandatory user confirmation for all changes. AIDE features advanced intelligence capabilities including context awareness, learning, multi-agent collaboration, predictive assistance, and comprehensive code understanding.
 
-**Revolutionary Intelligence:** AIDE goes beyond basic chat-to-code by providing deep project understanding, semantic code analysis, long-term memory, multi-modal capabilities (voice, visual), and intelligent task routing that makes coding 10x more efficient and 100x more intelligent.
+**Revolutionary Intelligence:** AIDE goes beyond basic chat-to-code by providing deep project understanding, semantic code analysis, long-term memory, and intelligent task routing that makes coding 10x more efficient and 100x more intelligent.
 
 ## 2. Core Features & User Stories
 
@@ -138,10 +139,8 @@ Any modification to this file MUST follow these rules:
 - **As a user,** the AI makes precise edits with minimal side effects.
 - **As a user,** the AI proactively detects issues in my code when I request analysis.
 
-### Feature Set 5: Multi-Modal Capabilities (MVP Priority: HIGH)
+### Feature Set 5: Assisted Interaction Modes (MVP Priority: HIGH)
 
-- **As a user,** I can drag screenshots or design mockups into the chat for the AI to understand and implement.
-- **As a user,** I can use voice commands to code instead of typing.
 - **As a user,** the AI can watch as I code and offer real-time assistance when requested.
 
 ### Feature Set 6: Code Quality & Optimization (MVP Priority: HIGH)
@@ -268,8 +267,6 @@ The following IPC commands define the only permitted user-facing control surface
 - `intelligence.generateTests`
 - `intelligence.generateDocumentation`
 - `intelligence.refactorCode`
-- `intelligence.analyzeVisualContent`
-- `intelligence.processVoiceInput`
 
 Any IPC command enabling background automation, agent orchestration, or silent file execution is prohibited.
 
@@ -301,9 +298,6 @@ All features in AIDE are part of the core MVP scope. The following comprehensive
 - Proactive issue detection and analysis
 
 **Extended Capabilities (Core MVP):**
-- Visual code understanding (screenshot analysis)
-- Voice coding interface
-- AI pair programming mode
 - Real-time code analysis and suggestions
 - Automated testing and documentation generation
 - Performance optimization recommendations
@@ -348,8 +342,6 @@ interface AIControlPlane {
   generateTests(code: string, framework: string): Promise<TestSuite>;
   generateDocumentation(code: string): Promise<Documentation>;
   refactorCode(code: string, refactorType: string): Promise<RefactoredCode>;
-  analyzeVisualContent(image: ImageData): Promise<VisualAnalysis>;
-  processVoiceInput(audio: AudioData): Promise<VoiceCommand>;
   
   // Fallback Management
   fallbackToNextProvider(): Promise<boolean>;
@@ -437,17 +429,6 @@ class PredictiveSystem {
   }
 }
 
-// Visual understanding system
-class VisualSystem {
-  constructor(private aiControlPlane: AIControlPlane) {}
-  
-  async analyzeScreenshot(image: ImageData): Promise<VisualAnalysis> {
-    this.aiControlPlane.requireCapability('vision');
-    
-    const analysis = await this.aiControlPlane.analyzeVisualContent(image);
-    return analysis;
-  }
-}
 ```
 
 #### Preventing Architectural Conflicts
@@ -471,7 +452,6 @@ const intelligenceSystem = new IntelligenceSystem(aiControlPlane); // Uses contr
 const memorySystem = new MemorySystem(aiControlPlane);       // Uses control plane
 const multiAgentSystem = new MultiAgentSystem(aiControlPlane); // Uses control plane
 const predictiveSystem = new PredictiveSystem(aiControlPlane); // Uses control plane
-const visualSystem = new VisualSystem(aiControlPlane);       // Uses control plane
 
 // All systems use the same AI interface
 ```
@@ -496,8 +476,6 @@ interface IntelligenceServices {
   testGenerator: TestGenerator;
   documentationGenerator: DocumentationGenerator;
   refactoringEngine: RefactoringEngine;
-  visualAnalyzer: VisualAnalyzer;
-  voiceProcessor: VoiceProcessor;
 }
 
 // All services inject the AIControlPlane
@@ -516,9 +494,7 @@ class IntelligenceServiceFactory {
       codeReviewer: new CodeReviewer(aiControlPlane),
       testGenerator: new TestGenerator(aiControlPlane),
       documentationGenerator: new DocumentationGenerator(aiControlPlane),
-      refactoringEngine: new RefactoringEngine(aiControlPlane),
-      visualAnalyzer: new VisualAnalyzer(aiControlPlane),
-      voiceProcessor: new VoiceProcessor(aiControlPlane)
+      refactoringEngine: new RefactoringEngine(aiControlPlane)
     };
   }
 }
@@ -987,30 +963,7 @@ export const predictions = sqliteTable("predictions", {
   validated_at: integer("validated_at", { mode: "timestamp" }),
 });
 
-// Visual analysis results
-export const visualAnalysis = sqliteTable("visual_analysis", {
-  id: text("id").primaryKey(),
-  workspace_id: text("workspace_id").notNull(),
-  image_hash: text("image_hash").notNull(),
-  analysis_type: text("analysis_type", { enum: ["screenshot", "design", "diagram", "ui_mockup"] }).notNull(),
-  detected_elements: text("detected_elements").notNull(), // JSON
-  generated_code: text("generated_code"),
-  confidence: real("confidence").notNull(),
-  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
-});
-
-// Voice command processing
-export const voiceCommands = sqliteTable("voice_commands", {
-  id: text("id").primaryKey(),
-  workspace_id: text("workspace_id").notNull(),
-  audio_hash: text("audio_hash").notNull(),
-  transcription: text("transcription").notNull(),
-  intent: text("intent").notNull(),
-  parameters: text("parameters"), // JSON
-  executed_action: text("executed_action"),
-  success: integer("success", { mode: "boolean" }),
-  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
-});
+ 
 ```
 
 ### 3.7 CLI Agent Integration
@@ -1841,8 +1794,6 @@ AIDE delivers a revolutionary development environment with the following complet
 
 ### Advanced Capabilities
 
-- 👁️ **Visual Code Understanding**: Analyze screenshots and design mockups
-- 🎤 **Voice Coding**: Talk to AIDE instead of typing
 - 👥 **AI Pair Programming**: Real-time coding assistance
 - 🧪 **Automated Testing**: Generate comprehensive test suites
 - 📚 **Documentation Generation**: Create API docs, READMEs, and inline comments
@@ -1987,8 +1938,7 @@ aide-desktop/
 │   │   │   ├── chat-container.tsx
 │   │   │   ├── chat-input.tsx
 │   │   │   ├── message-bubble.tsx
-│   │   │   ├── typing-indicator.tsx
-│   │   │   └── voice-input.tsx    # Voice coding interface
+│   │   │   └── typing-indicator.tsx
 │   │   ├── diff/
 │   │   │   ├── diff-modal.tsx
 │   │   │   └── diff-viewer.tsx    # Monaco diff
@@ -2001,8 +1951,7 @@ aide-desktop/
 │   │   │   ├── agent-status.tsx       # Multi-agent execution status
 │   │   │   ├── prediction-panel.tsx   # Predictive suggestions
 │   │   │   ├── issue-panel.tsx        # Detected issues display
-│   │   │   ├── analysis-panel.tsx     # Code analysis results
-│   │   │   └── visual-input.tsx       # Screenshot/image input
+│   │   │   └── analysis-panel.tsx     # Code analysis results
 │   │   ├── sidebar/
 │   │   │   ├── file-tree.tsx
 │   │   │   ├── activity-log.tsx
@@ -2033,9 +1982,7 @@ aide-desktop/
 │   │   │   ├── code-reviewer.ts       # Automated code review
 │   │   │   ├── test-generator.ts      # Test generation
 │   │   │   ├── doc-generator.ts       # Documentation generation
-│   │   │   ├── refactoring-engine.ts  # Code refactoring
-│   │   │   ├── visual-analyzer.ts     # Visual content analysis
-│   │   │   └── voice-processor.ts     # Voice command processing
+│   │   │   └── refactoring-engine.ts  # Code refactoring
 │   │   ├── cli/
 │   │   │   ├── execute.ts         # CLI agent execution
 │   │   │   └── detection.ts       # CLI binary detection
@@ -2061,9 +2008,7 @@ aide-desktop/
 │   │   ├── use-keyboard-shortcuts.ts
 │   │   ├── use-intelligence.ts    # Intelligence features hook
 │   │   ├── use-memory.ts          # Memory system hook
-│   │   ├── use-multi-agent.ts     # Multi-agent hook
-│   │   ├── use-voice.ts           # Voice input hook
-│   │   └── use-visual.ts          # Visual analysis hook
+│   │   └── use-multi-agent.ts     # Multi-agent hook
 │   ├── styles/
 │   │   └── globals.css
 │   ├── App.tsx
@@ -2077,9 +2022,7 @@ aide-desktop/
 │   │   │   ├── keychain.js        # secure storage
 │   │   │   ├── cli-agents.js      # CLI agent execution
 │   │   │   ├── intelligence.js    # Intelligence operations
-│   │   │   ├── memory.js          # Memory system operations
-│   │   │   ├── voice.js           # Voice processing
-│   │   │   └── visual.js          # Visual analysis
+│   │   │   └── memory.js          # Memory system operations
 │   │   └── config.js              # App configuration
 │   └── preload/
 │       └── index.js               # IPC bridge

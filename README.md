@@ -368,9 +368,9 @@ aide-desktop/
 │   │   ├── intelligence/    # Advanced AI features (memory, multi-agent, etc.)
 │   │   ├── cli/             # CLI agent execution and detection
 │   │   ├── db/              # Drizzle ORM schema & queries
-│   │   └── utils/           # Helper utilities (file, diff, vector, audio)
+│   │   └── utils/           # Helper utilities (file, diff, vector)
 │   ├── stores/              # Zustand state stores (provider, workspace, intelligence)
-│   ├── hooks/               # Custom React hooks (AI, intelligence, voice, visual)
+│   ├── hooks/               # Custom React hooks (AI, intelligence)
 │   └── main.tsx             # App entry point
 ├── electron/                 # Electron main process
 │   ├── main/
@@ -569,7 +569,6 @@ interface PersonalMetrics {
 - **Compliance Systems**: SOC 2, HIPAA, enterprise audit trails, SSO integration
 - **Team Collaboration**: Multi-user workspaces, shared provider pools, team analytics
 - **Enterprise Integrations**: CI/CD pipelines, monitoring systems (Prometheus, Grafana), enterprise SSO
-- **Advanced UI Features**: Visual code understanding (screenshot analysis), voice coding capabilities
 - **Real-time Pair Programming**: AI watching and suggesting as you type in real-time
 - **Plugin System**: Third-party extensions, custom plugins, marketplace integrations
 - **Advanced Collaboration**: Team features, shared workspaces, multi-user environments

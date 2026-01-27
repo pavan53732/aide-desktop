@@ -231,7 +231,6 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
       "embeddings": false,
       "streaming": true,
       "functionCalling": true,
-      "vision": true,
       "codeGeneration": true,
       "largeContext": true,
       "multimodal": true
@@ -323,10 +322,8 @@ AIDE supports dynamic model fetching. See [Implementation Strategy](#implementat
       "embeddings": false,
       "streaming": true,
       "functionCalling": true,
-      "vision": true,
       "codeGeneration": true,
-      "largeContext": true,
-      "multimodal": true
+      "largeContext": true
     },
     "extraHeaders": {
       "HTTP-Referer": "https://aide-app.com",

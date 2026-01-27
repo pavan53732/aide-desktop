@@ -2,9 +2,10 @@
 
 > Constitution Status: Ratified  
 > Stability Tier: Core  
-> Last Amended: 2026-01-27  
+> Last Amended: 2026-01-28  
 > Governing Document: SPECIFICATIONS.md  
 > Binding Authority: Core MVP Implementation Guide
+
 
 ---
 
@@ -19,10 +20,9 @@
 | 1   | **Context-Aware**                  | AIDE understands your entire project, not just individual files                               |
 | 2   | **User-Triggered Analysis**        | AIDE analyzes code only in response to explicit user chat requests or user-enabled analysis sessions |
 | 3   | **Learning**                       | AIDE learns from your coding style, preferences, and past decisions                           |
-| 4   | **Multi-Model**                    | AIDE routes tasks to specialized AI models for better results                                 |
-| 5   | **Collaborative**                  | Multiple AI agents work together on complex tasks                                             |
-| 6   | **Predictive**                     | AIDE anticipates what you need next based on your workflow                                    |
-| 7   | **Provider-Agnostic**              | All intelligence features work through the configured provider system, never hardcoded models |
+| 4   | **Collaborative**                  | Multiple AI agents work together on complex tasks                                             |
+| 5   | **Predictive**                     | AIDE anticipates what you need next based on your workflow                                    |
+| 6   | **Provider-Agnostic**              | All intelligence features work through the configured provider system, never hardcoded models |
 
 ### AI Provider Integration
 
@@ -3344,29 +3344,6 @@ What makes their solution better? What patterns should I learn?`
 ---
 
 ## **LEVEL 5: Advanced Features** 🚀
-
-### **5.1 Visual Code Understanding**
-
-AIDE can understand screenshots and design mockups to generate code.
-
-```typescript
-// User drags image into chat
-const result = await analyzeScreenshot(image);
-
-// AI: "I see a login form. I'll create a React component..."
-```
-
-### **5.2 Voice Coding**
-
-Talk to AIDE instead of typing commands.
-
-```typescript
-// User: "Create a function called calculateTotal"
-// AI: [Creates function]
-
-// User: "Add error handling"
-// AI: [Updates function]
-```
 
 ### **5.3 AI Pair Programming Mode**
 
