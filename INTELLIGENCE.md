@@ -136,9 +136,6 @@ AIDE performs multi-dimensional analysis for comprehensive project understanding
 - Last modified timestamps (not tracking every keystroke!)
 - Git history (if available)
 - Comment density
-=======
-
-#### **Layer 4: Dependency Analysis**
 - Direct dependencies
 - Transitive dependencies
 - Version compatibility
@@ -224,7 +221,7 @@ interface RealisticProjectContext {
   };
   
   // Storage limits
-  maxStorageMB: 100; // Don't track more than 100 MB
+  maxStorageMB: 10000; // Don't track more than 10 GB
   retentionDays: 30; // Auto-delete context older than 30 days
 }
 
@@ -261,7 +258,7 @@ export class UltraMicroscopicAnalyzer {
     this.workspace = workspace;
   }
   
-  async analyze(): Promise<UltraProjectContext> {
+  async analyze(): Promise<RealisticProjectContext> {
     console.log("🔬 Starting Ultra-Microscopic Project Analysis...");
     
     // Run all analyses in parallel for maximum speed
@@ -682,8 +679,7 @@ export class UltraMicroscopicAnalyzer {
   
 
   
-  // Helper methods...
-  private async getAllFiles(): Promise<string[]> {
+
     return await globby(["**/*"], {
       cwd: this.workspace,
       ignore: ["**/node_modules/**", "**/.git/**"]
@@ -2097,6 +2093,8 @@ export const AGENT_DEFINITIONS: AgentRole[] = [
 | **Phase 3** | Tester | Sequential | 40s | Skip if Developer failed |
 | **Phase 4** | Reviewer | Sequential | 35s | Return without review if previous failed |
 
+**Timeout and Max Duration:** Each agent has a configurable timeout that limits maximum execution time. If an agent exceeds its timeout, it fails and triggers fallback handling. The timeouts are set to allow sufficient time for complex tasks while preventing indefinite hanging. Total maximum time accounts for parallel execution of independent agents.
+
 **Total Maximum Time:** 30s + max(45s, 30s) + 40s + 35s = **150 seconds (2.5 minutes)**
 
 #### **Cost Estimation (Before Execution):**
@@ -2115,8 +2113,10 @@ export function estimateMultiAgentCost(
   task: string,
   provider: AIProviderConfig
 ): CostEstimate {
-  const taskLength = task.length;
-  const tokensPerAgent = Math.ceil(taskLength * 1.5); // Rough estimate
+  // Estimate tokens based on task complexity (rough heuristic)
+  const taskComplexity = estimateTaskComplexity(task);
+  const baseTokens = 1000; // Base tokens for context
+  const tokensPerAgent = Math.ceil((task.length + baseTokens) * taskComplexity);
   
   // Assume all agents run successfully
   const agents = ['Architect', 'Developer', 'Security', 'Tester', 'Reviewer'];
@@ -2124,12 +2124,15 @@ export function estimateMultiAgentCost(
   const totalTokens = tokensPerAgent * totalCalls;
   
   // Cost per 1M tokens (example rates)
-  const costPerMillionTokens = {
+  const costPerMillionTokens: Record<string, number> = {
     'gpt-4': 30,
     'gpt-3.5-turbo': 1,
     'claude-3-5-sonnet': 15,
     'groq': 0, // Free tier
   };
+  
+  // Estimate duration based on task complexity
+  const durationMinutes = Math.ceil(totalTokens / 5000); // ~5000 tokens/min per agent
   
   const modelCost = costPerMillionTokens[provider.selectedModel] || 10;
   const estimatedCost = (totalTokens / 1_000_000) * modelCost;
@@ -2138,8 +2141,24 @@ export function estimateMultiAgentCost(
     estimatedCalls: totalCalls,
     estimatedTokens: totalTokens,
     estimatedCostUSD: estimatedCost,
-    duration: '2-3 minutes'
+    duration: `${durationMinutes}-${durationMinutes + 2} minutes`
   };
+}
+
+function estimateTaskComplexity(task: string): number {
+  // Simple heuristic based on task description length and keywords
+  const complexityKeywords = ['architecture', 'migrate', 'refactor', 'optimize', 'security'];
+  const lowerTask = task.toLowerCase();
+  
+  let complexity = 1.0;
+  for (const keyword of complexityKeywords) {
+    if (lowerTask.includes(keyword)) {
+      complexity += 0.2;
+    }
+  }
+  
+  // Cap complexity at 2.0
+  return Math.min(2.0, complexity);
 }
 
 // Show cost warning before multi-agent execution
@@ -2563,14 +2582,15 @@ interface MemoryStorageInfo {
 
 interface MemoryCluster {
   topic: string;
-  memories: UltraMemory[];
+  memories: RealisticMemory[];
   centroid: number[]; // Average embedding
   coherence: number; // 0-1
 }
 
-// Simple hash function placeholder (replace with proper crypto.sha256 in production)
+import { createHash } from 'crypto';
+
 function sha256(text: string): string {
-  return `hash_${text.length}_${text.slice(0, 8)}`;
+  return createHash('sha256').update(text).digest('hex');
 }
 
 export class ProductionMemorySystem {
@@ -2852,9 +2872,9 @@ export class ProductionMemorySystem {
    * Store a new memory with automatic importance calculation
    */
   async remember(input: {
-    type: UltraMemory["type"];
+    type: RealisticMemory["type"];
     content: string;
-    context: UltraMemory["context"];
+    context: RealisticMemory["context"];
     explicitImportance?: number;
   }): Promise<string> {
     // Generate embedding
@@ -2870,7 +2890,7 @@ export class ProductionMemorySystem {
     // Find related memories
     const references = await this.findRelatedMemories(embedding, 5);
     
-    const memory: UltraMemory = {
+    const memory: RealisticMemory = {
       id: this.generateId(),
       timestamp: new Date(),
       workspaceId: this.workspaceId, // Workspace isolation
@@ -2926,7 +2946,8 @@ export class ProductionMemorySystem {
     minImportance?: number;
     types?: UltraMemory["type"][];
     recency?: "all" | "recent" | "old";
-  }): Promise<UltraMemory[]> {
+// RealisticMemory interface (already defined above at line 2518)
+  type UltraMemory = RealisticMemory;
     const limit = options?.limit ?? 10;
     const minImportance = options?.minImportance ?? 0.3;
     
@@ -3079,11 +3100,11 @@ export class ProductionMemorySystem {
    */
   private hybridRank(
     vectorResults: any[],
-    keywordResults: UltraMemory[],
+    keywordResults: RealisticMemory[],
     queryEmbedding: number[],
     options?: any
-  ): UltraMemory[] {
-    const scored = new Map<string, { memory: UltraMemory; score: number }>();
+  ): RealisticMemory[] {
+    const scored = new Map<string, { memory: RealisticMemory; score: number }>();
     
     // Score vector results
     for (const result of vectorResults) {
@@ -3358,7 +3379,7 @@ AI watches as you code and helps in real-time.
 
 ---
 
-## � **Intelligence Metrics**
+## **LEVEL 6: Heuristic Intelligence**
 
 ### **AIDE Intelligence Targets:**
 
@@ -3455,7 +3476,7 @@ export function calculateMetrics(tracker: MetricsTracker) {
 
 - **Architecture**: See [SPECIFICATIONS.md](./SPECIFICATIONS.md)
 - **UI Components**: See [UI_UX_SPECIFICATION.md](./UI_UX_SPECIFICATION.md)
-- **AI Providers**: See [PROVIDERS.md](./PROVIDERS.md)
+- **PROVIDERS.md**
 - **Quick Start**: See [README.md](./README.md)
 
 ---
