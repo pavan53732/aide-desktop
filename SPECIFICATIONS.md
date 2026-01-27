@@ -1388,7 +1388,7 @@ AIDE delivers a revolutionary development environment with the following complet
 ### Development Experience
 
 - 🎨 **Clean UI**: Modern, responsive interface
-- ⚡ **Fast Performance**: Optimized with Tauri's Rust backend
+- ⚡ **Fast Performance**: Optimized with Electron's V8 engine and native Node.js modules
 - �️ **CLI Agent Integration**: Execute AI tools like Aider, Copilot CLI
 
 ## 5. Detailed User Workflow (MVP)
@@ -1464,7 +1464,7 @@ User opens the AIDE application for the first time.
 ### 5.8 Completion
 
 1. **If user clicks Accept:**
-   - Tauri Rust backend writes new content to file.
+   - Electron Main process writes new content to file.
    - Modal closes instantly (no animation).
    - Toast appears: "✓ Changes applied to src/main.js"
    - Chat shows system message: "✓ Changes applied to `src/main.js`."
@@ -1562,16 +1562,17 @@ aide-desktop/
 │   │   └── globals.css
 │   ├── App.tsx
 │   └── main.tsx
-├── src-tauri/
-│   ├── src/
-│   │   ├── commands/
-│   │   │   ├── file_ops.rs        # read_file, write_file
-│   │   │   ├── workspace.rs       # select_workspace
-│   │   │   ├── keychain.rs        # secure storage
-│   │   │   └── cli_agents.rs      # CLI agent execution
-│   │   └── main.rs
-│   ├── Cargo.toml
-│   └── tauri.conf.json
+├── electron/
+│   ├── main/
+│   │   ├── index.js               # Main entry point
+│   │   ├── ipc-handlers/
+│   │   │   ├── file-ops.js        # read_file, write_file
+│   │   │   ├── workspace.js       # select_workspace
+│   │   │   ├── keychain.js        # secure storage
+│   │   │   └── cli-agents.js      # CLI agent execution
+│   │   └── config.js              # App configuration
+│   └── preload/
+│       └── index.js               # IPC bridge
 ├── tests/
 │   ├── unit/
 │   │   ├── stores.test.ts
@@ -1604,7 +1605,7 @@ aide-desktop/
 | ------------------- | ----------------------------------------------------------- |
 | `drizzle.config.ts` | Database connection and migration settings for Drizzle ORM  |
 | `biome.json`        | Linting and formatting rules (replaces ESLint + Prettier)   |
-| `tauri.conf.json`   | Tauri app configuration, permissions, and security settings |
+| `electron-builder.yml` | Electron app packaging and build configuration           |
 
 ## 8. Success Metrics for MVP
 
