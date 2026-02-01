@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 
 // Define types based on the specifications
-interface AIProviderConfig {
+export interface AIProviderConfig {
   id: string;
   type: string; // openai, anthropic, google, openai_compatible, local, etc.
   config: {
@@ -13,8 +13,19 @@ interface AIProviderConfig {
     capabilities?: ProviderCapabilities;
     extraHeaders?: Record<string, string>;
     fallbackModels?: string[];
+    authCredentials?: {
+      apiKey: string;
+      encrypted?: boolean;
+    };
   };
   selectedModel: string | null;
+  models?: AIModel[];
+}
+
+export interface AIModel {
+  id: string;
+  name: string;
+  capabilities?: ProviderCapabilities;
 }
 
 interface ProviderCapabilities {
@@ -47,6 +58,13 @@ interface ChatResponse {
 interface EmbeddingResponse {
   embedding: number[];
   model: string;
+}
+
+interface BaseModelInfo {
+  id: string;
+  object: string;
+  created: number;
+  owned_by: string;
 }
 
 class AIControlPlane extends EventEmitter {
@@ -99,25 +117,45 @@ class AIControlPlane extends EventEmitter {
     return provider ? provider.selectedModel : null;
   }
 
-  // Fetch models from a provider's API
-  async fetchModels(providerId: string): Promise<string[]> {
-    const provider = this.providers.find(p => p.id === providerId);
-    if (!provider) {
-      throw new Error(`Provider with ID ${providerId} does not exist`);
-    }
-
-    const { config } = provider;
-    if (!config.modelsEndpoint) {
-      // If no models endpoint exists, return fallback models
-      return config.fallbackModels || [];
+  // Static method to fetch models from a provider's API
+  static async fetchModels(
+    providerType: string, 
+    apiKey: string, 
+    endpoint: string,
+    modelsEndpoint?: string | null
+  ): Promise<BaseModelInfo[]> {
+    if (!modelsEndpoint) {
+      // If no models endpoint exists, return some default models based on provider type
+      switch(providerType) {
+        case 'openai':
+          return [
+            { id: 'gpt-4-turbo', object: 'model', created: 1685472480, owned_by: 'openai' },
+            { id: 'gpt-4', object: 'model', created: 1685472480, owned_by: 'openai' },
+            { id: 'gpt-3.5-turbo', object: 'model', created: 1685472480, owned_by: 'openai' }
+          ];
+        case 'anthropic':
+          return [
+            { id: 'claude-3-5-sonnet', object: 'model', created: 1685472480, owned_by: 'anthropic' },
+            { id: 'claude-3-opus', object: 'model', created: 1685472480, owned_by: 'anthropic' },
+            { id: 'claude-3-sonnet', object: 'model', created: 1685472480, owned_by: 'anthropic' },
+            { id: 'claude-3-haiku', object: 'model', created: 1685472480, owned_by: 'anthropic' }
+          ];
+        case 'ollama':
+          return [
+            { id: 'llama3', object: 'model', created: 1685472480, owned_by: 'ollama' },
+            { id: 'mistral', object: 'model', created: 1685472480, owned_by: 'ollama' },
+            { id: 'phi3', object: 'model', created: 1685472480, owned_by: 'ollama' }
+          ];
+        default:
+          return [];
+      }
     }
 
     try {
-      const response = await fetch(`${config.endpoint}${config.modelsEndpoint}`, {
+      const response = await fetch(`${endpoint}${modelsEndpoint}`, {
         headers: {
-          'Authorization': `Bearer ${await this.getApiKey(providerId)}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
-          ...config.extraHeaders,
         },
       });
 
@@ -130,20 +168,51 @@ class AIControlPlane extends EventEmitter {
       // Extract model names from the response (structure varies by provider)
       if (Array.isArray(data.data)) {
         // OpenAI-style response
-        return data.data.map((model: any) => model.id);
+        return data.data;
       } else if (Array.isArray(data)) {
         // Direct array response
-        return data.map((model: any) => typeof model === 'string' ? model : model.id);
+        return data.map((model: any) => 
+          typeof model === 'string' 
+            ? { id: model, object: 'model', created: Date.now(), owned_by: 'unknown' } 
+            : model
+        );
       } else if (data.models) {
         // Alternative structure
-        return Array.isArray(data.models) ? data.models.map((m: any) => m.id) : [];
+        return Array.isArray(data.models) ? data.models : [];
       } else {
-        // Fallback to fallback models
-        return config.fallbackModels || [];
+        // Fallback to default models based on provider type
+        return this.getDefaultModels(providerType);
       }
     } catch (error) {
-      console.warn(`Failed to fetch models from provider ${providerId}, using fallbacks:`, error);
-      return config.fallbackModels || [];
+      console.warn(`Failed to fetch models from endpoint, using defaults:`, error);
+      return this.getDefaultModels(providerType);
+    }
+  }
+
+  // Helper method to get default models for a provider type
+  private static getDefaultModels(providerType: string): BaseModelInfo[] {
+    switch(providerType) {
+      case 'openai':
+        return [
+          { id: 'gpt-4-turbo', object: 'model', created: 1685472480, owned_by: 'openai' },
+          { id: 'gpt-4', object: 'model', created: 1685472480, owned_by: 'openai' },
+          { id: 'gpt-3.5-turbo', object: 'model', created: 1685472480, owned_by: 'openai' }
+        ];
+      case 'anthropic':
+        return [
+          { id: 'claude-3-5-sonnet', object: 'model', created: 1685472480, owned_by: 'anthropic' },
+          { id: 'claude-3-opus', object: 'model', created: 1685472480, owned_by: 'anthropic' },
+          { id: 'claude-3-sonnet', object: 'model', created: 1685472480, owned_by: 'anthropic' },
+          { id: 'claude-3-haiku', object: 'model', created: 1685472480, owned_by: 'anthropic' }
+        ];
+      case 'ollama':
+        return [
+          { id: 'llama3', object: 'model', created: 1685472480, owned_by: 'ollama' },
+          { id: 'mistral', object: 'model', created: 1685472480, owned_by: 'ollama' },
+          { id: 'phi3', object: 'model', created: 1685472480, owned_by: 'ollama' }
+        ];
+      default:
+        return [];
     }
   }
 
@@ -151,7 +220,7 @@ class AIControlPlane extends EventEmitter {
   async testConnection(providerId: string): Promise<boolean> {
     try {
       // Try to fetch models as a connectivity test
-      const models = await this.fetchModels(providerId);
+      const models = await this.fetchModelsForProvider(providerId);
       return models.length > 0;
     } catch (error) {
       console.error(`Connection test failed for provider ${providerId}:`, error);
@@ -159,10 +228,30 @@ class AIControlPlane extends EventEmitter {
     }
   }
 
+  // Fetch models for a specific provider in the instance
+  async fetchModelsForProvider(providerId: string): Promise<BaseModelInfo[]> {
+    const provider = this.providers.find(p => p.id === providerId);
+    if (!provider) {
+      throw new Error(`Provider with ID ${providerId} does not exist`);
+    }
+
+    const { config } = provider;
+    return AIControlPlane.fetchModels(
+      provider.type, 
+      config.authCredentials?.apiKey || '', 
+      config.endpoint, 
+      config.modelsEndpoint
+    );
+  }
+
   // Get API key from secure storage (simulated)
   private async getApiKey(providerId: string): Promise<string> {
     // In a real implementation, this would retrieve the key from OS keychain
     // For simulation, we'll return a dummy key
+    const provider = this.providers.find(p => p.id === providerId);
+    if (provider && provider.config.authCredentials?.apiKey) {
+      return provider.config.authCredentials.apiKey;
+    }
     return 'dummy-api-key-for-simulation';
   }
 
@@ -401,4 +490,4 @@ class AIControlPlane extends EventEmitter {
   }
 }
 
-export { AIControlPlane, type AIProviderConfig, type ChatMessage, type ChatOptions, type ChatResponse };
+export { AIControlPlane, type ChatMessage, type ChatOptions, type ChatResponse };

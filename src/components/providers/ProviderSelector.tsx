@@ -1,43 +1,90 @@
-import React, { useState } from 'react';
-import { ChevronDown, BrainCircuit } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, BrainCircuit, Plus, Settings } from 'lucide-react';
 import { Button } from '../ui/Button';
-
-interface Provider {
-  id: string;
-  name: string;
-  type: string;
-  selectedModel: string | null;
-  status: 'connected' | 'configure' | 'error';
-}
+import { useAppStore } from '../../stores/appStore';
+import { AIControlPlane } from '../../lib/ai/AIControlPlane';
 
 export const ProviderSelector = () => {
+  const { 
+    aiProviders, 
+    selectedProvider, 
+    selectedModel, 
+    setSelectedProvider, 
+    setSelectedModel,
+    showSettings,
+    setShowSettings,
+    addNotification
+  } = useAppStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [providers, setProviders] = useState<Provider[]>([
-    {
-      id: 'openai',
-      name: 'OpenAI',
-      type: 'Cloud',
-      selectedModel: 'gpt-4-turbo',
-      status: 'connected'
-    },
-    {
-      id: 'anthropic',
-      name: 'Anthropic',
-      type: 'Cloud',
-      selectedModel: null,
-      status: 'configure'
-    },
-    {
-      id: 'ollama',
-      name: 'Ollama',
-      type: 'Local',
-      selectedModel: 'llama3',
-      status: 'connected'
+  const [loadingModels, setLoadingModels] = useState<Record<string, boolean>>({});
+
+  const currentProvider = selectedProvider ? aiProviders[selectedProvider] : null;
+  const currentProviderName = currentProvider ? currentProvider.config.name : 'No provider';
+  
+  // Fetch models for a provider
+  const fetchProviderModels = async (providerKey: string) => {
+    const provider = aiProviders[providerKey];
+    if (!provider) return;
+
+    setLoadingModels(prev => ({ ...prev, [providerKey]: true }));
+
+    try {
+      const models = await AIControlPlane.fetchModels(
+        provider.type, 
+        provider.config.authCredentials?.apiKey || '', 
+        provider.config.endpoint
+      );
+      
+      // Update the provider with fetched models
+      const updatedProviders = { ...aiProviders };
+      updatedProviders[providerKey] = {
+        ...updatedProviders[providerKey],
+        models: models.map(model => ({
+          id: model.id,
+          name: model.id,
+          capabilities: model.capabilities || {}
+        }))
+      };
+      
+      // Update the store
+      useAppStore.getState().setAiProviders(updatedProviders);
+      
+      // Show success notification
+      addNotification({
+        title: 'Models Loaded',
+        message: `Loaded ${models.length} models from ${provider.config.name}`,
+        type: 'success'
+      });
+    } catch (error) {
+      console.error(`Error fetching models for provider ${providerKey}:`, error);
+      addNotification({
+        title: 'Error Loading Models',
+        message: `Could not load models from ${provider.config.name}: ${(error as Error).message}`,
+        type: 'error'
+      });
+    } finally {
+      setLoadingModels(prev => ({ ...prev, [providerKey]: false }));
     }
-  ]);
-  
-  const currentProvider = providers.find(p => p.status === 'connected');
-  
+  };
+
+  // Handle provider selection
+  const handleSelectProvider = async (providerKey: string) => {
+    setSelectedProvider(providerKey);
+    
+    // Fetch models for the selected provider if they haven't been loaded yet
+    const provider = aiProviders[providerKey];
+    if (provider && (!provider.models || provider.models.length === 0)) {
+      await fetchProviderModels(providerKey);
+    }
+    
+    setIsOpen(false);
+  };
+
+  // Get available models for the selected provider
+  const availableModels = selectedProvider && aiProviders[selectedProvider]?.models 
+    ? aiProviders[selectedProvider].models 
+    : [];
+
   return (
     <div className="relative">
       <Button
@@ -47,51 +94,110 @@ export const ProviderSelector = () => {
       >
         <BrainCircuit className="h-4 w-4" />
         <span>
-          {currentProvider?.name || 'No provider'} -{' '}
-          {currentProvider?.selectedModel || 'No model selected'}
+          {currentProviderName} - {selectedModel || 'No model selected'}
         </span>
         <ChevronDown className="h-4 w-4" />
       </Button>
       
       {isOpen && (
-        <div className="absolute left-0 top-10 w-80 bg-background border rounded-md shadow-lg z-50">
+        <div className="absolute left-0 top-10 w-80 bg-slate-800 border border-slate-700 rounded-md shadow-lg z-50">
           <div className="p-2">
-            {providers.map((provider) => (
-              <div 
-                key={provider.id} 
-                className="p-3 border rounded mb-2 cursor-pointer hover:bg-accent"
+            {Object.entries(aiProviders).map(([providerKey, provider]) => {
+              const isSelected = selectedProvider === providerKey;
+              const hasModels = provider.models && provider.models.length > 0;
+              const isLoading = loadingModels[providerKey];
+
+              return (
+                <div 
+                  key={providerKey} 
+                  className={`p-3 border border-slate-700 rounded mb-2 cursor-pointer hover:bg-slate-700 ${
+                    isSelected ? 'bg-slate-700 border-blue-500' : ''
+                  }`}
+                  onClick={() => handleSelectProvider(providerKey)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <BrainCircuit className="h-4 w-4" />
+                      <span className="font-medium">{provider.config.name}</span>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      hasModels 
+                        ? 'bg-green-500/20 text-green-400' 
+                        : 'bg-yellow-500/20 text-yellow-400'
+                    }`}>
+                      {hasModels ? 'Connected' : 'Configure'}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-sm text-slate-400">
+                    {selectedProvider === providerKey && selectedModel 
+                      ? selectedModel 
+                      : hasModels 
+                        ? `${provider.models.length} models available` 
+                        : 'Click to configure'}
+                  </div>
+                  <div className="mt-1 text-xs text-slate-500">
+                    {provider.type.charAt(0).toUpperCase() + provider.type.slice(1)} Provider
+                  </div>
+                  
+                  {/* Model selector for selected provider */}
+                  {isSelected && hasModels && (
+                    <div className="mt-2">
+                      <select
+                        value={selectedModel || ''}
+                        onChange={(e) => setSelectedModel(e.target.value)}
+                        className="w-full bg-slate-700 text-white text-sm rounded border border-slate-600 p-1"
+                      >
+                        <option value="">Select a model...</option>
+                        {availableModels.map(model => (
+                          <option key={model.id} value={model.id}>
+                            {model.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  
+                  {/* Load models button if not loaded yet */}
+                  {isSelected && !hasModels && !isLoading && (
+                    <div className="mt-2">
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          fetchProviderModels(providerKey);
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs border-slate-600 text-slate-300 hover:bg-slate-600"
+                      >
+                        {isLoading ? 'Loading...' : 'Load Models'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            
+            <div className="flex space-x-2 mt-2">
+              <button 
+                className="flex-1 p-2 text-center text-blue-400 hover:bg-slate-700 rounded flex items-center justify-center space-x-1"
                 onClick={() => {
-                  // Logic to select provider and fetch models would go here
+                  setShowSettings(true);
                   setIsOpen(false);
                 }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <BrainCircuit className="h-4 w-4" />
-                    <span className="font-medium">{provider.name}</span>
-                  </div>
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    provider.status === 'connected' 
-                      ? 'bg-green-100 text-green-800' 
-                      : provider.status === 'configure' 
-                        ? 'bg-yellow-100 text-yellow-800' 
-                        : 'bg-red-100 text-red-800'
-                  }`}>
-                    {provider.status}
-                  </span>
-                </div>
-                <div className="mt-1 text-sm text-muted-foreground">
-                  {provider.selectedModel || 'No model selected'}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {provider.type} Provider
-                </div>
-              </div>
-            ))}
-            
-            <button className="w-full p-2 text-center text-primary hover:bg-accent rounded">
-              + Add New Provider...
-            </button>
+                <Plus className="h-4 w-4" />
+                <span>Add Provider</span>
+              </button>
+              <button 
+                className="p-2 text-blue-400 hover:bg-slate-700 rounded flex items-center"
+                onClick={() => {
+                  setShowSettings(true);
+                  setIsOpen(false);
+                }}
+              >
+                <Settings className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       )}

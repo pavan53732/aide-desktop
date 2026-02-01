@@ -1,24 +1,67 @@
-import React from 'react';
-import { BrainCircuit, Settings, User } from 'lucide-react';
+import React, { useState } from 'react';
+import { BrainCircuit, Settings, User, Command } from 'lucide-react';
 import { ProviderSelector } from '../providers/ProviderSelector';
+import { NotificationCenter } from '../../components/ui/NotificationCenter';
+import { CommandPalette } from '../../components/ui/CommandPalette';
+import { SettingsPage } from '../../components/settings/SettingsPage';
+import { useAppStore } from '../../stores/appStore';
 
 export const Header = () => {
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const { showSettings, setShowSettings } = useAppStore();
+
+  // Handle keyboard shortcut for command palette
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <header className="flex items-center justify-between px-4 py-2 border-b h-14">
+    <header className="flex items-center justify-between px-4 py-2 border-b h-14 bg-slate-900/80 backdrop-blur-sm border-slate-700">
       <div className="flex items-center space-x-2">
-        <BrainCircuit className="h-6 w-6 text-primary" />
-        <span className="text-lg font-semibold">AIDE</span>
+        <BrainCircuit className="h-6 w-6 text-blue-400" />
+        <span className="text-lg font-semibold text-white">AIDE</span>
+        <button
+          onClick={() => setIsCommandPaletteOpen(true)}
+          className="ml-4 px-3 py-1 text-xs bg-slate-800 text-slate-400 rounded-md border border-slate-600 hover:bg-slate-700 hover:text-slate-300 flex items-center space-x-1"
+        >
+          <Command className="h-3 w-3" />
+          <span>Press Ctrl+K</span>
+        </button>
       </div>
       
       <div className="flex items-center space-x-4">
         <ProviderSelector />
-        <button className="p-2 rounded-full hover:bg-accent">
+        <NotificationCenter />
+        <button 
+          className="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white"
+          onClick={() => setShowSettings(true)}
+        >
           <Settings className="h-5 w-5" />
         </button>
-        <button className="p-2 rounded-full hover:bg-accent">
+        <button className="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white">
           <User className="h-5 w-5" />
         </button>
       </div>
+      
+      {/* Command Palette */}
+      <CommandPalette 
+        isOpen={isCommandPaletteOpen} 
+        onClose={() => setIsCommandPaletteOpen(false)} 
+      />
+      
+      {/* Settings Page */}
+      <SettingsPage 
+        isOpen={showSettings} 
+        onClose={() => setShowSettings(false)} 
+      />
     </header>
   );
 };
