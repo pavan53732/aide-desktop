@@ -1,80 +1,110 @@
 import { create } from 'zustand';
 import { AIProviderConfig, AIControlPlane } from '../lib/ai/AIControlPlane';
 
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  timestamp: Date;
+  read: boolean;
+}
+
 interface AppState {
   // AI Provider Management
-  aiControlPlane: AIControlPlane;
-  providers: AIProviderConfig[];
-  currentProviderId: string | null;
+  aiProviders: Record<string, AIProviderConfig>;
+  selectedProvider: string | null;
+  selectedModel: string | null;
   
   // Workspace Management
-  workspacePath: string | null;
+  selectedWorkspace: { id: string; name: string; path: string } | null;
   selectedFile: string | null;
   
   // UI State
   isGenerating: boolean;
   isSidebarOpen: boolean;
   isActivityLogOpen: boolean;
+  showSettings: boolean;
+  
+  // Notifications
+  notifications: Notification[];
   
   // Actions
-  addProvider: (provider: AIProviderConfig) => void;
-  removeProvider: (providerId: string) => void;
-  setCurrentProvider: (providerId: string) => void;
-  setWorkspacePath: (path: string) => void;
+  setAiProviders: (providers: Record<string, AIProviderConfig>) => void;
+  setSelectedProvider: (provider: string | null) => void;
+  setSelectedModel: (model: string | null) => void;
+  setSelectedWorkspace: (workspace: { id: string; name: string; path: string } | null) => void;
   setSelectedFile: (file: string | null) => void;
   setIsGenerating: (generating: boolean) => void;
   toggleSidebar: () => void;
   toggleActivityLog: () => void;
-  initializeProviders: () => void;
+  setShowSettings: (show: boolean) => void;
+  
+  // Notification actions
+  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void;
+  removeNotification: (id: string) => void;
+  markAsRead: (id: string) => void;
+  clearAllNotifications: () => void;
+  
+  // Initialize default providers
+  initializeDefaultProviders: () => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => {
-  const aiControlPlane = new AIControlPlane();
-  
   return {
-    aiControlPlane,
-    providers: [],
-    currentProviderId: null,
-    workspacePath: null,
+    aiProviders: {},
+    selectedProvider: null,
+    selectedModel: null,
+    selectedWorkspace: null,
     selectedFile: null,
     isGenerating: false,
     isSidebarOpen: true,
     isActivityLogOpen: true,
+    showSettings: false,
+    notifications: [],
     
-    addProvider: (provider) => {
-      aiControlPlane.addProvider(provider);
-      set((state) => ({
-        providers: [...state.providers, provider],
-      }));
-    },
-    
-    removeProvider: (providerId) => {
-      aiControlPlane.removeProvider(providerId);
-      set((state) => ({
-        providers: state.providers.filter(p => p.id !== providerId),
-        currentProviderId: state.currentProviderId === providerId ? null : state.currentProviderId,
-      }));
-    },
-    
-    setCurrentProvider: (providerId) => {
-      aiControlPlane.setCurrentProvider(providerId);
-      set({ currentProviderId: providerId });
-    },
-    
-    setWorkspacePath: (path) => set({ workspacePath: path }),
-    
+    setAiProviders: (providers) => set({ aiProviders: providers }),
+    setSelectedProvider: (provider) => set({ selectedProvider: provider }),
+    setSelectedModel: (model) => set({ selectedModel: model }),
+    setSelectedWorkspace: (workspace) => set({ selectedWorkspace: workspace }),
     setSelectedFile: (file) => set({ selectedFile: file }),
-    
     setIsGenerating: (generating) => set({ isGenerating: generating }),
-    
     toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
-    
     toggleActivityLog: () => set((state) => ({ isActivityLogOpen: !state.isActivityLogOpen })),
+    setShowSettings: (show) => set({ showSettings: show }),
     
-    initializeProviders: () => {
-      // Initialize with some default providers based on the specifications
-      const defaultProviders: AIProviderConfig[] = [
-        {
+    addNotification: (notificationData) => {
+      const newNotification: Notification = {
+        id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        ...notificationData,
+        timestamp: new Date(),
+        read: false
+      };
+      
+      set((state) => ({
+        notifications: [newNotification, ...state.notifications.slice(0, 19)] // Keep only last 20 notifications
+      }));
+    },
+    
+    removeNotification: (id) => {
+      set((state) => ({
+        notifications: state.notifications.filter(notif => notif.id !== id)
+      }));
+    },
+    
+    markAsRead: (id) => {
+      set((state) => ({
+        notifications: state.notifications.map(notif => 
+          notif.id === id ? { ...notif, read: true } : notif
+        )
+      }));
+    },
+    
+    clearAllNotifications: () => set({ notifications: [] }),
+    
+    initializeDefaultProviders: () => {
+      const defaultProviders: Record<string, AIProviderConfig> = {
+        openai: {
           id: 'openai',
           type: 'openai',
           config: {
@@ -91,11 +121,14 @@ export const useAppStore = create<AppState>((set, get) => {
               codeGeneration: true,
               largeContext: true
             },
-            fallbackModels: ['gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo']
+            fallbackModels: ['gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'],
+            authCredentials: {
+              apiKey: ''
+            }
           },
           selectedModel: null
         },
-        {
+        anthropic: {
           id: 'anthropic',
           type: 'anthropic',
           config: {
@@ -112,43 +145,40 @@ export const useAppStore = create<AppState>((set, get) => {
               codeGeneration: true,
               largeContext: true
             },
-            fallbackModels: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku']
+            fallbackModels: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
+            authCredentials: {
+              apiKey: ''
+            }
           },
           selectedModel: null
         },
-        {
-          id: 'openrouter',
-          type: 'openai_compatible',
+        ollama: {
+          id: 'ollama',
+          type: 'local',
           config: {
-            name: 'OpenRouter',
-            endpoint: 'https://openrouter.ai/api/v1',
-            authType: 'bearer',
-            modelsEndpoint: '/models',
-            chatEndpoint: '/chat/completions',
+            name: 'Ollama',
+            endpoint: 'http://localhost:11434/api',
+            authType: 'none',
+            modelsEndpoint: '/tags',
+            chatEndpoint: '/chat',
             capabilities: {
               chat: true,
               embeddings: false,
               streaming: true,
-              functionCalling: true,
+              functionCalling: false,
               codeGeneration: true,
               largeContext: true
             },
-            extraHeaders: {
-              'HTTP-Referer': 'https://aide-app.com',
-              'X-Title': 'AIDE Desktop Editor'
-            },
-            fallbackModels: ['openai/gpt-4o', 'anthropic/claude-3.5-sonnet', 'google/gemini-pro']
+            fallbackModels: ['llama3', 'mistral', 'phi3'],
+            authCredentials: {
+              apiKey: ''
+            }
           },
           selectedModel: null
         }
-      ];
+      };
       
-      set({ providers: defaultProviders });
-      
-      // Add providers to the AI control plane
-      defaultProviders.forEach(provider => {
-        aiControlPlane.addProvider(provider);
-      });
+      set({ aiProviders: defaultProviders });
     }
   };
 });
