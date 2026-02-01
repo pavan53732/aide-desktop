@@ -1,33 +1,41 @@
-# Local database files
-.allai/
-
-# Node modules
+```
+# Dependencies
 node_modules/
 
 # Build outputs
 dist/
 build/
-out/
+target/
 
-# Environment files
+# Environment
 .env
 .env.local
-.env.production
+.env.*
 
-# IDE files
+# Editors
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS files
-.DS_Store
-Thumbs.db
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+.env
 
 # Logs
 *.log
-logs/
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Temporary files
 *.tmp
 *.temp
+```
