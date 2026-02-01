@@ -3,6 +3,7 @@ import { Header } from './Header';
 import { Sidebar } from '../sidebar/Sidebar';
 import { ChatPanel } from '../chat/ChatPanel';
 import { ActivityLog } from '../sidebar/ActivityLog';
+import { StatusBar } from './StatusBar';
 
 export const AppLayout = () => {
   return (
@@ -13,6 +14,7 @@ export const AppLayout = () => {
         <ChatPanel />
         <ActivityLog />
       </div>
+      <StatusBar />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { AppLayout } from './components/layout/AppLayout';
 import { useAppStore } from './stores/appStore';
+import { useKeyboardShortcuts } from './hooks/use-keyboard-shortcuts';
 import './lib/utils/theme';
 
 const queryClient = new QueryClient({
@@ -20,6 +21,9 @@ function App() {
   useEffect(() => {
     initializeDefaultProviders();
   }, [initializeDefaultProviders]);
+
+  // Initialize global keyboard shortcuts
+  useKeyboardShortcuts();
 
   return (
     <QueryClientProvider client={queryClient}>

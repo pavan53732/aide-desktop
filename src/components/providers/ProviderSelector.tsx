@@ -3,6 +3,7 @@ import { ChevronDown, BrainCircuit, Plus, Settings } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAppStore } from '../../stores/appStore';
 import { AIControlPlane } from '../../lib/ai/AIControlPlane';
+import { ProviderCardSkeleton, ModelDropdownSkeleton } from '../skeletons';
 
 export const ProviderSelector = () => {
   const { 
@@ -154,6 +155,13 @@ export const ProviderSelector = () => {
                           </option>
                         ))}
                       </select>
+                    </div>
+                  )}
+                  
+                  {/* Loading models skeleton */}
+                  {isSelected && isLoading && (
+                    <div className="mt-2">
+                      <ModelDropdownSkeleton />
                     </div>
                   )}
                   

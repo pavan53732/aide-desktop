@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, User, Paperclip, Square, Send } from 'lucide-react';
+import { ChatSkeleton } from '../skeletons/ChatSkeleton';
 
 interface Message {
   id: string;
@@ -8,14 +9,16 @@ interface Message {
   timestamp: Date;
 }
 
+const WELCOME_MESSAGE: Message = {
+  id: '1',
+  role: 'assistant',
+  content: 'Hello! I\'m your AI assistant. How can I help you with your code today?',
+  timestamp: new Date(Date.now() - 300000),
+};
+
 export const ChatPanel = () => {
   const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Hello! I\'m your AI assistant. How can I help you with your code today?',
-      timestamp: new Date(Date.now() - 300000),
-    },
+    WELCOME_MESSAGE,
     {
       id: '2',
       role: 'user',
@@ -72,6 +75,17 @@ export const ChatPanel = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Listen for new conversation event from keyboard shortcut
+  useEffect(() => {
+    const handleNewConversation = () => {
+      setMessages([WELCOME_MESSAGE]);
+      setInputValue('');
+    };
+
+    window.addEventListener('aide:new-conversation', handleNewConversation);
+    return () => window.removeEventListener('aide:new-conversation', handleNewConversation);
+  }, []);
   
   const getMessageClass = (role: string) => {
     switch(role) {
@@ -132,10 +146,14 @@ export const ChatPanel = () => {
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="border-t p-4">
+      <div className="border-t p-4" role="region" aria-label="Chat input">
         <div className="flex items-end space-x-2">
-          <button className="p-2 rounded-full hover:bg-accent">
-            <Paperclip className="h-5 w-5" />
+          <button
+            className="p-2 rounded-full hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            aria-label="Attach file"
+            type="button"
+          >
+            <Paperclip className="h-5 w-5" aria-hidden="true" />
           </button>
           
           <div className="flex-1 relative">
@@ -146,23 +164,28 @@ export const ChatPanel = () => {
               placeholder="Message your AI assistant..."
               className="w-full min-h-[60px] max-h-32 p-3 pr-10 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
               rows={1}
+              aria-label="Message input"
             />
           </div>
           
           {isGenerating ? (
-            <button 
-              className="p-3 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+            <button
+              className="p-3 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2"
               onClick={() => setIsGenerating(false)}
+              aria-label="Stop generating"
+              type="button"
             >
-              <Square className="h-5 w-5" />
+              <Square className="h-5 w-5" aria-hidden="true" />
             </button>
           ) : (
-            <button 
-              className="p-3 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 disabled:opacity-50"
+            <button
+              className="p-3 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               onClick={handleSendMessage}
               disabled={inputValue.trim() === ''}
+              aria-label="Send message"
+              type="button"
             >
-              <Send className="h-5 w-5" />
+              <Send className="h-5 w-5" aria-hidden="true" />
             </button>
           )}
         </div>
